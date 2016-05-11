@@ -1,4 +1,4 @@
-##Android 接入文档
+##socket.io-push-android [![Build Status](https://travis-ci.org/xuduo/socket.io-push-android.svg?branch=master)](https://travis-ci.org/xuduo/socket.io-push-android)
 demo实现了一个聊天室功能,
 
 #####添加maven/gradle依赖
