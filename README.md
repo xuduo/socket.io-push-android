@@ -20,21 +20,23 @@ gradle
 ```groovy
 compile 'com.yy:android-push-sdk:${versoion}'
 ```
-[最新版本](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.yy%22%20AND%20a%3A%22android-push-sdk%22)
 
 ####AndroidManifest.xml添加receiver,service,permission
 参见Demo的[AndroidManifest.xml](src/main/AndroidManifest.xml)
 
+####Proguard
+-keep class * extends com.yy.httpproxy.service.DefaultNotificationHandler
+-keep class * extends com.yy.httpproxy.service.DelegateToClientNotificationHandler
 
 
 #####初始化ProxyClient
 每次UI进程启动需要初始化,初始化后会自动启动push进程.
+
 ```java
-String PUSH_SERVICE_URL = "http://spush.yy.com"; //指定连接的服务器
 Proxy proxyClient = new ProxyClient(new Config(this)
-                .setHost(PUSH_SERVICE_URL)
-                .setConnectCallback(this)  //Connection
-                .setPushCallback(this));  //服务器调用push接口,客户端接收回调
+                .setHost("http://spush.yy.com")  //连接的服务器地址
+                .setConnectCallback(this)  //socket.io通道,连上,断开回调
+                .setPushCallback(this));  //push回调,socket.io长连接通道
 ```
 注意不要通过其他进程启动,可以用以下代码判断是否ui进程
 ```java
@@ -51,7 +53,6 @@ Proxy proxyClient = new ProxyClient(new Config(this)
         return false;
   }
 ```
-
 
 
 #####获取pushId
@@ -86,13 +87,12 @@ public interface PushCallback {
      * @param data 服务器push下来的json字符串, 可以new String(data,"UTF-8")转换为字符串
      */
     void onPush(String topic, byte[] data);
-    void onPush(String topic, byte[] data);
 }
 ```
 
 
 
-####接收通知(使用DefaultNotificationHandler/DelegateToClientNotificationHandler)
+####接收notification(使用DefaultNotificationHandler/DelegateToClientNotificationHandler)
 sdk默认会弹出系统通知
 arrive和click后会调用receiver的方法
 ```java
@@ -122,7 +122,6 @@ public class YYNotificationReceiver extends NotificationReceiver {
 ```java
 config.setNotificationHandler("yourFullyQualifiedHandlerClassName"); //不能混淆这个类
 ```
-
 
 
 ####自定义弹出通知(使用自定义NotificationHandler)
