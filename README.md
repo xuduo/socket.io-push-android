@@ -26,6 +26,7 @@ compile 'com.yy:android-push-sdk:${versoion}'
 
 ####Proguard
 
+如有自定义NotificationHandler,需要添加混淆配置
 ```
 -keep class * extends com.yy.httpproxy.service.DefaultNotificationHandler
 -keep class * extends com.yy.httpproxy.service.DelegateToClientNotificationHandler
