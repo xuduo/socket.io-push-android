@@ -25,9 +25,11 @@ compile 'com.yy:android-push-sdk:${versoion}'
 参见Demo的[AndroidManifest.xml](src/main/AndroidManifest.xml)
 
 ####Proguard
+
+```
 -keep class * extends com.yy.httpproxy.service.DefaultNotificationHandler
 -keep class * extends com.yy.httpproxy.service.DelegateToClientNotificationHandler
-
+```
 
 #####初始化ProxyClient
 每次UI进程启动需要初始化,初始化后会自动启动push进程.
@@ -83,7 +85,7 @@ public interface PushCallback {
 
     /**
      *
-     * @param topic 单推的时候可能为空,广播请求
+     * @param topic 单推的时候如果服务器未填写,topic = "", 广播 topic = subscribeBroadcast的topic
      * @param data 服务器push下来的json字符串, 可以new String(data,"UTF-8")转换为字符串
      */
     void onPush(String topic, byte[] data);
@@ -151,12 +153,18 @@ config.setNotificationHandler("yourFullyQualifiedHandlerClassName"); //不能混
 
 ####绑定UID
 绑定UID是业务服务器调用push-server接口进行绑定的(pushId - uid)的关系
+
+由于安全性的问题,客户端无法直接绑定
+
+push-server和业务服务器的绑定关系可能会不一致
+
+每次连接到push-sever后, 客户端要根据回调, 判断回调的uid与当前用户uid是否一致, 进行绑定/解绑
 ```java
 public interface ConnectCallback {
 
     /**
      *  
-     * @param uid 连接push-server后,在服务器绑定的uid
+     * @param uid 连接push-server后,在服务器绑定的uid,如未绑定,uid = ""
      */
     void onConnect(String uid);
 
@@ -164,7 +172,7 @@ public interface ConnectCallback {
 
 }
 ```
-解绑Uid
+解绑Uid,客户端直接调用接口解绑
 ```java
 proxyClient.unbindUid();
 ```
@@ -173,7 +181,11 @@ proxyClient.unbindUid();
 
 ####集成小米push
 
-本系统透明集成了小米push,开启方法
+
+[华为push官方接入文档](http://dev.xiaomi.com/doc/?page_id=1670)
+
+本系统透明集成了小米push,开启方法.
+
 
 1. 添加小米push jar依赖
 2. AndroidManifest.xml配置了小米push相关配置,参见demo
@@ -189,6 +201,8 @@ proxyClient.unbindUid();
 
 ####集成华为push
 
+[华为push官方接入文档](http://developer.huawei.com/push)
+
 本系统透明集成了华为push,开启方法
 
 1. 添加华为push jar依赖,拷贝一堆资源文件(华为push自带)
@@ -199,7 +213,6 @@ proxyClient.unbindUid();
 
 1. SDK会自动上报华为的token,并不需要业务代码改动
 2. 对于开启的手机,无法使用自定义NotificationHandler控制notification弹出
-
 
 
 ####UI进程单独使用push功能
