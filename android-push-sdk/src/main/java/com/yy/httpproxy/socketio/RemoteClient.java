@@ -72,7 +72,7 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         sendMsg(msg);
     }
 
-    public void exit(){
+    public void exit() {
         context.stopService(new Intent(context, ConnectionService.class));
         context.stopService(new Intent(context, BindService.class));
     }
@@ -89,7 +89,7 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
                 String sequenceId = bundle.getString("sequenceId", "");
                 proxyClient.onResponse("", sequenceId, code, message, data);
             } else if (cmd == BindService.CMD_PUSH) {
-                String topic = bundle.getString("topic");
+                String topic = bundle.getString("topic", "");
                 byte[] data = bundle.getByteArray("data");
                 proxyClient.onPush(topic, data);
             } else if (cmd == BindService.CMD_CONNECTED && connected == false) {
@@ -97,7 +97,7 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
                 if (proxyClient.getConfig().getConnectCallback() != null) {
                     String uid = null;
                     if (bundle != null) {
-                        uid = bundle.getString("uid");
+                        uid = bundle.getString("uid", "");
                     }
                     proxyClient.getConfig().getConnectCallback().onConnect(uid);
                 }
