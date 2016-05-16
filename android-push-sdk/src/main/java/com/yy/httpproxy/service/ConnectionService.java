@@ -145,10 +145,11 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
     }
 
     @Override
-    public void onPush(byte[] data) {
+    public void onPush(String data) {
+        Log.v(TAG, "on push data:" + data);
         Message msg = Message.obtain(null, BindService.CMD_PUSH, 0, 0);
         Bundle bundle = new Bundle();
-        bundle.putByteArray("data", data);
+        bundle.putString("data", data);
         msg.setData(bundle);
         BindService.sendMsg(msg);
     }

@@ -74,7 +74,7 @@ public class ProxyClient implements PushCallback {
     }
 
     @Override
-    public void onPush(final byte[] data) {
+    public void onPush(final String data) {
         if (config.getPushCallback() != null) {
             if (Thread.currentThread().getId() == mainThreadId) {
                 config.getPushCallback().onPush(data);

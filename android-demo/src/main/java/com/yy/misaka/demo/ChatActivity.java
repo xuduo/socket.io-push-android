@@ -99,15 +99,12 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
     }
 
     @Override
-    public void onPush(byte[] data) {
+    public void onPush(String data) {
         Log.i(TAG, "on push ");
-        try {
-            Message message = new Gson().fromJson(new String(data, "UTF-8"), Message.class);
-            if ("chat_message".equals(message.getType())) {
-                chatMessagesAdapter.addData(message);
-                recyclerViewMessages.scrollToPosition(chatMessagesAdapter.getItemCount() - 1);
-            }
-        } catch (UnsupportedEncodingException e) {
+        Message message = new Gson().fromJson(data, Message.class);
+        if ("chat_message".equals(message.getType())) {
+            chatMessagesAdapter.addData(message);
+            recyclerViewMessages.scrollToPosition(chatMessagesAdapter.getItemCount() - 1);
         }
     }
 

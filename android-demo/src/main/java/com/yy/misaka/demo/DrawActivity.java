@@ -68,11 +68,6 @@ public class DrawActivity extends Activity implements ConnectCallback {
         myColor = myColors[new Random().nextInt(myColors.length)];
 
         proxyClient = new ProxyClient(new Config(this.getApplicationContext())
-                .setPushCallback(new PushCallback() {
-                    @Override
-                    public void onPush(byte[] data) {
-                    }
-                })
                 .setHost(pushServerHost)
                 .setRequestSerializer(new JsonSerializer()).setConnectCallback(this));
 

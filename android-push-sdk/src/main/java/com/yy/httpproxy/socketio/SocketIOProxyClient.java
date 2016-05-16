@@ -230,6 +230,38 @@ public class SocketIOProxyClient implements PushSubscriber {
         }
     }
 
+    private final Emitter.Listener version2PushListener = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            if (pushCallback != null) {
+                try {
+                    String json = args[0].toString();
+
+                    Log.v(TAG, "on push topic " + ",reply " + ", data:" + json);
+                    pushCallback.onPush(json);
+
+                    if (args.length > 1) {
+                        JSONArray ttlData = (JSONArray) args[1];
+                        String topic = ttlData.optString(0, null);
+                        String id = ttlData.optString(1, null);
+
+                        String ttl = "1";
+
+                        int unicast = ttlData.optInt(2, 0);
+                        String unicastObj = null;
+                        if (unicast == 1) {
+                            unicastObj = "1";
+                        }
+                        updateLastPacketId(id, ttl, unicastObj, topic);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "handle push error ", e);
+                }
+            }
+        }
+    };
+
+
     private final Emitter.Listener pushListener = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -247,13 +279,11 @@ public class SocketIOProxyClient implements PushSubscriber {
                     byte[] dataBytes;
                     if (dataBase64 == null) {
                         String json = data.optString("j");
-                        dataBytes = json.getBytes("UTF-8");
+                        pushCallback.onPush(json);
                     } else {
                         dataBytes = Base64.decode(dataBase64, Base64.DEFAULT);
+                        pushCallback.onPush(new String(dataBytes, "UTF-8"));
                     }
-
-                    Log.v(TAG, "on push topic " + topic + ",reply " + ", data:" + new String(dataBytes));
-                    pushCallback.onPush(dataBytes);
 
                     String id = data.optString("id", null);
                     if (id == null) {
@@ -410,7 +440,7 @@ public class SocketIOProxyClient implements PushSubscriber {
             socket.on(Socket.EVENT_CONNECT, connectListener);
             socket.on("pushId", pushIdListener);
             socket.on("push", pushListener);
-            socket.on("p", pushListener);
+            socket.on("p", version2PushListener);
             socket.on("noti", notificationListener);
             socket.on("n", notificationListener);
             socket.on(Socket.EVENT_DISCONNECT, disconnectListener);
