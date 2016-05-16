@@ -253,7 +253,7 @@ public class SocketIOProxyClient implements PushSubscriber {
                     }
 
                     Log.v(TAG, "on push topic " + topic + ",reply " + ", data:" + new String(dataBytes));
-                    pushCallback.onPush(topic, dataBytes);
+                    pushCallback.onPush(dataBytes);
 
                     String id = data.optString("id", null);
                     if (id == null) {

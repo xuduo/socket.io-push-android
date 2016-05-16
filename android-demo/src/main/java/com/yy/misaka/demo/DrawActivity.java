@@ -70,14 +70,7 @@ public class DrawActivity extends Activity implements ConnectCallback {
         proxyClient = new ProxyClient(new Config(this.getApplicationContext())
                 .setPushCallback(new PushCallback() {
                     @Override
-                    public void onPush(String topic, byte[] data) {
-                        if("message".equals(topic)) {
-                            try {
-                                Message message = new Gson().fromJson(new String(data, "UTF-8"), Message.class);
-                                msg.setText("Msg: " + message.getMessage());
-                            } catch (UnsupportedEncodingException e) {
-                            }
-                        }
+                    public void onPush(byte[] data) {
                     }
                 })
                 .setHost(pushServerHost)

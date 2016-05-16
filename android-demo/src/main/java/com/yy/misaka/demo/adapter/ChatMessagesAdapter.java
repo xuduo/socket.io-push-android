@@ -51,7 +51,6 @@ public class ChatMessagesAdapter extends RecyclerView.Adapter<ChatMessagesAdapte
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         holder.textViewNickName.setText(messagesList.get(position).getNickName() + ":    ");
-        holder.textViewNickName.setTextColor( messagesList.get(position).getColor());
         holder.textViewMessage.setText( messagesList.get(position).getMessage());
         holder.itemView.setTag(position);
     }

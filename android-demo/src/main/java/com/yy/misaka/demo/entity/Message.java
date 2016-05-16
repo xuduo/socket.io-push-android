@@ -4,7 +4,7 @@ public class Message {
 
     private String message;
     private String nickName;
-    private Integer color;
+    private String type = "chat_message";
 
     public String getMessage() {
         return message;
@@ -22,11 +22,11 @@ public class Message {
         this.nickName = nickName;
     }
 
-    public Integer getColor() {
-        return color;
+    public String getType() {
+        return type;
     }
 
-    public void setColor(Integer color) {
-        this.color = color;
+    public void setType(String type) {
+        this.type = type;
     }
 }

@@ -32,9 +32,6 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
     private ProxyClient proxyClient;
     private HttpApiModel httpApiModel = new HttpApiModel(API_URL);
     private ChatMessagesAdapter chatMessagesAdapter;
-    public int Colors[] = {Color.BLACK, Color.DKGRAY, Color.CYAN, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA};
-    public int myColor;
-    private static final String PUSH_SERVICE_URL = "http://spush.yy.com";
     private static final String API_URL = "http://spush.yy.com/api/push";
 
     @Override
@@ -45,7 +42,6 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
     }
 
     private void init() {
-        myColor = Colors[new Random().nextInt(Colors.length)];
         final String nickName = getIntent().getStringExtra("nickName");
         final String host = getIntent().getStringExtra("host");
         final EditText editTextInput = (EditText) findViewById(R.id.et_input);
@@ -55,7 +51,6 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
                 Message message = new Message();
                 message.setMessage(String.valueOf(editTextInput.getText()));
                 message.setNickName(nickName);
-                message.setColor(myColor);
                 httpApiModel.sendMessage(message);
                 editTextInput.setText("");
             }
@@ -85,7 +80,6 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
 
     @Override
     public void onBackPressed() {
-      //  proxyClient.exit();
         super.onBackPressed();
     }
 
@@ -105,17 +99,16 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
     }
 
     @Override
-    public void onPush(String topic, byte[] data) {
-        Log.i(TAG, "on push " + topic);
-        if (chatTopic.equals(topic)) {
-            try {
-                Message message = new Gson().fromJson(new String(data, "UTF-8"), Message.class);
+    public void onPush(byte[] data) {
+        Log.i(TAG, "on push ");
+        try {
+            Message message = new Gson().fromJson(new String(data, "UTF-8"), Message.class);
+            if ("chat_message".equals(message.getType())) {
                 chatMessagesAdapter.addData(message);
                 recyclerViewMessages.scrollToPosition(chatMessagesAdapter.getItemCount() - 1);
-            } catch (UnsupportedEncodingException e) {
             }
+        } catch (UnsupportedEncodingException e) {
         }
     }
-
 
 }

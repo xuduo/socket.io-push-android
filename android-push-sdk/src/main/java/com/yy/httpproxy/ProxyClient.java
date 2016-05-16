@@ -65,24 +65,24 @@ public class ProxyClient implements PushCallback {
         config.getRemoteClient().unsubscribeBroadcast(topic);
     }
 
-    public void exit(){
+    public void exit() {
         config.getRemoteClient().exit();
     }
 
-    public void unbindUid(){
+    public void unbindUid() {
         config.getRemoteClient().unbindUid();
     }
 
     @Override
-    public void onPush(final String topic, final byte[] data) {
+    public void onPush(final byte[] data) {
         if (config.getPushCallback() != null) {
             if (Thread.currentThread().getId() == mainThreadId) {
-                config.getPushCallback().onPush(topic, data);
+                config.getPushCallback().onPush(data);
             } else {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        config.getPushCallback().onPush(topic, data);
+                        config.getPushCallback().onPush(data);
                     }
                 });
             }

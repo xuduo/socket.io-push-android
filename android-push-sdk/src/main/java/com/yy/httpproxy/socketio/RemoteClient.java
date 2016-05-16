@@ -89,9 +89,8 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
                 String sequenceId = bundle.getString("sequenceId", "");
                 proxyClient.onResponse("", sequenceId, code, message, data);
             } else if (cmd == BindService.CMD_PUSH) {
-                String topic = bundle.getString("topic", "");
                 byte[] data = bundle.getByteArray("data");
-                proxyClient.onPush(topic, data);
+                proxyClient.onPush(data);
             } else if (cmd == BindService.CMD_CONNECTED && connected == false) {
                 connected = true;
                 if (proxyClient.getConfig().getConnectCallback() != null) {
