@@ -100,12 +100,17 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
 
     @Override
     public void onPush(String data) {
-        Log.i(TAG, "on push ");
-        Message message = new Gson().fromJson(data, Message.class);
-        if ("chat_message".equals(message.getType())) {
-            chatMessagesAdapter.addData(message);
-            recyclerViewMessages.scrollToPosition(chatMessagesAdapter.getItemCount() - 1);
+        Log.i(TAG, "on push " + data);
+        try {
+            Message message = new Gson().fromJson(data, Message.class);
+            if ("chat_message".equals(message.getType())) {
+                chatMessagesAdapter.addData(message);
+                recyclerViewMessages.scrollToPosition(chatMessagesAdapter.getItemCount() - 1);
+            }
+        } catch (Exception e) {
+
         }
+
     }
 
 }
