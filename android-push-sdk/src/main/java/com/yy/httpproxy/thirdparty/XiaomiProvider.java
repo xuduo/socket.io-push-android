@@ -8,6 +8,7 @@ import android.util.Log;
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.mipush.sdk.Logger;
 import com.xiaomi.mipush.sdk.MiPushClient;
+import com.yy.httpproxy.util.ServiceCheckUtil;
 
 public class XiaomiProvider implements NotificationProvider {
 
@@ -40,6 +41,17 @@ public class XiaomiProvider implements NotificationProvider {
         };
         Logger.setLogger(context, newLogger);
         Log.d(TAG, "init");
+    }
+
+    public static boolean available(Context context) {
+        try {
+            return Class.forName("com.xiaomi.mipush.sdk.MiPushClient") != null
+                    && Class.forName("com.yy.httpproxy.thirdparty.XiaomiReceiver") != null
+                    && ServiceCheckUtil.isServiceAvailable(context, XiaomiReceiver.class);
+        } catch (Throwable e) {
+            Log.e(TAG, "available ", e);
+            return false;
+        }
     }
 
     @Override

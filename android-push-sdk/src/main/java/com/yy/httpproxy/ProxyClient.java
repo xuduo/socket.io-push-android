@@ -116,8 +116,8 @@ public class ProxyClient implements PushCallback {
     }
 
 
-    public void getPushId() {
-        getConfig().getPushId();
+    public String getPushId() {
+        return getConfig().getPushId();
     }
 
     public void onResponse(String path, String sequenceId, int code, String message, byte[] data) {

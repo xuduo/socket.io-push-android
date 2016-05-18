@@ -2,7 +2,6 @@ package com.yy.httpproxy.service;
 
 import android.app.Notification;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,11 +15,8 @@ import com.yy.httpproxy.socketio.RemoteClient;
 import com.yy.httpproxy.socketio.SocketIOProxyClient;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
-import com.yy.httpproxy.thirdparty.HuaweiProvider;
 import com.yy.httpproxy.thirdparty.NotificationProvider;
-import com.yy.httpproxy.thirdparty.XiaomiProvider;
-import com.yy.httpproxy.util.ProviderFactory;
-import com.yy.httpproxy.util.ServiceCheckUtil;
+import com.yy.httpproxy.thirdparty.ProviderFactory;
 
 public class ConnectionService extends Service implements ConnectCallback, PushCallback, ResponseHandler, SocketIOProxyClient.NotificationCallback {
 

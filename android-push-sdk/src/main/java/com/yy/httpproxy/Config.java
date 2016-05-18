@@ -18,7 +18,6 @@ public class Config {
     private RemoteClient remoteClient;
     private Context context;
     private RequestSerializer requestSerializer;
-    private PushIdGenerator pushIdGenerator;
     private PushCallback pushCallback;
     private ConnectCallback connectCallback;
     private String host;
@@ -48,15 +47,6 @@ public class Config {
 
     public Config setRequestSerializer(RequestSerializer requestSerializer) {
         this.requestSerializer = requestSerializer;
-        return this;
-    }
-
-    public PushIdGenerator getPushIdGenerator() {
-        return pushIdGenerator;
-    }
-
-    public Config setPushIdGenerator(PushIdGenerator pushIdGenerator) {
-        this.pushIdGenerator = pushIdGenerator;
         return this;
     }
 

@@ -10,4 +10,5 @@ public interface NotificationProvider {
     String getType();
 
     void setToken(String token);
+
 }

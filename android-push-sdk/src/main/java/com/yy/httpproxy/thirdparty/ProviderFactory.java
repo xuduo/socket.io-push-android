@@ -1,4 +1,4 @@
-package com.yy.httpproxy.util;
+package com.yy.httpproxy.thirdparty;
 
 import android.content.Context;
 import android.util.Log;
@@ -6,6 +6,7 @@ import android.util.Log;
 import com.yy.httpproxy.thirdparty.HuaweiProvider;
 import com.yy.httpproxy.thirdparty.NotificationProvider;
 import com.yy.httpproxy.thirdparty.XiaomiProvider;
+import com.yy.httpproxy.util.SystemProperty;
 
 public class ProviderFactory {
 
@@ -15,10 +16,10 @@ public class ProviderFactory {
 
     public static NotificationProvider getProvider(Context context) {
         final SystemProperty prop = new SystemProperty(context);
-        if (isSystem(prop, KEY_HUAWEI_VERSION)) {
+        if (isSystem(prop, KEY_HUAWEI_VERSION) && HuaweiProvider.available(context)) {
             Log.i(TAG, "HuaweiProvider");
             return new HuaweiProvider(context);
-        } else if (isSystem(prop, KEY_MIUI_VERSION)) {
+        } else if (isSystem(prop, KEY_MIUI_VERSION) && XiaomiProvider.available(context)) {
             Log.i(TAG, "XiaomiProvider");
             return new XiaomiProvider(context);
         } else {
