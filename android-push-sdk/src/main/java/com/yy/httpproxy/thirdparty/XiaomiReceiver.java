@@ -32,7 +32,9 @@ public class XiaomiReceiver extends PushMessageReceiver {
             Intent clickIntent = new Intent(DefaultNotificationHandler.getIntentName(context));
             clickIntent.putExtra("cmd", BindService.CMD_NOTIFICATION_CLICKED);
             clickIntent.putExtra("id", pushedNotification.id);
-            clickIntent.putExtra("notification", pushedNotification.values);
+            clickIntent.putExtra("title", pushedNotification.title);
+            clickIntent.putExtra("message", pushedNotification.message);
+            clickIntent.putExtra("payload", pushedNotification.payload);
             context.sendBroadcast(clickIntent);
             Log.d(TAG, content);
         } catch (Exception e) {

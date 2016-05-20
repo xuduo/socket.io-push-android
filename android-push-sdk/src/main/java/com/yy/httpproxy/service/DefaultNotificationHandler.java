@@ -24,7 +24,7 @@ public class DefaultNotificationHandler implements NotificationHandler {
 
     }
 
-    public static String getIntentName(Context context){
+    public static String getIntentName(Context context) {
         return context.getApplicationInfo().packageName + INTENT_TAIL;
     }
 
@@ -33,7 +33,9 @@ public class DefaultNotificationHandler implements NotificationHandler {
         Intent arrive = new Intent(intentName);
         arrive.putExtra("cmd", BindService.CMD_NOTIFICATION_ARRIVED);
         arrive.putExtra("id", pushedNotification.id);
-        arrive.putExtra("notification", pushedNotification.values);
+        arrive.putExtra("title", pushedNotification.title);
+        arrive.putExtra("message", pushedNotification.message);
+        arrive.putExtra("payload", pushedNotification.payload);
         context.sendBroadcast(arrive);
     }
 
@@ -42,7 +44,9 @@ public class DefaultNotificationHandler implements NotificationHandler {
         Intent pushIntent = new Intent(intentName);
         pushIntent.putExtra("cmd", BindService.CMD_NOTIFICATION_CLICKED);
         pushIntent.putExtra("id", pushedNotification.id);
-        pushIntent.putExtra("notification", pushedNotification.values);
+        pushIntent.putExtra("title", pushedNotification.title);
+        pushIntent.putExtra("message", pushedNotification.message);
+        pushIntent.putExtra("payload", pushedNotification.payload);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, pushedNotification.id.hashCode(), pushIntent, PendingIntent.FLAG_ONE_SHOT);
 
 
@@ -52,8 +56,8 @@ public class DefaultNotificationHandler implements NotificationHandler {
                         .setAutoCancel(true)
                         .setContentIntent(pendingIntent)
                         .setSmallIcon(context.getApplicationInfo().icon)
-                        .setContentTitle((CharSequence) pushedNotification.values.get("title"))
-                        .setContentText((CharSequence) pushedNotification.values.get("message")).setPriority(NotificationCompat.PRIORITY_HIGH);
+                        .setContentTitle(pushedNotification.title)
+                        .setContentText(pushedNotification.message).setPriority(NotificationCompat.PRIORITY_HIGH);
         Notification notification = mBuilder.build();
         nm.notify(pushedNotification.id.hashCode(), notification);
     }

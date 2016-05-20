@@ -15,59 +15,23 @@ import java.util.Map;
  */
 public class PushedNotification {
 
-    public HashMap<String, Object> values;
+    public String title;
+    public String message;
     public String id;
+    public String payload;
 
     public PushedNotification(String id, JSONObject object) {
         this.id = id;
-        values = jsonToMap(object);
+        title = object.optString("title", "");
+        message = object.optString("message", "");
+        payload = object.optString("payload", "");
     }
 
-    public PushedNotification(String id, HashMap<String, Object> map) {
+    public PushedNotification(String id, String title, String message, String payload) {
         this.id = id;
-        values = map;
+        this.title = title;
+        this.message = message;
+        this.payload = payload;
     }
 
-    public static HashMap<String, Object> jsonToMap(JSONObject json) {
-        if (json != JSONObject.NULL) {
-            try {
-                return toMap(json);
-            } catch (JSONException e) {
-
-            }
-        }
-        return new HashMap<>();
-    }
-
-    public static HashMap<String, Object> toMap(JSONObject object) throws JSONException {
-        HashMap<String, Object> map = new HashMap<String, Object>();
-
-        Iterator<String> keysItr = object.keys();
-        while (keysItr.hasNext()) {
-            String key = keysItr.next();
-            Object value = object.get(key);
-
-            if (value instanceof JSONArray) {
-                value = toList((JSONArray) value);
-            } else if (value instanceof JSONObject) {
-                value = toMap((JSONObject) value);
-            }
-            map.put(key, value);
-        }
-        return map;
-    }
-
-    public static List<Object> toList(JSONArray array) throws JSONException {
-        List<Object> list = new ArrayList<Object>();
-        for (int i = 0; i < array.length(); i++) {
-            Object value = array.get(i);
-            if (value instanceof JSONArray) {
-                value = toList((JSONArray) value);
-            } else if (value instanceof JSONObject) {
-                value = toMap((JSONObject) value);
-            }
-            list.add(value);
-        }
-        return list;
-    }
 }

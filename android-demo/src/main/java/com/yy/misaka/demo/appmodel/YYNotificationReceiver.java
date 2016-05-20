@@ -19,8 +19,8 @@ public class YYNotificationReceiver extends NotificationReceiver {
 
     @Override
     public void onNotificationClicked(Context context, PushedNotification notification) {
-        Log.d("YYNotificationReceiver", "onNotificationClicked " + notification.id + " values " + notification.values);
-        Toast.makeText(context, "YYNotificationReceiver clicked payload: " + notification.values.get("payload"), Toast.LENGTH_SHORT).show();
+        Log.d("YYNotificationReceiver", "onNotificationClicked " + notification.id + " values " + notification.payload);
+        Toast.makeText(context, "YYNotificationReceiver clicked payload: " + notification.payload, Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(context, DrawActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
@@ -28,7 +28,7 @@ public class YYNotificationReceiver extends NotificationReceiver {
 
     @Override
     public void onNotificationArrived(Context context, PushedNotification notification) {
-        Log.d("YYNotificationReceiver", "onNotificationArrived " + notification.id + " values " + notification.values);
+        Log.d("YYNotificationReceiver", "onNotificationArrived " + notification.id + " values " + notification.payload);
     }
 
 }

@@ -219,7 +219,9 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
             Message msg = Message.obtain(null, CMD_THIRD_PARTY_ON_NOTIFICATION, 0, 0);
             Bundle bundle = new Bundle();
             bundle.putString("id", pushedNotification.id);
-            bundle.putSerializable("notification", pushedNotification.values);
+            bundle.putString("title", pushedNotification.title);
+            bundle.putString("message", pushedNotification.message);
+            bundle.putString("payload", pushedNotification.payload);
             msg.setData(bundle);
             instance.sendMsg(msg);
         }

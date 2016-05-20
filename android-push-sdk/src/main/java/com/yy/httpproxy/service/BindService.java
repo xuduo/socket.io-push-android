@@ -62,8 +62,7 @@ public class BindService extends Service {
                 ConnectionService.setToken(token);
             } else if (cmd == RemoteClient.CMD_THIRD_PARTY_ON_NOTIFICATION) {
                 String id = bundle.getString("id");
-                HashMap<String, Object> values = (HashMap<String, Object>) bundle.getSerializable("notification");
-                PushedNotification notification = new PushedNotification(id, values);
+                PushedNotification notification = new PushedNotification(id, bundle.getString("title"), bundle.getString("message"), bundle.getString("payload"));
                 ConnectionService.publishNotification(notification);
             }
         }
