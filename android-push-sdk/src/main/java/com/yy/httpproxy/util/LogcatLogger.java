@@ -6,12 +6,12 @@ package com.yy.httpproxy.util;
 public class LogcatLogger implements Logger {
 
     @Override
-    public void log(String level, String message, Throwable e) {
-        if (level.equals("debug")) {
+    public void log(int level, String message, Throwable e) {
+        if (level == Logger.DEBUG) {
             android.util.Log.d("push-sdk", message, e);
-        } else if (level.equals("info")) {
+        } else if (level == Logger.INFO) {
             android.util.Log.i("push-sdk", message, e);
-        } else if (level.equals("error")) {
+        } else if (level == Logger.ERROR) {
             android.util.Log.e("push-sdk", message, e);
         }
     }

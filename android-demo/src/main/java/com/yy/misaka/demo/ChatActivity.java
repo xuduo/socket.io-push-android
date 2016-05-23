@@ -77,7 +77,7 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
     public static class DemoLogger implements Logger {
 
         @Override
-        public void log(String level, String message, Throwable e) {
+        public void log(int level, String message, Throwable e) {
             Log.d("DemoLogger", "demo " + message);
         }
     }

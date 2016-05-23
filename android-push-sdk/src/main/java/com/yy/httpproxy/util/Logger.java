@@ -5,6 +5,12 @@ package com.yy.httpproxy.util;
  */
 public interface Logger {
 
-    void log(String level, String message, Throwable e);
+    int DEBUG = 3;
+
+    int INFO = 4;
+
+    int ERROR = 6;
+
+    void log(int level, String message, Throwable e);
 
 }
