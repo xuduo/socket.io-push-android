@@ -15,8 +15,10 @@ import com.google.gson.Gson;
 import com.yy.httpproxy.Config;
 import com.yy.httpproxy.ProxyClient;
 import com.yy.httpproxy.serializer.JsonSerializer;
+import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
+import com.yy.httpproxy.util.Logger;
 import com.yy.misaka.demo.adapter.ChatMessagesAdapter;
 import com.yy.misaka.demo.appmodel.HttpApiModel;
 import com.yy.misaka.demo.entity.Message;
@@ -64,10 +66,20 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
         recyclerViewMessages.scrollToPosition(chatMessagesAdapter.getItemCount() - 1);
         proxyClient = new ProxyClient(new Config(this).setHost(host).setConnectCallback(this)
                 .setPushCallback(this)
-                .setRequestSerializer(new JsonSerializer()));
+                .setNotificationHandler(DefaultNotificationHandler.class)
+                .setRequestSerializer(new JsonSerializer())
+                .setLogger(DemoLogger.class));
         proxyClient.subscribeAndReceiveTtlPackets(chatTopic);
         updateConnect();
 
+    }
+
+    public static class DemoLogger implements Logger {
+
+        @Override
+        public void log(String level, String message, Throwable e) {
+            Log.d("DemoLogger", "demo " + message);
+        }
     }
 
     public static void launch(Context context, String nickName, String host) {

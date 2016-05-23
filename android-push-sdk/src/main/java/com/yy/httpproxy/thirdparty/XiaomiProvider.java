@@ -3,7 +3,7 @@ package com.yy.httpproxy.thirdparty;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
+import com.yy.httpproxy.util.Log;
 
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
 import com.xiaomi.mipush.sdk.Logger;
@@ -31,7 +31,7 @@ public class XiaomiProvider implements NotificationProvider {
 
             @Override
             public void log(String content, Throwable t) {
-                Log.d(TAG, content, t);
+                Log.e(TAG, content, t);
             }
 
             @Override

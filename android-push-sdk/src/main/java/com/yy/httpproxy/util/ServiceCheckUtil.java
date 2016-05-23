@@ -3,7 +3,7 @@ package com.yy.httpproxy.util;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.util.Log;
+import com.yy.httpproxy.util.Log;
 
 import java.util.List;
 

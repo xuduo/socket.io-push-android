@@ -3,7 +3,8 @@ package com.yy.httpproxy.socketio;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Base64;
-import android.util.Log;
+
+import com.yy.httpproxy.util.Log;
 
 import com.yy.httpproxy.AndroidLoggingHandler;
 import com.yy.httpproxy.requester.RequestException;
@@ -170,7 +171,7 @@ public class SocketIOProxyClient implements PushSubscriber {
             JSONObject data = (JSONObject) args[0];
             String pushId = data.optString("id");
             uid = data.optString("uid", "");
-            Log.v(TAG, "on pushId " + pushId + " ,uid " + uid);
+            Log.d(TAG, "on pushId " + pushId + " ,uid " + uid);
             connected = true;
             if (connectCallback != null) {
                 connectCallback.onConnect(uid);
@@ -200,7 +201,7 @@ public class SocketIOProxyClient implements PushSubscriber {
                 try {
                     JSONObject data = (JSONObject) args[0];
                     JSONObject android = data.optJSONObject("android");
-                    Log.v(TAG, "on notification topic " + android);
+                    Log.i(TAG, "on notification topic " + android);
                     String id = data.optString("id", null);
                     notificationCallback.onNotification(new PushedNotification(id, android));
                     updateLastPacketId(id, data.optString("ttl", null), data.optString("unicast", null), "noti");
@@ -221,7 +222,7 @@ public class SocketIOProxyClient implements PushSubscriber {
     private void updateLastPacketId(String id, Object ttl, Object unicast, String topic) {
         Boolean reciveTtl = topics.get(topic);
         if (id != null && ttl != null) {
-            Log.v(TAG, "on push topic " + topic + " id " + id);
+            Log.d(TAG, "on push topic " + topic + " id " + id);
             if (unicast != null) {
                 cachedSharedPreference.save("lastUnicastId", id);
             } else if (reciveTtl && topic != null) {
@@ -237,7 +238,7 @@ public class SocketIOProxyClient implements PushSubscriber {
                 try {
                     String json = args[0].toString();
 
-                    Log.v(TAG, "on push topic " + ",reply " + ", data:" + json);
+                    Log.i(TAG, "on push topic data: " + json);
                     pushCallback.onPush(json);
 
                     if (args.length > 1) {
@@ -355,7 +356,7 @@ public class SocketIOProxyClient implements PushSubscriber {
                     JSONObject object = new JSONObject();
                     object.put("requestStats", requestStats);
                     socket.emit("stats", object);
-                    Log.v(TAG, "send stats " + requestStats.length());
+                    Log.d(TAG, "send stats " + requestStats.length());
                 }
             } catch (JSONException e) {
                 Log.e(TAG, "sendStats error", e);
@@ -376,7 +377,7 @@ public class SocketIOProxyClient implements PushSubscriber {
     private final Emitter.Listener httpProxyListener = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.v(TAG, "httpProxy call " + args + " thread " + Thread.currentThread().getName());
+            Log.d(TAG, "httpProxy call " + args + " thread " + Thread.currentThread().getName());
             if (args.length > 0 && args[0] instanceof JSONObject) {
                 JSONObject data = (JSONObject) args[0];
                 String responseSeqId = data.optString("sequenceId", "");
@@ -435,6 +436,7 @@ public class SocketIOProxyClient implements PushSubscriber {
                     Log.e(TAG, "ssl init error ", e);
                 }
             }
+            Log.i(TAG, "connecting " + host);
             socket = IO.socket(host, opts);
             socket.on("packetProxy", httpProxyListener);
             socket.on(Socket.EVENT_CONNECT, connectListener);
@@ -462,7 +464,7 @@ public class SocketIOProxyClient implements PushSubscriber {
     public void request(RequestInfo requestInfo) {
 
         try {
-            Log.v(TAG, "request " + requestInfo.getPath());
+            Log.d(TAG, "request " + requestInfo.getPath());
             if (requestInfo.isExpectReply()) {
                 replyCallbacks.put(requestInfo.getSequenceId(), requestInfo);
             }

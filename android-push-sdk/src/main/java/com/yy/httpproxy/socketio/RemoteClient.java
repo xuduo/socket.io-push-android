@@ -9,7 +9,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.util.Log;
+
+import com.yy.httpproxy.util.Log;
 
 import com.yy.httpproxy.ProxyClient;
 import com.yy.httpproxy.requester.HttpRequester;
@@ -138,9 +139,9 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         }
     };
 
-    public RemoteClient(Context context, String host, String pushId, String notificationHandler) {
+    public RemoteClient(Context context, String host, String pushId, String notificationHandler,String logger) {
         this.context = context;
-        startRemoteService(context, host, pushId, notificationHandler);
+        startRemoteService(context, host, pushId, notificationHandler, logger);
         startDummyService(context);
     }
 
@@ -149,10 +150,11 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         context.startService(intent);
     }
 
-    private void startRemoteService(Context context, String host, String pushId, String notificationHandler) {
+    private void startRemoteService(Context context, String host, String pushId, String notificationHandler, String logger) {
         Intent intent = new Intent(context, ConnectionService.class);
         intent.putExtra("host", host);
         intent.putExtra("pushId", pushId);
+        intent.putExtra("logger", logger);
         if (notificationHandler != null) {
             intent.putExtra("notificationHandler", notificationHandler);
         }

@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.yy.httpproxy.requester.ResponseHandler;
 import com.yy.httpproxy.socketio.RemoteClient;
@@ -17,6 +16,10 @@ import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.thirdparty.NotificationProvider;
 import com.yy.httpproxy.thirdparty.ProviderFactory;
+import com.yy.httpproxy.util.CrashHandler;
+import com.yy.httpproxy.util.Log;
+import com.yy.httpproxy.util.LogcatLogger;
+import com.yy.httpproxy.util.Logger;
 
 public class ConnectionService extends Service implements ConnectCallback, PushCallback, ResponseHandler, SocketIOProxyClient.NotificationCallback {
 
@@ -30,6 +33,7 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "ConnectionService onCreate");
+
     }
 
     private void startForegroundService() {
@@ -61,6 +65,9 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        String logger = intent.getStringExtra("logger");
+        initLogger(logger);
+        initCrashHandler();
         String host = "null";
         if (intent != null) {
             host = intent.getStringExtra("host");
@@ -78,6 +85,27 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "onBind");
         return null;
+    }
+
+    private void initCrashHandler() {
+        if (!(Thread.getDefaultUncaughtExceptionHandler() instanceof CrashHandler)) {
+            Thread.setDefaultUncaughtExceptionHandler(new CrashHandler());
+        }
+    }
+
+    private void initLogger(String loggerClass) {
+        android.util.Log.i(TAG, "initLogger " + loggerClass);
+        if (Log.logger == null) {
+            if (loggerClass == null) {
+                Log.logger = new LogcatLogger();
+            } else {
+                try {
+                    Log.logger = (Logger) Class.forName(loggerClass).newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 
     private void initClient(Intent intent) {
@@ -142,7 +170,7 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
 
     @Override
     public void onPush(String data) {
-        Log.v(TAG, "on push data:" + data);
+        Log.d(TAG, "on push data:" + data);
         Message msg = Message.obtain(null, BindService.CMD_PUSH, 0, 0);
         Bundle bundle = new Bundle();
         bundle.putString("data", data);

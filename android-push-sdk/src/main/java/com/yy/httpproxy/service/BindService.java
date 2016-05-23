@@ -7,12 +7,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.util.Log;
+import com.yy.httpproxy.util.Log;
 
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.socketio.RemoteClient;
 
-import java.util.HashMap;
 
 public class BindService extends Service {
 
@@ -123,7 +122,7 @@ public class BindService extends Service {
                 Log.e(TAG, "sendMsg error!", e);
             }
         } else {
-            Log.v(TAG, "sendMsg not bound");
+            Log.d(TAG, "sendMsg not bound");
         }
     }
 }

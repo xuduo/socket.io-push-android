@@ -2,7 +2,7 @@ package com.yy.httpproxy.thirdparty;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+import com.yy.httpproxy.util.Log;
 
 import com.xiaomi.mipush.sdk.ErrorCode;
 import com.xiaomi.mipush.sdk.MiPushClient;
@@ -24,7 +24,7 @@ public class XiaomiReceiver extends PushMessageReceiver {
 
     @Override
     public void onNotificationMessageClicked(Context context, MiPushMessage message) {
-        Log.v(TAG, "onNotificationMessageClicked is called. " + message.toString());
+        Log.d(TAG, "onNotificationMessageClicked is called. " + message.toString());
         String content = message.getContent();
         try {
             JSONObject obj = new JSONObject(content);
@@ -44,7 +44,7 @@ public class XiaomiReceiver extends PushMessageReceiver {
 
     @Override
     public void onNotificationMessageArrived(Context context, MiPushMessage message) {
-//        Log.v(TAG, "onNotificationMessageArrived is called. " + message.toString());
+//        Log.d(TAG, "onNotificationMessageArrived is called. " + message.toString());
 //        String content = message.getContent();
 //        if (!message.isNotified() && !message.isArrivedMessage()) {
 //            try {
@@ -68,7 +68,7 @@ public class XiaomiReceiver extends PushMessageReceiver {
 
     @Override
     public void onReceiveRegisterResult(Context context, MiPushCommandMessage message) {
-        Log.v(TAG,
+        Log.d(TAG,
                 "onReceiveRegisterResult is called. " + message.toString());
 
         String command = message.getCommand();

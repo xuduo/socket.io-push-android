@@ -9,6 +9,7 @@ import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.subscribe.PushIdGenerator;
 import com.yy.httpproxy.subscribe.RandomPushIdGenerator;
+import com.yy.httpproxy.util.Logger;
 
 /**
  * Created by xuduo on 10/19/15.
@@ -23,6 +24,7 @@ public class Config {
     private String host;
     private String pushId;
     private String notificationHandler;
+    private String logger;
 
     public Config(Context context) {
         this.context = context;
@@ -31,7 +33,7 @@ public class Config {
 
     public RemoteClient getRemoteClient() {
         if (remoteClient == null) {
-            remoteClient = new RemoteClient(context, host, pushId, notificationHandler);
+            remoteClient = new RemoteClient(context, host, pushId, notificationHandler, logger);
         }
         return remoteClient;
     }
@@ -59,8 +61,13 @@ public class Config {
         return pushCallback;
     }
 
-    public Config setNotificationHandler(String notificationHandler) {
-        this.notificationHandler = notificationHandler;
+    public Config setLogger(Class<? extends Logger> logger) {
+        this.logger = logger.getName();
+        return this;
+    }
+
+    public Config setNotificationHandler(Class notificationHandler) {
+        this.notificationHandler = notificationHandler.getName();
         return this;
     }
 

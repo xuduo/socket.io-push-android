@@ -1,6 +1,6 @@
 package com.yy.httpproxy.stats;
 
-import android.util.Log;
+import com.yy.httpproxy.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +29,12 @@ public class Connectivity {
     }
 
     public void onConnect() {
-        Log.v(TAG, "onConnect");
+        Log.d(TAG, "onConnect");
         events.add(new ConnectionEvent(1));
     }
 
     public void onDisconnect() {
-        Log.v(TAG, "onDisconnect");
+        Log.d(TAG, "onDisconnect");
         events.add(new ConnectionEvent(0));
     }
 
@@ -60,7 +60,7 @@ public class Connectivity {
         ConnectionTimes result = new ConnectionTimes();
         result.timeConnected = timeConnected / 1000;
         result.timeTotal = timeTotal / 1000;
-        Log.v(TAG, "get connectivity result connected " + result.timeConnected + " total :" + result.timeTotal );
+        Log.d(TAG, "get connectivity result connected " + result.timeConnected + " total :" + result.timeTotal );
         return result;
     }
 

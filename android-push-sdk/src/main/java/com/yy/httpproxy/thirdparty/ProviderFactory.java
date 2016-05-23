@@ -1,7 +1,7 @@
 package com.yy.httpproxy.thirdparty;
 
 import android.content.Context;
-import android.util.Log;
+import com.yy.httpproxy.util.Log;
 
 import com.yy.httpproxy.thirdparty.HuaweiProvider;
 import com.yy.httpproxy.thirdparty.NotificationProvider;

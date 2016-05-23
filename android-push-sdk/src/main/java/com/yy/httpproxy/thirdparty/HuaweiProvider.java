@@ -1,7 +1,7 @@
 package com.yy.httpproxy.thirdparty;
 
 import android.content.Context;
-import android.util.Log;
+import com.yy.httpproxy.util.Log;
 
 import com.huawei.android.pushagent.api.PushManager;
 import com.yy.httpproxy.util.ServiceCheckUtil;

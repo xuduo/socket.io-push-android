@@ -5,7 +5,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
+import com.yy.httpproxy.util.Log;
 
 public class DummyService extends Service {
 
