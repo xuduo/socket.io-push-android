@@ -86,9 +86,9 @@ public interface PushCallback {
 
     /**
      *
-     * @param data 服务器push下来的json字符串
+     * @param data 服务器push下来的字符串
      */
-    void onPush(byte[] data);
+    void onPush(String data);
 }
 ```
 
