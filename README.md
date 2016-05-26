@@ -26,10 +26,9 @@ compile 'com.yy:android-push-sdk:${versoion}'
 
 ####Proguard
 
-如有自定义NotificationHandler,需要添加混淆配置
+如没有接入小米/华为,需要添加混淆配置
 ```
--keep class * extends com.yy.httpproxy.service.DefaultNotificationHandler
--keep class * extends com.yy.httpproxy.service.DelegateToClientNotificationHandler
+-dontwarn com.yy.httpproxy.thirdparty.**
 ```
 
 #####初始化ProxyClient
@@ -39,7 +38,8 @@ compile 'com.yy:android-push-sdk:${versoion}'
 Proxy proxyClient = new ProxyClient(new Config(this)
                 .setHost("http://spush.yy.com")  //连接的服务器地址
                 .setConnectCallback(this)  //socket.io通道,连上,断开回调
-                .setPushCallback(this));  //push回调,socket.io长连接通道
+                .setPushCallback(this)  //push回调,socket.io长连接通道
+                .setLogger(MyLogger.class)); //日志回调,可选,这个类会实例化在push进程
 ```
 注意不要通过其他进程启动,可以用以下代码判断是否ui进程
 ```java
@@ -122,7 +122,7 @@ public class YYNotificationReceiver extends NotificationReceiver {
 ```
 启动时的配置,配置使用
 ```java
-config.setNotificationHandler("yourFullyQualifiedHandlerClassName"); //不能混淆这个类
+config.setNotificationHandler(MyHandlerClass.class); //不能混淆这个类
 ```
 
 
