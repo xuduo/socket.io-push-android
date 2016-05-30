@@ -26,9 +26,20 @@ compile 'com.yy:android-push-sdk:${versoion}'
 
 ####Proguard
 
-如没有接入小米/华为,需要添加混淆配置
+混淆配置
 ```
 -dontwarn com.yy.httpproxy.thirdparty.**
+-dontwarn okio.**
+
+##如接入华为push
+-keep class com.huawei.android.pushagent.** {*;}
+-keep class com.huawei.android.pushselfshow.** {*;}
+-keep class com.huawei.android.microkernel.** {*;}
+-keep class com.baidu.mapapi.** {*;}
+-dontwarn com.huawei.**
+##如接入华为push
+
+
 ```
 
 #####初始化ProxyClient
@@ -91,7 +102,6 @@ public interface PushCallback {
     void onPush(String data);
 }
 ```
-
 
 
 ####接收notification(使用DefaultNotificationHandler/DelegateToClientNotificationHandler)
