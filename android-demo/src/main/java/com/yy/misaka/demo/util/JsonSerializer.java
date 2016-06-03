@@ -1,7 +1,8 @@
-package com.yy.httpproxy.serializer;
+package com.yy.misaka.demo.util;
 
 import com.google.gson.Gson;
 import com.yy.httpproxy.requester.RequestException;
+import com.yy.httpproxy.serializer.RequestSerializer;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;

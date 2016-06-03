@@ -3,7 +3,6 @@ package com.yy.misaka.demo;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,7 +13,7 @@ import android.widget.EditText;
 import com.google.gson.Gson;
 import com.yy.httpproxy.Config;
 import com.yy.httpproxy.ProxyClient;
-import com.yy.httpproxy.serializer.JsonSerializer;
+import com.yy.misaka.demo.util.JsonSerializer;
 import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
@@ -22,9 +21,6 @@ import com.yy.httpproxy.util.Logger;
 import com.yy.misaka.demo.adapter.ChatMessagesAdapter;
 import com.yy.misaka.demo.appmodel.HttpApiModel;
 import com.yy.misaka.demo.entity.Message;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Random;
 
 public class ChatActivity extends Activity implements PushCallback, ConnectCallback {
 

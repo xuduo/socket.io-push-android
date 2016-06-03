@@ -65,7 +65,7 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String logger = intent.getStringExtra("logger");
+        String logger = getFromIntentOrPref(intent, "logger");
         initLogger(logger);
         initCrashHandler();
         String host = "null";

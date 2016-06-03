@@ -8,16 +8,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.yy.httpproxy.Config;
 import com.yy.httpproxy.ProxyClient;
 import com.yy.httpproxy.ReplyHandler;
-import com.yy.httpproxy.serializer.JsonSerializer;
+import com.yy.misaka.demo.util.JsonSerializer;
 import com.yy.httpproxy.subscribe.ConnectCallback;
-import com.yy.httpproxy.subscribe.PushCallback;
-import com.yy.misaka.demo.entity.Message;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 

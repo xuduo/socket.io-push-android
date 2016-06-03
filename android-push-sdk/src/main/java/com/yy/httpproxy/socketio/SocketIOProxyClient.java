@@ -63,6 +63,7 @@ public class SocketIOProxyClient implements PushSubscriber {
     private String uid;
     private Stats stats = new Stats();
     private String host = "";
+    private String packageName = "";
 
 
     public void setResponseHandler(ResponseHandler responseHandler) {
@@ -187,6 +188,7 @@ public class SocketIOProxyClient implements PushSubscriber {
             try {
                 object.put("token", notificationProvider.getToken());
                 object.put("type", notificationProvider.getType());
+                object.put("package_name", packageName);
                 socket.emit("token", object);
             } catch (JSONException e) {
                 Log.e(TAG, "sendTokenToServer error ", e);
@@ -399,6 +401,7 @@ public class SocketIOProxyClient implements PushSubscriber {
     private Socket socket;
 
     public SocketIOProxyClient(Context context, String host, NotificationProvider provider) {
+        this.packageName = context.getPackageName();
         cachedSharedPreference = new CachedSharedPreference(context);
         AndroidLoggingHandler.reset(new AndroidLoggingHandler());
         java.util.logging.Logger.getLogger("").setLevel(Level.FINEST);
@@ -436,7 +439,7 @@ public class SocketIOProxyClient implements PushSubscriber {
                     Log.e(TAG, "ssl init error ", e);
                 }
             }
-            Log.i(TAG, "connecting " + host);
+            Log.i(TAG, "connecting " + packageName + " " + host);
             socket = IO.socket(host, opts);
             socket.on("packetProxy", httpProxyListener);
             socket.on(Socket.EVENT_CONNECT, connectListener);
