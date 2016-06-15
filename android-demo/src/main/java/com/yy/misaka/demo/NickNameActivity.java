@@ -6,11 +6,14 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import android.util.Log;
+
 public class NickNameActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("DemoLogger", "NickNameActivity onCreate");
         setContentView(R.layout.activity_nick);
         init();
     }

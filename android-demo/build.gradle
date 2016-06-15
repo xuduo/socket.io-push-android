@@ -19,7 +19,6 @@ android {
         versionCode 1
         versionName "1.0"
         applicationId "com.yy.misaka.demo"
-        multiDexEnabled true
     }
     buildTypes {
         release {

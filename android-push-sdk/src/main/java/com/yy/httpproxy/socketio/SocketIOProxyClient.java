@@ -154,10 +154,18 @@ public class SocketIOProxyClient implements PushSubscriber {
                             lastPacketIds.put(entry.getKey(), entry.getValue());
                         }
                     }
-                    String lastUniCastId = cachedSharedPreference.get("lastUnicastId");
-                    if (lastUniCastId != null) {
-                        object.put("lastUnicastId", lastUniCastId);
+                    if (topics.containsKey("noti")) {
+                        String lastNotiId = cachedSharedPreference.get("lastNotiId");
+                        if (lastNotiId == null) {
+                            lastNotiId = "0";
+                        }
+                        Log.i(TAG, "lastNotiId " + lastNotiId);
+                        lastPacketIds.put("noti", lastNotiId);
                     }
+                }
+                String lastUniCastId = cachedSharedPreference.get("lastUnicastId");
+                if (lastUniCastId != null) {
+                    object.put("lastUnicastId", lastUniCastId);
                 }
                 socket.emit("pushId", object);
             } catch (JSONException e) {
@@ -228,6 +236,9 @@ public class SocketIOProxyClient implements PushSubscriber {
             if (unicast != null) {
                 cachedSharedPreference.save("lastUnicastId", id);
             } else if (reciveTtl && topic != null) {
+                if (topic.equals("noti")) {
+                    cachedSharedPreference.save("lastNotiId", id);
+                }
                 topicToLastPacketId.put(topic, id);
             }
         }

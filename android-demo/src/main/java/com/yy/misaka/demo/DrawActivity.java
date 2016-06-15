@@ -29,7 +29,6 @@ public class DrawActivity extends Activity implements ConnectCallback {
     private long totalCount;
     public int myColors[] = {Color.BLACK, Color.DKGRAY, Color.CYAN, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA};
     public int myColor;
-    private TextView msg;
 
     private void updateLatency(long timestamp) {
         totalTime += System.currentTimeMillis() - timestamp;
@@ -53,11 +52,11 @@ public class DrawActivity extends Activity implements ConnectCallback {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("DemoLogger", "DrawActivity onCreate");
         setContentView(R.layout.activity_draw);
         latency = (TextView) findViewById(R.id.tv_latency);
         count = (TextView) findViewById(R.id.tv_count);
         connect = (TextView) findViewById(R.id.tv_connect);
-        msg = (TextView) findViewById(R.id.tv_msg);
 
         String pushServerHost = getIntent().getStringExtra("ipAddress");
 

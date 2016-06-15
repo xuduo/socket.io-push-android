@@ -35,6 +35,7 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("DemoLogger", "ChatActivity onCreate");
         setContentView(R.layout.activity_chat);
         init();
     }

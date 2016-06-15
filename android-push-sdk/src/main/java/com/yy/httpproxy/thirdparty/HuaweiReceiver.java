@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
 import com.yy.httpproxy.util.Log;
 
 import com.huawei.android.pushagent.api.PushEventReceiver;
@@ -24,7 +25,7 @@ public class HuaweiReceiver extends PushEventReceiver {
     @Override
     public void onToken(Context context, String token, Bundle extras) {
         String belongId = extras.getString("belongId");
-        Log.i(TAG, "token = " + token + ",belongId = " + belongId);
+        Log.i("DemoLogger", TAG + " token = " + token + ",belongId = " + belongId);
         ConnectionService.setToken(token);
     }
 
@@ -47,7 +48,7 @@ public class HuaweiReceiver extends PushEventReceiver {
             }
             String json = extras.getString(BOUND_KEY.pushMsgKey);
             String content = "huawei clicked： " + extras.getString(BOUND_KEY.pushMsgKey);
-
+            android.util.Log.i("DemoLogger", TAG + " " + content);
             try {
 
                 JSONArray obj = new JSONArray(json);
@@ -63,7 +64,7 @@ public class HuaweiReceiver extends PushEventReceiver {
                 Log.d(TAG, content);
 
             } catch (Exception e) {
-                Log.e(TAG, "Could not parse malformed JSON: \"" + json + "\"");
+                Log.e("DemoLogger", TAG + " Could not parse malformed JSON: \"" + json + "\"");
             }
 
         }
