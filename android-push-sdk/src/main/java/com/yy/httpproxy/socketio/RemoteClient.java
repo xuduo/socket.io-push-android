@@ -10,22 +10,25 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 
-import com.yy.httpproxy.util.Log;
-
 import com.yy.httpproxy.ProxyClient;
+import com.yy.httpproxy.requester.HttpRequest;
 import com.yy.httpproxy.requester.HttpRequester;
+import com.yy.httpproxy.requester.HttpResponse;
 import com.yy.httpproxy.requester.RequestInfo;
-import com.yy.httpproxy.service.ConnectionService;
-import com.yy.httpproxy.service.DefaultNotificationHandler;
-import com.yy.httpproxy.service.DummyService;
 import com.yy.httpproxy.service.BindService;
+import com.yy.httpproxy.service.ConnectionService;
+import com.yy.httpproxy.service.DummyService;
 import com.yy.httpproxy.service.PushedNotification;
 import com.yy.httpproxy.subscribe.PushSubscriber;
+import com.yy.httpproxy.util.Log;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 public class RemoteClient implements PushSubscriber, HttpRequester {
@@ -40,6 +43,7 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
     public static final int CMD_UNBIND_UID = 7;
     public static final int CMD_SET_TOKEN = 8;
     public static final int CMD_THIRD_PARTY_ON_NOTIFICATION = 9;
+    public static final int CMD_HTTP = 10;
     private Map<String, Boolean> topics = new HashMap<>();
     private ProxyClient proxyClient;
     private Messenger mService;
@@ -48,6 +52,38 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
     private Context context;
     private boolean connected = false;
     private static RemoteClient instance;
+    private Map<String, HttpRequest> replyCallbacks = new HashMap<>();
+    private long timeout = 10000;
+    private Handler handler;
+
+    private Runnable timeoutTask = new Runnable() {
+        @Override
+        public void run() {
+            Iterator<Map.Entry<String, HttpRequest>> it = replyCallbacks.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, HttpRequest> pair = it.next();
+                HttpRequest request = pair.getValue();
+                if (request.timeoutForRequest(timeout)) {
+                    HttpResponse response = new HttpResponse();
+                    response.setSequenceId(request.getSequenceId());
+                    response.setHeaders(new HashMap<String, String>());
+                    response.setBody("request timeout after " + timeout);
+                    Log.i(TAG, "request timeout " + request.getUrl());
+                    proxyClient.onResponse(response);
+                    it.remove();
+                    continue;
+                }
+            }
+            postTimeout();
+        }
+    };
+
+    private void postTimeout() {
+        handler.removeCallbacks(timeoutTask);
+        if (replyCallbacks.size() > 0) {
+            handler.postDelayed(timeoutTask, 1000);
+        }
+    }
 
     public void unsubscribeBroadcast(String topic) {
         Message msg = Message.obtain(null, CMD_UNSUBSCRIBE_BROADCAST, 0, 0);
@@ -78,22 +114,44 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         context.stopService(new Intent(context, BindService.class));
     }
 
+
+    private void reSendFailedRequest() {
+        if (!replyCallbacks.isEmpty()) {
+            List<HttpRequest> values = new ArrayList<>(replyCallbacks.values());
+            replyCallbacks.clear();
+            for (HttpRequest request : values) {
+                Log.i(TAG, "onConnected repost request " + request.getUrl());
+                http(request);
+            }
+        }
+    }
+
+    public void http(HttpRequest request) {
+        request.setTimestamp();
+        replyCallbacks.put(request.getSequenceId(), request);
+        postTimeout();
+        Message msg = Message.obtain(null, CMD_HTTP, 0, 0);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("request", request);
+        msg.setData(bundle);
+        sendMsg(msg);
+    }
+
+    public void setHandler(Handler handler) {
+        this.handler = handler;
+    }
+
     private class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             int cmd = msg.what;
             Bundle bundle = msg.getData();
-            if (cmd == BindService.CMD_RESPONSE) {
-                String message = bundle.getString("message");
-                int code = bundle.getInt("code", 1);
-                byte[] data = bundle.getByteArray("data");
-                String sequenceId = bundle.getString("sequenceId", "");
-                proxyClient.onResponse("", sequenceId, code, message, data);
-            } else if (cmd == BindService.CMD_PUSH) {
+            if (cmd == BindService.CMD_PUSH) {
                 String data = bundle.getString("data");
                 proxyClient.onPush(data);
             } else if (cmd == BindService.CMD_CONNECTED && connected == false) {
                 connected = true;
+                reSendFailedRequest();
                 if (proxyClient.getConfig().getConnectCallback() != null) {
                     String uid = null;
                     if (bundle != null) {
@@ -106,6 +164,10 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
                 if (proxyClient.getConfig().getConnectCallback() != null) {
                     proxyClient.getConfig().getConnectCallback().onDisconnect();
                 }
+            } else if (cmd == BindService.CMD_HTTP_RESPONSE) {
+                HttpResponse response = HttpResponse.fromBundle(bundle);
+                replyCallbacks.remove(response.getSequenceId());
+                proxyClient.onResponse(response);
             }
         }
     }
@@ -139,7 +201,7 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         }
     };
 
-    public RemoteClient(Context context, String host, String pushId, String notificationHandler,String logger) {
+    public RemoteClient(Context context, String host, String pushId, String notificationHandler, String logger) {
         this.context = context;
         startRemoteService(context, host, pushId, notificationHandler, logger);
         startDummyService(context);

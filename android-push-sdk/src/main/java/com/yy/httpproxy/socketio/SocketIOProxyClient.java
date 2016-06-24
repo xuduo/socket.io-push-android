@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Base64;
 
+import com.yy.httpproxy.requester.HttpRequest;
+import com.yy.httpproxy.util.JSONUtil;
 import com.yy.httpproxy.util.Log;
 
 import com.yy.httpproxy.AndroidLoggingHandler;
@@ -41,6 +43,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
@@ -57,7 +60,6 @@ public class SocketIOProxyClient implements PushSubscriber {
     private CachedSharedPreference cachedSharedPreference;
     private Map<String, Boolean> topics = new HashMap<>();
     private Map<String, String> topicToLastPacketId = new HashMap<>();
-    private ResponseHandler responseHandler;
     private ConnectCallback connectCallback;
     private boolean connected = false;
     private String uid;
@@ -65,10 +67,6 @@ public class SocketIOProxyClient implements PushSubscriber {
     private String host = "";
     private String packageName = "";
 
-
-    public void setResponseHandler(ResponseHandler responseHandler) {
-        this.responseHandler = responseHandler;
-    }
 
     public void unsubscribeBroadcast(String topic) {
         topics.remove(topic);
@@ -100,7 +98,6 @@ public class SocketIOProxyClient implements PushSubscriber {
         public void call(Object... args) {
             stats.onConnect();
             sendPushIdAndTopicToServer();
-            reSendFailedRequest();
         }
     };
 
@@ -115,17 +112,6 @@ public class SocketIOProxyClient implements PushSubscriber {
             }
         }
     };
-
-    private void reSendFailedRequest() {
-        if (!replyCallbacks.isEmpty()) {
-            List<RequestInfo> values = new ArrayList<>(replyCallbacks.values());
-            replyCallbacks.clear();
-            for (RequestInfo request : values) {
-                Log.i(TAG, "StompClient onConnected repost request " + request.getPath());
-                request(request);
-            }
-        }
-    }
 
     public void unbindUid() {
         if (pushId != null && socket.connected()) {
@@ -321,31 +307,8 @@ public class SocketIOProxyClient implements PushSubscriber {
             }
         }
     };
-    private Map<String, RequestInfo> replyCallbacks = Collections.synchronizedMap(new LinkedHashMap<String, RequestInfo>());
+
     private Handler handler = new Handler();
-    private long timeout = 20000;
-    private Runnable timeoutTask = new Runnable() {
-        @Override
-        public void run() {
-            Iterator<Map.Entry<String, RequestInfo>> it = replyCallbacks.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, RequestInfo> pair = it.next();
-                RequestInfo request = pair.getValue();
-                if (request.timeoutForRequest(timeout)) {
-                    Log.i(TAG, "StompClient timeoutForRequest " + request.getPath());
-                    if (responseHandler != null) {
-                        if (request.getTimestamp() > 0) {
-                            stats.reportError(request.getPath());
-                        }
-                        responseHandler.onResponse(request.getSequenceId(), RequestException.Error.TIMEOUT_ERROR.value, RequestException.Error.TIMEOUT_ERROR.name(), null);
-                    }
-                    it.remove();
-                    continue;
-                }
-            }
-            postTimeout();
-        }
-    };
 
     private Runnable statsTask = new Runnable() {
         @Override
@@ -353,13 +316,6 @@ public class SocketIOProxyClient implements PushSubscriber {
             sendStats();
         }
     };
-
-    private void postTimeout() {
-        handler.removeCallbacks(timeoutTask);
-        if (replyCallbacks.size() > 0) {
-            handler.postDelayed(timeoutTask, 1000);
-        }
-    }
 
     private void sendStats() {
         if (socket.connected()) {
@@ -386,28 +342,6 @@ public class SocketIOProxyClient implements PushSubscriber {
     public void reportStats(String path, int successCount, int errorCount, int latency) {
         stats.reportStats(path, successCount, errorCount, latency);
     }
-
-    private final Emitter.Listener httpProxyListener = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            Log.d(TAG, "httpProxy call " + args + " thread " + Thread.currentThread().getName());
-            if (args.length > 0 && args[0] instanceof JSONObject) {
-                JSONObject data = (JSONObject) args[0];
-                String responseSeqId = data.optString("sequenceId", "");
-                RequestInfo request = replyCallbacks.remove(responseSeqId);
-                if (request != null && responseHandler != null) {
-                    String response = data.optString("data");
-                    byte[] decodedResponse = Base64.decode(response, Base64.DEFAULT);
-                    Log.i(TAG, "response " + new String(decodedResponse));
-                    int code = data.optInt("code", 1);
-                    String sequenceId = data.optString("sequenceId", "");
-                    String message = data.optString("message", "");
-                    responseHandler.onResponse(sequenceId, code, message, decodedResponse);
-                    stats.reportSuccess(request.getPath(), request.getTimestamp());
-                }
-            }
-        }
-    };
 
     private Socket socket;
 
@@ -452,7 +386,6 @@ public class SocketIOProxyClient implements PushSubscriber {
             }
             Log.i(TAG, "connecting " + packageName + " " + host);
             socket = IO.socket(host, opts);
-            socket.on("packetProxy", httpProxyListener);
             socket.on(Socket.EVENT_CONNECT, connectListener);
             socket.on("pushId", pushIdListener);
             socket.on("push", pushListener);
@@ -475,17 +408,46 @@ public class SocketIOProxyClient implements PushSubscriber {
         this.pushCallback = null;
     }
 
+    public void http(final HttpRequest requestInfo) {
+
+        try {
+
+            if (socket.connected()) {
+                JSONArray array = new JSONArray();
+                array.put(requestInfo.getMethod());
+                array.put(requestInfo.getUrl());
+                array.put(JSONUtil.toJSONObject(requestInfo.getHeaders()));
+                array.put(JSONUtil.toJSONObject(requestInfo.getParams()));
+                final long start = System.currentTimeMillis();
+                socket.emit("http", new Object[]{array}, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+                        try {
+                            JSONArray result = (JSONArray) args[0];
+                            Log.d(TAG, "httpResponse " + (System.currentTimeMillis() - start) + " " + requestInfo.getUrl());
+                            int code = result.getInt(0);
+                            Map<String, String> headerMap = JSONUtil.toMapOneLevelString(result.getJSONObject(1));
+                            String body = result.get(2).toString();
+                            ConnectionService.onHttp(requestInfo.getSequenceId(), code, headerMap, body);
+                        } catch (Exception e) {
+                            ConnectionService.onHttp(requestInfo.getSequenceId(), 0, new HashMap<String, String>(), e.getMessage());
+                            Log.e(TAG, "HttpRequest parse result exception ", e);
+                        }
+                    }
+                });
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "HttpRequest exception ", e);
+        }
+    }
+
     public void request(RequestInfo requestInfo) {
 
         try {
             Log.d(TAG, "request " + requestInfo.getPath());
-            if (requestInfo.isExpectReply()) {
-                replyCallbacks.put(requestInfo.getSequenceId(), requestInfo);
-            }
 
             requestInfo.setTimestamp();
-
-            postTimeout();
 
             if (socket.connected()) {
                 JSONObject object = new JSONObject();
@@ -496,10 +458,10 @@ public class SocketIOProxyClient implements PushSubscriber {
                 object.put("sequenceId", String.valueOf(requestInfo.getSequenceId()));
 
                 socket.emit("packetProxy", object);
+
             }
 
         } catch (Exception e) {
-            responseHandler.onResponse(requestInfo.getSequenceId(), RequestException.Error.CLIENT_DATA_SERIALIZE_ERROR.value, RequestException.Error.CLIENT_DATA_SERIALIZE_ERROR.name(), null);
         }
     }
 

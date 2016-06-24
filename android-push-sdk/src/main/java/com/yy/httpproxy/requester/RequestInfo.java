@@ -3,7 +3,6 @@ package com.yy.httpproxy.requester;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Map;
 
 /**
  * Created by xuduo on 10/16/15.

@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+
+import com.yy.httpproxy.requester.HttpRequest;
 import com.yy.httpproxy.util.Log;
 
 import com.yy.httpproxy.requester.RequestInfo;
@@ -21,6 +23,7 @@ public class BindService extends Service {
     public static final int CMD_RESPONSE = 4;
     public static final int CMD_CONNECTED = 5;
     public static final int CMD_DISCONNECT = 6;
+    public static final int CMD_HTTP_RESPONSE = 7;
     private static final String TAG = "BindService";
     private final Messenger messenger = new Messenger(new IncomingHandler());
     public static Messenger remoteClient;
@@ -30,8 +33,8 @@ public class BindService extends Service {
         @Override
         public void handleMessage(Message msg) {
             int cmd = msg.what;
-            Bundle bundle = msg.getData();
             Log.d(TAG, "receive msg " + cmd);
+            Bundle bundle = msg.getData();
             if (cmd == RemoteClient.CMD_SUBSCRIBE_BROADCAST) {
                 String topic = bundle.getString("topic");
                 boolean receiveTtlPackets = bundle.getBoolean("receiveTtlPackets", false);
@@ -63,6 +66,9 @@ public class BindService extends Service {
                 String id = bundle.getString("id");
                 PushedNotification notification = new PushedNotification(id, bundle.getString("title"), bundle.getString("message"), bundle.getString("payload"));
                 ConnectionService.publishNotification(notification);
+            } else if (cmd == RemoteClient.CMD_HTTP) {
+                HttpRequest request = (HttpRequest) bundle.getSerializable("request");
+                ConnectionService.client.http(request);
             }
         }
     }

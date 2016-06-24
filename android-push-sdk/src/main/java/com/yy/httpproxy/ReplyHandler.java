@@ -1,16 +1,10 @@
 package com.yy.httpproxy;
 
 
-public abstract class ReplyHandler<T> {
+import com.yy.httpproxy.requester.HttpResponse;
 
-    public Object clazz;
+public abstract class ReplyHandler {
 
-    public ReplyHandler(Object clazz) {
-        this.clazz = clazz;
-    }
-
-    public abstract void onSuccess(T result);
-
-    public abstract void onError(int code, String message);
+    public abstract void onReply(HttpResponse response);
 
 }

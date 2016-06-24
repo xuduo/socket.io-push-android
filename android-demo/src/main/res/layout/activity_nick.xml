@@ -8,34 +8,44 @@
 
     <TextView
         android:id="@+id/tv_nick"
-        android:layout_marginTop="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:text="NickName" />
 
     <EditText
         android:id="@+id/et_nick_nickname"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:singleLine="true"
         android:layout_below="@+id/tv_nick"
         android:layout_marginTop="20dp"
-        android:text="anonymous"/>
+        android:singleLine="true"
+        android:text="anonymous" />
 
     <EditText
         android:id="@+id/et_host"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:singleLine="true"
         android:layout_below="@+id/et_nick_nickname"
         android:layout_marginTop="20dp"
-        android:text="https://spush.yy.com" />
+        android:singleLine="true"
+        android:text="http://221.5.104.214:10001" />
 
     <Button
         android:id="@+id/btn_nick_enter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:layout_below="@+id/et_host"
         android:layout_centerHorizontal="true"
-        android:text="Enter" />
+        android:text="Enter Chat" />
+
+    <Button
+        android:id="@+id/btn_http_enter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_nick_enter"
+        android:layout_centerHorizontal="true"
+        android:text="Enter Http" />
+
 </RelativeLayout>

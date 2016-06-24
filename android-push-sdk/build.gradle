@@ -33,7 +33,7 @@ dependencies {
 }
 
 group = "com.yy"
-version = "1.0.97"
+version = "1.0.98"
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -61,7 +61,6 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
-
 
 artifacts {
     archives javadocJar, sourcesJar

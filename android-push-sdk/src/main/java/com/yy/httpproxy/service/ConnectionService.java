@@ -21,7 +21,10 @@ import com.yy.httpproxy.util.Log;
 import com.yy.httpproxy.util.LogcatLogger;
 import com.yy.httpproxy.util.Logger;
 
-public class ConnectionService extends Service implements ConnectCallback, PushCallback, ResponseHandler, SocketIOProxyClient.NotificationCallback {
+import java.io.Serializable;
+import java.util.Map;
+
+public class ConnectionService extends Service implements ConnectCallback, PushCallback, SocketIOProxyClient.NotificationCallback {
 
     private static final String TAG = "ConnectionService";
     public static SocketIOProxyClient client;
@@ -33,7 +36,6 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "ConnectionService onCreate");
-
     }
 
     private void startForegroundService() {
@@ -139,7 +141,6 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
             }
             notificationProvider = ProviderFactory.getProvider(this.getApplicationContext());
             client = new SocketIOProxyClient(this.getApplicationContext(), host, notificationProvider);
-            client.setResponseHandler(this);
             client.setPushId(pushId);
             client.setPushCallback(this);
             client.setNotificationCallback(this);
@@ -183,15 +184,14 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
         notificationHandler.handlerNotification(this, BindService.bound, notification);
     }
 
-    @Override
-    public void onResponse(String sequenceId, int code, String message, byte[] data) {
-        Log.d(TAG, "onResponse  " + code);
-        Message msg = Message.obtain(null, BindService.CMD_RESPONSE, 0, 0);
+    public static void onHttp(String sequenceId, int code, Map<String, String> headers, String body) {
+        Log.d(TAG, "onHttp  " + code);
+        Message msg = Message.obtain(null, BindService.CMD_HTTP_RESPONSE, 0, 0);
         Bundle bundle = new Bundle();
         bundle.putString("sequenceId", sequenceId);
         bundle.putInt("code", code);
-        bundle.putString("message", message);
-        bundle.putByteArray("data", data);
+        bundle.putString("body", body);
+        bundle.putSerializable("headers", (Serializable) headers);
         msg.setData(bundle);
         BindService.sendMsg(msg);
     }

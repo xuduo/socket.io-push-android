@@ -28,7 +28,7 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
     public final static String TAG = "ChatActivity";
     private RecyclerView recyclerViewMessages;
     private ProxyClient proxyClient;
-    private HttpApiModel httpApiModel = new HttpApiModel(API_URL);
+    private HttpApiModel httpApiModel;
     private ChatMessagesAdapter chatMessagesAdapter;
     private static final String API_URL = "http://spush.yy.com/api/push";
 
@@ -67,6 +67,7 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
                 .setRequestSerializer(new JsonSerializer())
                 .setLogger(DemoLogger.class));
         proxyClient.subscribeAndReceiveTtlPackets(chatTopic);
+        httpApiModel = new HttpApiModel(API_URL, proxyClient);
         updateConnect();
 
     }
@@ -75,7 +76,7 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
 
         @Override
         public void log(int level, String message, Throwable e) {
-            Log.d("DemoLogger", "demo " + message);
+            Log.d("DemoLogger", "demo " + message, e);
         }
     }
 

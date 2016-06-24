@@ -39,7 +39,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DrawActivity"
+            android:name=".HttpActivity"
             android:screenOrientation="portrait"
             android:label="SyncWhiteBoard" >
         </activity>

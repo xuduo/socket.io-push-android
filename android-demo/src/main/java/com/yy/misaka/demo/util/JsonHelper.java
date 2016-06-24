@@ -59,13 +59,6 @@ public class JsonHelper {
     }
 
     public static<T> String toJson(T object, String encode) {
-        String sourceStr = getGson().toJson(object);
-        String encodeStr = null;
-        try {
-            encodeStr = URLEncoder.encode(sourceStr, encode);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return encodeStr;
+        return getGson().toJson(object);
     }
 }

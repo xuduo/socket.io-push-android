@@ -4,11 +4,17 @@ package com.yy.httpproxy;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.yy.httpproxy.requester.RequestException;
+import com.yy.httpproxy.requester.HttpCallback;
+import com.yy.httpproxy.requester.HttpRequest;
+import com.yy.httpproxy.requester.HttpResponse;
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.subscribe.PushCallback;
+import com.yy.httpproxy.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class ProxyClient implements PushCallback {
@@ -17,12 +23,13 @@ public class ProxyClient implements PushCallback {
     public static final String TAG = "ProxyClient";
     private long mainThreadId = Looper.getMainLooper().getThread().getId();
     private Handler handler = new Handler(Looper.getMainLooper());
-    private Map<String, ReplyHandler> replayHandlers = new HashMap<>();
+    private Map<String, HttpCallback> replayHandlers = new HashMap<>();
 
     public ProxyClient(Config config) {
         this.config = config;
         if (config.getRemoteClient() != null) {
             config.getRemoteClient().setProxyClient(this);
+            config.getRemoteClient().setHandler(handler);
         }
     }
 
@@ -30,15 +37,10 @@ public class ProxyClient implements PushCallback {
         return config.getRemoteClient().isConnected();
     }
 
-    public void request(String path, Object body, final ReplyHandler replyHandler) {
+    public void request(String path, Object body) {
         final RequestInfo requestInfo = new RequestInfo();
         requestInfo.setBody(config.getRequestSerializer().toBinary(path, body));
         requestInfo.setPath(path);
-
-        if (replyHandler != null) {
-            requestInfo.setExpectReply(true);
-            replayHandlers.put(requestInfo.getSequenceId(), replyHandler);
-        }
 
         config.getRemoteClient().
                 request(requestInfo);
@@ -89,55 +91,37 @@ public class ProxyClient implements PushCallback {
         }
     }
 
-    private void callSuccessOnMainThread(final ReplyHandler replyHandler, final Object result) {
+    private void callSuccessOnMainThread(final HttpCallback replyHandler, final HttpResponse response) {
         if (Thread.currentThread().getId() == mainThreadId) {
-            replyHandler.onSuccess(result);
+            replyHandler.onResult(response);
         } else {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    replyHandler.onSuccess(result);
+                    replyHandler.onResult(response);
                 }
             });
         }
     }
-
-    private void callErrorOnMainThread(final ReplyHandler replyHandler, final RequestException e) {
-        if (Thread.currentThread().getId() == mainThreadId) {
-            replyHandler.onError(e.getCode(), e.getMessage());
-        } else {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    replyHandler.onError(e.getCode(), e.getMessage());
-                }
-            });
-        }
-    }
-
 
     public String getPushId() {
         return getConfig().getPushId();
     }
 
-    public void onResponse(String path, String sequenceId, int code, String message, byte[] data) {
-        ReplyHandler replyHandler = replayHandlers.remove(sequenceId);
+    public void onResponse(HttpResponse response) {
+        HttpCallback replyHandler = replayHandlers.remove(response.getSequenceId());
         if (replyHandler != null) {
-            if (code == 1) {
-                try {
-                    callSuccessOnMainThread(replyHandler, config.getRequestSerializer().toObject(path, replyHandler.clazz, data));
-                } catch (RequestException e) {
-                    callErrorOnMainThread(replyHandler, new RequestException(e, e.getCode(), e.getMessage()));
-                } catch (Exception e) {
-                    callErrorOnMainThread(replyHandler, new RequestException(e, RequestException.Error.CLIENT_DATA_SERIALIZE_ERROR.value, RequestException.Error.CLIENT_DATA_SERIALIZE_ERROR.name()));
-                }
-            } else {
-                callErrorOnMainThread(replyHandler, new RequestException(null, code, message));
-            }
+            callSuccessOnMainThread(replyHandler, response);
         }
     }
 
     public Config getConfig() {
         return config;
+    }
+
+    public void http(HttpRequest request, HttpCallback httpCallback) {
+        replayHandlers.put(request.getSequenceId(), httpCallback);
+        config.getRemoteClient().
+                http(request);
     }
 }

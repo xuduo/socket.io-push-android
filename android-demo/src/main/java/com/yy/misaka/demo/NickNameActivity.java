@@ -33,6 +33,14 @@ public class NickNameActivity extends Activity {
                 }
             }
         });
+
+        findViewById(R.id.btn_http_enter).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String host = String.valueOf(etHost.getText()).trim();
+                HttpActivity.launch(NickNameActivity.this, host);
+            }
+        });
     }
 
 }

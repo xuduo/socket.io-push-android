@@ -1,8 +1,10 @@
 package com.yy.httpproxy.requester;
 
 
+import java.util.Map;
+
 public interface ResponseHandler {
 
-    void onResponse(String sequenceId, int code, String message, byte[] body);
+    void onHttp(int sequenceId, int code, Map<String, String> headers, String body);
 
 }
