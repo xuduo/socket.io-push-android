@@ -69,6 +69,10 @@ public class BindService extends Service {
             } else if (cmd == RemoteClient.CMD_HTTP) {
                 HttpRequest request = (HttpRequest) bundle.getSerializable("request");
                 ConnectionService.client.http(request);
+            } else if (cmd == RemoteClient.CMD_ADD_TAG) {
+                ConnectionService.client.addTag(bundle.getString("tag"));
+            } else if (cmd == RemoteClient.CMD_REMOVE_TAG) {
+                ConnectionService.client.removeTag(bundle.getString("tag"));
             }
         }
     }

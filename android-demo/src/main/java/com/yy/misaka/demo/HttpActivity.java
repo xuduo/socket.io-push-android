@@ -18,10 +18,11 @@ import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.misaka.demo.util.HttpUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
 
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 
 public class HttpActivity extends Activity {
@@ -29,6 +30,7 @@ public class HttpActivity extends Activity {
     private static final String TAG = "HttpActivity";
     public static String host;
     private ProxyClient proxyClient;
+    private int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,19 +45,34 @@ public class HttpActivity extends Activity {
             @Override
             public void onClick(View v) {
                 final String url = ((EditText) findViewById(R.id.et_url)).getText().toString();
-                HttpRequest request = new HttpRequest();
-                request.setUrl(url);
-                request.setMethod("get");
-                Log.d(TAG, "http request url " + url);
                 final long start = System.currentTimeMillis();
-                proxyClient.http(request, new HttpCallback() {
-                    @Override
-                    public void onResult(HttpResponse httpResponse) {
-                        Log.d(TAG, "httpResponse onResult " + (System.currentTimeMillis() - start) + " " + url);
-                        ((TextView) findViewById(R.id.tv_content)).setText(httpResponse.getBody());
-                    }
+                for (int i = 0; i < 1000; i++) {
+                    HttpRequest request = new HttpRequest();
+                    request.setUrl(url);
+                    request.setMethod("get");
+                    HashMap<String, String> headers = new HashMap<>();
+                    headers.put("httpResponseonResult1", "httpResponseonResult");
+                    headers.put("httpResponseonResult11", "httpResponseonResult");
+                    headers.put("httpResponseonResult12", "httpResponseonResult");
+                    headers.put("httpResponseonResult13", "httpResponseonResult");
+                    headers.put("httpResponseonResult14", "httpResponseonResult");
+                    headers.put("httpResponseonResult15", "httpResponseonResult");
+                    headers.put("httpResponseonResult16", "httpResponseonResult");
+                    headers.put("httpResponseonResult17", "httpResponseonResult");
+                    headers.put("httpResponseonResult18", "httpResponseonResult");
+                    headers.put("httpResponseonResult19", "httpResponseonResult");
+                    request.setHeaders(headers);
+                    Log.d(TAG, "http request url " + url);
 
-                });
+                    proxyClient.http(request, new HttpCallback() {
+                        @Override
+                        public void onResult(HttpResponse httpResponse) {
+                            Log.d(TAG, count++ + "httpResponse onResult " + (System.currentTimeMillis() - start) + " " + url + httpResponse);
+                            ((TextView) findViewById(R.id.tv_content)).setText(httpResponse.getBody());
+                        }
+
+                    });
+                }
             }
         });
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
@@ -67,17 +84,22 @@ public class HttpActivity extends Activity {
                 request.setMethod("get");
                 Log.d(TAG, "http request url " + url);
                 final long start = System.currentTimeMillis();
-                HttpUtils.request(url, null, new Callback() {
-                    @Override
-                    public void onFailure(Request request, IOException e) {
-                        Log.d(TAG, "sendMessage onFailure");
-                    }
+                count = 0;
+                for (int i = 0; i < 1000; i++) {
+                    HttpUtils.request(url, null, new Callback() {
 
-                    @Override
-                    public void onResponse(Response response) throws IOException {
-                        Log.d(TAG, "raw httpResponse" + (System.currentTimeMillis() - start) + " " + " " + url);
-                    }
-                });
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Log.e(TAG, "sendMessage onFailure ", e);
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            Log.d(TAG, count++ + "raw httpResponse " + response.protocol().name() + " " + (System.currentTimeMillis() - start) + " " + " " + url + " " + response.body().string());
+                            response.close();
+                        }
+                    });
+                }
             }
         });
 

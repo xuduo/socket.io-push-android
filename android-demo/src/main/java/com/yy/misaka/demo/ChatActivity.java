@@ -22,6 +22,8 @@ import com.yy.misaka.demo.adapter.ChatMessagesAdapter;
 import com.yy.misaka.demo.appmodel.HttpApiModel;
 import com.yy.misaka.demo.entity.Message;
 
+import java.util.Set;
+
 public class ChatActivity extends Activity implements PushCallback, ConnectCallback {
 
     public final static String chatTopic = "chatRoom";
@@ -99,8 +101,10 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
     }
 
     @Override
-    public void onConnect(String uid) {
+    public void onConnect(String uid, Set<String> tags) {
+        Log.i(TAG, "onConnect " + tags);
         updateConnect();
+        proxyClient.addTag("tag3");
     }
 
     @Override

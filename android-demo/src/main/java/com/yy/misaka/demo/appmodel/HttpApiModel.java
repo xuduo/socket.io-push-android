@@ -2,21 +2,15 @@ package com.yy.misaka.demo.appmodel;
 
 import android.util.Log;
 
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import com.yy.httpproxy.ProxyClient;
 import com.yy.httpproxy.requester.HttpCallback;
 import com.yy.httpproxy.requester.HttpRequest;
 import com.yy.httpproxy.requester.HttpResponse;
 import com.yy.misaka.demo.ChatActivity;
 import com.yy.misaka.demo.entity.Message;
-import com.yy.misaka.demo.util.HttpUtils;
 import com.yy.misaka.demo.util.JsonHelper;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 public class HttpApiModel {
 

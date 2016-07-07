@@ -3,6 +3,7 @@ package com.yy.httpproxy.thirdparty;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+
 import com.yy.httpproxy.util.Log;
 
 import com.xiaomi.channel.commonutils.logger.LoggerInterface;
@@ -19,7 +20,7 @@ public class XiaomiProvider implements NotificationProvider {
 
         String appId = getMetaDataValue(context, "XIAOMI_APP_ID");
         String appKey = getMetaDataValue(context, "XIAOMI_APP_KEY");
-        Log.d(TAG, appId + " " + appKey);
+        Log.i(TAG, appId + " " + appKey);
         MiPushClient.registerPush(context, appId, appKey);
 
         LoggerInterface newLogger = new LoggerInterface() {
@@ -47,7 +48,7 @@ public class XiaomiProvider implements NotificationProvider {
         try {
             return Class.forName("com.xiaomi.mipush.sdk.MiPushClient") != null
                     && Class.forName("com.yy.httpproxy.thirdparty.XiaomiReceiver") != null
-                    && ServiceCheckUtil.isServiceAvailable(context, XiaomiReceiver.class);
+                    && ServiceCheckUtil.isServiceAvailable(context, XiaomiReceiver.class) && getMetaDataValue(context, "XIAOMI_APP_ID") != null && getMetaDataValue(context, "XIAOMI_APP_ID") != null;
         } catch (Throwable e) {
             Log.e(TAG, "available ", e);
             return false;
@@ -77,7 +78,7 @@ public class XiaomiProvider implements NotificationProvider {
                             PackageManager.GET_META_DATA);
             metaDataValue = appInfo.metaData.getString(metaDataName);
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG, "getMetaDataValue error ", e);
         }
         return metaDataValue;
 

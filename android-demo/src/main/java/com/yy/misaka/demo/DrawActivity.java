@@ -15,6 +15,7 @@ import com.yy.misaka.demo.util.JsonSerializer;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 
 import java.util.Random;
+import java.util.Set;
 
 
 public class DrawActivity extends Activity implements ConnectCallback {
@@ -65,7 +66,7 @@ public class DrawActivity extends Activity implements ConnectCallback {
     }
 
     @Override
-    public void onConnect(String uid) {
+    public void onConnect(String uid, Set<String> tags) {
         updateConnect();
     }
 

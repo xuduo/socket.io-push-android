@@ -24,7 +24,7 @@ import com.yy.httpproxy.util.Logger;
 import java.io.Serializable;
 import java.util.Map;
 
-public class ConnectionService extends Service implements ConnectCallback, PushCallback, SocketIOProxyClient.NotificationCallback {
+public class ConnectionService extends Service implements PushCallback, SocketIOProxyClient.NotificationCallback {
 
     private static final String TAG = "ConnectionService";
     public static SocketIOProxyClient client;
@@ -144,7 +144,6 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
             client.setPushId(pushId);
             client.setPushCallback(this);
             client.setNotificationCallback(this);
-            client.setConnectCallback(this);
         }
     }
 
@@ -197,12 +196,14 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
     }
 
 
-    @Override
-    public void onConnect(String uid) {
+    public static void onConnect() {
         sendConnect();
     }
 
     public static void sendConnect() {
+        if (client == null) {
+            return;
+        }
         int id;
         if (client.isConnected()) {
             id = BindService.CMD_CONNECTED;
@@ -210,16 +211,14 @@ public class ConnectionService extends Service implements ConnectCallback, PushC
             id = BindService.CMD_DISCONNECT;
         }
         Message msg = Message.obtain(null, id, 0, 0);
-        String uid = client.getUid();
-        if (uid != null) {
-            Bundle bundle = new Bundle();
-            bundle.putString("uid", uid);
-        }
+        Bundle bundle = new Bundle();
+        bundle.putString("uid", client.getUid());
+        bundle.putStringArray("tags", client.getTags());
+        msg.setData(bundle);
         BindService.sendMsg(msg);
     }
 
-    @Override
-    public void onDisconnect() {
+    public static void onDisconnect() {
         sendConnect();
     }
 

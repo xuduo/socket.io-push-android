@@ -37,6 +37,16 @@ public class ProxyClient implements PushCallback {
         return config.getRemoteClient().isConnected();
     }
 
+    public void addTag(String tag) {
+        config.getRemoteClient().
+                addTag(tag);
+    }
+
+    public void removeTag(String tag) {
+        config.getRemoteClient().
+                removeTag(tag);
+    }
+
     public void request(String path, Object body) {
         final RequestInfo requestInfo = new RequestInfo();
         requestInfo.setBody(config.getRequestSerializer().toBinary(path, body));

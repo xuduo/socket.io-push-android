@@ -1,5 +1,6 @@
 package com.yy.httpproxy.util;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,8 +37,19 @@ public class JSONUtil {
             }
         } catch (JSONException e) {
         }
-
         return object;
+    }
+
+    public static String[] toStringArray(JSONArray jsonArray) {
+        if (jsonArray != null) {
+            String[] array = new String[jsonArray.length()];
+            for (int i = 0; i < jsonArray.length(); i++) {
+                array[i] = jsonArray.optString(i, "");
+            }
+            return array;
+        } else {
+            return new String[]{};
+        }
     }
 
 }

@@ -4,22 +4,18 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Base64;
 
-import com.yy.httpproxy.requester.HttpRequest;
-import com.yy.httpproxy.util.JSONUtil;
-import com.yy.httpproxy.util.Log;
-
 import com.yy.httpproxy.AndroidLoggingHandler;
-import com.yy.httpproxy.requester.RequestException;
+import com.yy.httpproxy.requester.HttpRequest;
 import com.yy.httpproxy.requester.RequestInfo;
-import com.yy.httpproxy.requester.ResponseHandler;
 import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.service.PushedNotification;
 import com.yy.httpproxy.stats.Stats;
 import com.yy.httpproxy.subscribe.CachedSharedPreference;
-import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.subscribe.PushSubscriber;
 import com.yy.httpproxy.thirdparty.NotificationProvider;
+import com.yy.httpproxy.util.JSONUtil;
+import com.yy.httpproxy.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,12 +24,7 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -60,12 +51,12 @@ public class SocketIOProxyClient implements PushSubscriber {
     private CachedSharedPreference cachedSharedPreference;
     private Map<String, Boolean> topics = new HashMap<>();
     private Map<String, String> topicToLastPacketId = new HashMap<>();
-    private ConnectCallback connectCallback;
     private boolean connected = false;
     private String uid;
     private Stats stats = new Stats();
     private String host = "";
     private String packageName = "";
+    private String[] tags = new String[]{};
 
 
     public void unsubscribeBroadcast(String topic) {
@@ -81,12 +72,16 @@ public class SocketIOProxyClient implements PushSubscriber {
         }
     }
 
-    public void setConnectCallback(ConnectionService connectCallback) {
-        this.connectCallback = connectCallback;
-    }
-
     public String getHost() {
         return host;
+    }
+
+    public String[] getTags() {
+        return tags;
+    }
+
+    public void setTags(String[] tags) {
+        this.tags = tags;
     }
 
     public interface NotificationCallback {
@@ -107,9 +102,7 @@ public class SocketIOProxyClient implements PushSubscriber {
             connected = false;
             uid = null;
             stats.onDisconnect();
-            if (connectCallback != null) {
-                connectCallback.onDisconnect();
-            }
+            ConnectionService.onDisconnect();
         }
     };
 
@@ -166,11 +159,10 @@ public class SocketIOProxyClient implements PushSubscriber {
             JSONObject data = (JSONObject) args[0];
             String pushId = data.optString("id");
             uid = data.optString("uid", "");
+            tags = JSONUtil.toStringArray(data.optJSONArray("tags"));
             Log.d(TAG, "on pushId " + pushId + " ,uid " + uid);
             connected = true;
-            if (connectCallback != null) {
-                connectCallback.onConnect(uid);
-            }
+            ConnectionService.onConnect();
             sendTokenToServer();
         }
     };
@@ -403,7 +395,6 @@ public class SocketIOProxyClient implements PushSubscriber {
 
     public void disconnect() {
         socket.disconnect();
-        this.connectCallback = null;
         this.notificationCallback = null;
         this.pushCallback = null;
     }
@@ -481,6 +472,28 @@ public class SocketIOProxyClient implements PushSubscriber {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            }
+        }
+    }
+
+    public void addTag(String tag) {
+        if (socket.connected()) {
+            JSONObject data = new JSONObject();
+            try {
+                data.put("tag", tag);
+                socket.emit("addTag", data);
+            } catch (JSONException e) {
+            }
+        }
+    }
+
+    public void removeTag(String tag) {
+        if (socket.connected()) {
+            JSONObject data = new JSONObject();
+            try {
+                data.put("tag", tag);
+                socket.emit("removeTag", data);
+            } catch (JSONException e) {
             }
         }
     }
