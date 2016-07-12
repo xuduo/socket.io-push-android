@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class RemoteClient implements PushSubscriber, HttpRequester {
@@ -54,7 +55,7 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
     private Context context;
     private boolean connected = false;
     private static RemoteClient instance;
-    private Map<String, HttpRequest> replyCallbacks = new HashMap<>();
+    private Map<String, HttpRequest> replyCallbacks = new ConcurrentHashMap<>();
     private long timeout = 10000;
     private Handler handler;
 
