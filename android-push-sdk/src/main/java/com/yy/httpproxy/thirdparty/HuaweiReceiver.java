@@ -8,7 +8,6 @@ import android.os.Bundle;
 import com.yy.httpproxy.util.Log;
 
 import com.huawei.android.pushagent.api.PushEventReceiver;
-import com.yy.httpproxy.service.BindService;
 import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.service.PushedNotification;
@@ -55,7 +54,7 @@ public class HuaweiReceiver extends PushEventReceiver {
 
                 PushedNotification pushedNotification = new PushedNotification(obj.getString(0), obj.getJSONObject(1));
                 Intent clickIntent = new Intent(DefaultNotificationHandler.getIntentName(context));
-                clickIntent.putExtra("cmd", BindService.CMD_NOTIFICATION_CLICKED);
+                clickIntent.putExtra("cmd", ConnectionService.CMD_NOTIFICATION_CLICKED);
                 clickIntent.putExtra("id", pushedNotification.id);
                 clickIntent.putExtra("title", pushedNotification.title);
                 clickIntent.putExtra("message", pushedNotification.message);

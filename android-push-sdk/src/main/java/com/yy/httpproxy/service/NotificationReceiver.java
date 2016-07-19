@@ -12,11 +12,11 @@ import java.util.HashMap;
 public abstract class NotificationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getIntExtra("cmd", -1) == BindService.CMD_NOTIFICATION_CLICKED) {
+        if (intent.getIntExtra("cmd", -1) == ConnectionService.CMD_NOTIFICATION_CLICKED) {
             String id = intent.getStringExtra("id");
             PushedNotification notification = new PushedNotification(id, intent.getStringExtra("title"), intent.getStringExtra("message"), intent.getStringExtra("payload"));
             onNotificationClicked(context, notification);
-        } else if (intent.getIntExtra("cmd", -1) == BindService.CMD_NOTIFICATION_ARRIVED) {
+        } else if (intent.getIntExtra("cmd", -1) == ConnectionService.CMD_NOTIFICATION_ARRIVED) {
             String id = intent.getStringExtra("id");
             PushedNotification notification = new PushedNotification(id, intent.getStringExtra("title"), intent.getStringExtra("message"), intent.getStringExtra("payload"));
             onNotificationArrived(context, notification);
