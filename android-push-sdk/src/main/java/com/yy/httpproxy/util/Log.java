@@ -8,25 +8,39 @@ public class Log {
     public static Logger logger;
 
     public static void d(String tag, String message) {
-        log(Logger.DEBUG, tag, message, null);
+        if (logger != null) {
+            log(Logger.DEBUG, tag, message, null);
+        } else {
+            android.util.Log.d(tag, message);
+        }
     }
 
     public static void i(String tag, String message) {
-        log(Logger.INFO, tag, message, null);
+        if (logger != null) {
+            log(Logger.INFO, tag, message, null);
+        } else {
+            android.util.Log.d(tag, message);
+        }
     }
 
     public static void e(String tag, String message) {
-        log(Logger.ERROR, tag, message, null);
+        if (logger != null) {
+            log(Logger.ERROR, tag, message, null);
+        } else {
+            android.util.Log.d(tag, message);
+        }
     }
 
     public static void e(String tag, String message, Throwable e) {
-        log(Logger.ERROR, tag, message, e);
+        if (logger != null) {
+            log(Logger.ERROR, tag, message, e);
+        } else {
+            android.util.Log.d(tag, message);
+        }
     }
 
     private static void log(int level, String tag, String message, Throwable e) {
-        if (logger != null) {
-            logger.log(level, tag + ":" + message, e);
-        }
+        logger.log(level, tag + ":" + message, e);
     }
 
 }

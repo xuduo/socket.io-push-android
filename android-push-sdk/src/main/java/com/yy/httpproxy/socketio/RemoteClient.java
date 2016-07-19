@@ -236,6 +236,7 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         this.pushId = pushId;
         this.notificationHandler = notificationHandler;
         this.logger = logger;
+        startServices();
     }
 
     private void startServices() {
