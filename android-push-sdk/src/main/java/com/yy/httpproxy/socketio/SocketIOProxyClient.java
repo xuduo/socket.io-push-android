@@ -361,7 +361,7 @@ public class SocketIOProxyClient implements PushSubscriber {
                         }
 
                         public X509Certificate[] getAcceptedIssuers() {
-                            return null;
+                            return new X509Certificate[0];
                         }
                     };
                     opts.sslContext.init(null, new TrustManager[]{tm}, null);
