@@ -340,8 +340,12 @@ public class SocketIOProxyClient implements PushSubscriber {
     public SocketIOProxyClient(Context context, String host, NotificationProvider provider) {
         this.packageName = context.getPackageName();
         cachedSharedPreference = new CachedSharedPreference(context);
-        AndroidLoggingHandler.reset(new AndroidLoggingHandler());
-        java.util.logging.Logger.getLogger("").setLevel(Level.FINEST);
+        try {
+            AndroidLoggingHandler.reset(new AndroidLoggingHandler());
+            java.util.logging.Logger.getLogger("").setLevel(Level.FINEST);
+        } catch (Exception e) {
+
+        }
         this.host = host;
         this.notificationProvider = provider;
         if (provider == null) {

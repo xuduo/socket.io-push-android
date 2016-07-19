@@ -58,6 +58,10 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
     private Map<String, HttpRequest> replyCallbacks = new ConcurrentHashMap<>();
     private long timeout = 10000;
     private Handler handler;
+    private String host;
+    private String pushId;
+    private String notificationHandler;
+    private String logger;
 
     private Runnable timeoutTask = new Runnable() {
         @Override
@@ -223,22 +227,29 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
             mService = null;
             mBound = false;
             Log.i(TAG, "onServiceDisconnected");
-            context.unbindService(this);
+            startServices();
         }
     };
 
     public RemoteClient(Context context, String host, String pushId, String notificationHandler, String logger) {
         this.context = context;
-        startRemoteService(context, host, pushId, notificationHandler, logger);
-        startDummyService(context);
+        this.host = host;
+        this.pushId = pushId;
+        this.notificationHandler = notificationHandler;
+        this.logger = logger;
     }
 
-    private void startDummyService(Context context) {
+    private void startServices() {
+        startRemoteService();
+        startDummyService();
+    }
+
+    private void startDummyService() {
         Intent intent = new Intent(context, DummyService.class);
         context.startService(intent);
     }
 
-    private void startRemoteService(Context context, String host, String pushId, String notificationHandler, String logger) {
+    private void startRemoteService() {
         Intent intent = new Intent(context, ConnectionService.class);
         intent.putExtra("host", host);
         intent.putExtra("pushId", pushId);
