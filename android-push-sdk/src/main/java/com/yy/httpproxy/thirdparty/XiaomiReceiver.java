@@ -9,7 +9,6 @@ import com.xiaomi.mipush.sdk.MiPushClient;
 import com.xiaomi.mipush.sdk.MiPushCommandMessage;
 import com.xiaomi.mipush.sdk.MiPushMessage;
 import com.xiaomi.mipush.sdk.PushMessageReceiver;
-import com.yy.httpproxy.service.BindService;
 import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.service.PushedNotification;
@@ -30,7 +29,7 @@ public class XiaomiReceiver extends PushMessageReceiver {
             JSONObject obj = new JSONObject(content);
             PushedNotification pushedNotification = new PushedNotification(obj.getString("id"), obj.getJSONObject("android"));
             Intent clickIntent = new Intent(DefaultNotificationHandler.getIntentName(context));
-            clickIntent.putExtra("cmd", BindService.CMD_NOTIFICATION_CLICKED);
+            clickIntent.putExtra("cmd", ConnectionService.CMD_NOTIFICATION_CLICKED);
             clickIntent.putExtra("id", pushedNotification.id);
             clickIntent.putExtra("title", pushedNotification.title);
             clickIntent.putExtra("message", pushedNotification.message);

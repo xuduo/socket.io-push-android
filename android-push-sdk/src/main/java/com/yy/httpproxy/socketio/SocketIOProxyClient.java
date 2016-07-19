@@ -11,6 +11,7 @@ import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.service.PushedNotification;
 import com.yy.httpproxy.stats.Stats;
 import com.yy.httpproxy.subscribe.CachedSharedPreference;
+import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.subscribe.PushSubscriber;
 import com.yy.httpproxy.thirdparty.NotificationProvider;
@@ -26,6 +27,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 import javax.net.ssl.HostnameVerifier;
@@ -40,14 +42,15 @@ import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
 
-public class SocketIOProxyClient implements PushSubscriber {
+public class SocketIOProxyClient implements PushSubscriber{
 
     private static final int PROTOCOL_VERSION = 1;
     private static String TAG = "SocketIOProxyClient";
     private final NotificationProvider notificationProvider;
     private PushCallback pushCallback;
+
     private String pushId;
-    private NotificationCallback notificationCallback;
+    private Callback socketCallback;
     private CachedSharedPreference cachedSharedPreference;
     private Map<String, Boolean> topics = new HashMap<>();
     private Map<String, String> topicToLastPacketId = new HashMap<>();
@@ -84,8 +87,11 @@ public class SocketIOProxyClient implements PushSubscriber {
         this.tags = tags;
     }
 
-    public interface NotificationCallback {
+    public interface Callback {
         void onNotification(PushedNotification notification);
+        void onConnect();
+        void onDisconnect();
+        void onHttp(String sequenceId, int code, Map<String, String> headers, String body);
     }
 
     private final Emitter.Listener connectListener = new Emitter.Listener() {
@@ -102,7 +108,7 @@ public class SocketIOProxyClient implements PushSubscriber {
             connected = false;
             uid = null;
             stats.onDisconnect();
-            ConnectionService.onDisconnect();
+            socketCallback.onDisconnect();
         }
     };
 
@@ -162,7 +168,7 @@ public class SocketIOProxyClient implements PushSubscriber {
             tags = JSONUtil.toStringArray(data.optJSONArray("tags"));
             Log.d(TAG, "on pushId " + pushId + " ,uid " + uid);
             connected = true;
-            ConnectionService.onConnect();
+            socketCallback.onConnect();
             sendTokenToServer();
         }
     };
@@ -185,13 +191,13 @@ public class SocketIOProxyClient implements PushSubscriber {
     private final Emitter.Listener notificationListener = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            if (notificationCallback != null) {
+            if (socketCallback != null) {
                 try {
                     JSONObject data = (JSONObject) args[0];
                     JSONObject android = data.optJSONObject("android");
                     Log.i(TAG, "on notification topic " + android);
                     String id = data.optString("id", null);
-                    notificationCallback.onNotification(new PushedNotification(id, android));
+                    socketCallback.onNotification(new PushedNotification(id, android));
                     updateLastPacketId(id, data.optString("ttl", null), data.optString("unicast", null), "noti");
                     long timestamp = data.optLong("timestamp", 0);
                     if (timestamp > 0 && id != null) {
@@ -399,7 +405,7 @@ public class SocketIOProxyClient implements PushSubscriber {
 
     public void disconnect() {
         socket.disconnect();
-        this.notificationCallback = null;
+        this.socketCallback = null;
         this.pushCallback = null;
     }
 
@@ -423,9 +429,9 @@ public class SocketIOProxyClient implements PushSubscriber {
                             int code = result.getInt(0);
                             Map<String, String> headerMap = JSONUtil.toMapOneLevelString(result.getJSONObject(1));
                             String body = result.get(2).toString();
-                            ConnectionService.onHttp(requestInfo.getSequenceId(), code, headerMap, body);
+                            socketCallback.onHttp(requestInfo.getSequenceId(), code, headerMap, body);
                         } catch (Exception e) {
-                            ConnectionService.onHttp(requestInfo.getSequenceId(), 0, new HashMap<String, String>(), e.getMessage());
+                            socketCallback.onHttp(requestInfo.getSequenceId(), 0, new HashMap<String, String>(), e.getMessage());
                             Log.e(TAG, "HttpRequest parse result exception ", e);
                         }
                     }
@@ -506,13 +512,14 @@ public class SocketIOProxyClient implements PushSubscriber {
         this.pushCallback = pushCallback;
     }
 
+    public void setSocketCallback(Callback socketCallback) {
+        this.socketCallback = socketCallback;
+    }
+
+
     public void setPushId(String pushId) {
         this.pushId = pushId;
         sendPushIdAndTopicToServer();
-    }
-
-    public void setNotificationCallback(NotificationCallback notificationCallback) {
-        this.notificationCallback = notificationCallback;
     }
 
     public String getUid() {

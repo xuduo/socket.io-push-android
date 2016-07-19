@@ -15,7 +15,6 @@ import com.yy.httpproxy.requester.HttpRequest;
 import com.yy.httpproxy.requester.HttpRequester;
 import com.yy.httpproxy.requester.HttpResponse;
 import com.yy.httpproxy.requester.RequestInfo;
-import com.yy.httpproxy.service.BindService;
 import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.service.DummyService;
 import com.yy.httpproxy.service.PushedNotification;
@@ -118,7 +117,7 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
 
     public void exit() {
         context.stopService(new Intent(context, ConnectionService.class));
-        context.stopService(new Intent(context, BindService.class));
+        context.unbindService(mConnection);
     }
 
 
@@ -169,10 +168,10 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         public void handleMessage(Message msg) {
             int cmd = msg.what;
             Bundle bundle = msg.getData();
-            if (cmd == BindService.CMD_PUSH) {
+            if (cmd == ConnectionService.CMD_PUSH) {
                 String data = bundle.getString("data");
                 proxyClient.onPush(data);
-            } else if (cmd == BindService.CMD_CONNECTED && connected == false) {
+            } else if (cmd == ConnectionService.CMD_CONNECTED && connected == false) {
                 connected = true;
                 reSendFailedRequest();
                 if (proxyClient.getConfig().getConnectCallback() != null) {
@@ -189,12 +188,12 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
                     }
                     proxyClient.getConfig().getConnectCallback().onConnect(uid, tags);
                 }
-            } else if (cmd == BindService.CMD_DISCONNECT && connected == true) {
+            } else if (cmd == ConnectionService.CMD_DISCONNECT && connected == true) {
                 connected = false;
                 if (proxyClient.getConfig().getConnectCallback() != null) {
                     proxyClient.getConfig().getConnectCallback().onDisconnect();
                 }
-            } else if (cmd == BindService.CMD_HTTP_RESPONSE) {
+            } else if (cmd == ConnectionService.CMD_HTTP_RESPONSE) {
                 HttpResponse response = HttpResponse.fromBundle(bundle);
                 replyCallbacks.remove(response.getSequenceId());
                 proxyClient.onResponse(response);
@@ -258,7 +257,7 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
             intent.putExtra("notificationHandler", notificationHandler);
         }
         context.startService(intent);
-        Intent bindIntent = new Intent(context, BindService.class);
+        Intent bindIntent = new Intent(context, ConnectionService.class);
         context.bindService(bindIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -310,19 +309,6 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
             Message msg = Message.obtain(null, CMD_SET_TOKEN, 0, 0);
             Bundle bundle = new Bundle();
             bundle.putString("token", token);
-            msg.setData(bundle);
-            instance.sendMsg(msg);
-        }
-    }
-
-    public static void publishNotification(PushedNotification pushedNotification) {
-        if (instance != null) {
-            Message msg = Message.obtain(null, CMD_THIRD_PARTY_ON_NOTIFICATION, 0, 0);
-            Bundle bundle = new Bundle();
-            bundle.putString("id", pushedNotification.id);
-            bundle.putString("title", pushedNotification.title);
-            bundle.putString("message", pushedNotification.message);
-            bundle.putString("payload", pushedNotification.payload);
             msg.setData(bundle);
             instance.sendMsg(msg);
         }

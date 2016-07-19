@@ -5,11 +5,14 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Messenger;
 import android.support.v4.app.NotificationCompat;
 
-import com.yy.httpproxy.requester.ResponseHandler;
+import com.yy.httpproxy.requester.HttpRequest;
+import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.socketio.RemoteClient;
 import com.yy.httpproxy.socketio.SocketIOProxyClient;
 import com.yy.httpproxy.subscribe.ConnectCallback;
@@ -24,13 +27,67 @@ import com.yy.httpproxy.util.Logger;
 import java.io.Serializable;
 import java.util.Map;
 
-public class ConnectionService extends Service implements PushCallback, SocketIOProxyClient.NotificationCallback {
+public class ConnectionService extends Service implements PushCallback, SocketIOProxyClient.Callback {
 
     private static final String TAG = "ConnectionService";
     public static SocketIOProxyClient client;
     private NotificationHandler notificationHandler;
     private static NotificationProvider notificationProvider;
-    private static ConnectionService instance;
+
+    public static final int CMD_PUSH = 2;
+    public static final int CMD_NOTIFICATION_CLICKED = 3;
+    public static final int CMD_NOTIFICATION_ARRIVED = 5;
+    public static final int CMD_RESPONSE = 4;
+    public static final int CMD_CONNECTED = 5;
+    public static final int CMD_DISCONNECT = 6;
+    public static final int CMD_HTTP_RESPONSE = 7;
+    private final Messenger messenger = new Messenger(new IncomingHandler());
+    private Messenger remoteClient;
+    private boolean bound = false;
+
+    private class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            int cmd = msg.what;
+            Log.d(TAG, "receive msg " + cmd);
+            Bundle bundle = msg.getData();
+            if (cmd == RemoteClient.CMD_SUBSCRIBE_BROADCAST) {
+                String topic = bundle.getString("topic");
+                boolean receiveTtlPackets = bundle.getBoolean("receiveTtlPackets", false);
+               client.subscribeBroadcast(topic, receiveTtlPackets);
+            } else if (cmd == RemoteClient.CMD_SET_PUSH_ID) {
+                client.setPushId(bundle.getString("pushId"));
+            } else if (cmd == RemoteClient.CMD_REQUEST) {
+                RequestInfo info = (RequestInfo) bundle.getSerializable("requestInfo");
+               client.request(info);
+            } else if (cmd == RemoteClient.CMD_REGISTER_CLIENT) {
+                remoteClient = msg.replyTo;
+                bound = true;
+                sendConnect();
+            } else if (cmd == RemoteClient.CMD_UNSUBSCRIBE_BROADCAST) {
+                String topic = bundle.getString("topic");
+                client.unsubscribeBroadcast(topic);
+            } else if (cmd == RemoteClient.CMD_STATS) {
+                String path = bundle.getString("path");
+                int successCount = bundle.getInt("successCount");
+                int errorCount = bundle.getInt("errorCount");
+                int latency = bundle.getInt("latency");
+                client.reportStats(path, successCount, errorCount, latency);
+            } else if (cmd == RemoteClient.CMD_UNBIND_UID) {
+                client.unbindUid();
+            } else if (cmd == RemoteClient.CMD_SET_TOKEN) {
+                String token = bundle.getString("token");
+                setToken(token);
+            } else if (cmd == RemoteClient.CMD_HTTP) {
+                HttpRequest request = (HttpRequest) bundle.getSerializable("request");
+                client.http(request);
+            } else if (cmd == RemoteClient.CMD_ADD_TAG) {
+                client.addTag(bundle.getString("tag"));
+            } else if (cmd == RemoteClient.CMD_REMOVE_TAG) {
+                client.removeTag(bundle.getString("tag"));
+            }
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -41,14 +98,6 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     private void startForegroundService() {
         Intent intent = new Intent(this, ForegroundService.class);
         startService(intent);
-    }
-
-    public static void beginForeground() {
-        if (instance != null) {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(instance);
-            builder.setPriority(Notification.PRIORITY_MIN);
-            instance.startForeground(12345, builder.build());
-        }
     }
 
     private String getFromIntentOrPref(Intent intent, String name) {
@@ -75,10 +124,10 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
             host = intent.getStringExtra("host");
         }
         Log.d(TAG, "onStartCommand " + host);
-        if (instance == null) {
-            instance = this;
-            startForegroundService();
-        }
+
+        ForegroundService.instance = this;
+        startForegroundService();
+
         initClient(intent);
         return Service.START_STICKY;
     }
@@ -86,7 +135,12 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "onBind");
-        return null;
+        if (client != null) {
+            RequestInfo requestInfo = new RequestInfo();
+            requestInfo.setPath("/androidBind");
+           client.request(requestInfo);
+        }
+        return messenger.getBinder();
     }
 
     private void initCrashHandler() {
@@ -143,7 +197,7 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
             client = new SocketIOProxyClient(this.getApplicationContext(), host, notificationProvider);
             client.setPushId(pushId);
             client.setPushCallback(this);
-            client.setNotificationCallback(this);
+            client.setSocketCallback(this);
         }
     }
 
@@ -152,7 +206,6 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
         Log.d(TAG, "onDestroy");
         super.onDestroy();
         client.disconnect();
-        instance = null;
         client = null;
     }
 
@@ -165,60 +218,68 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     @Override
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "onUnbind");
+        if (client != null) {
+            RequestInfo requestInfo = new RequestInfo();
+            requestInfo.setPath("/androidUnbind");
+            client.request(requestInfo);
+        }
+        bound = false;
         return true;
     }
 
     @Override
     public void onPush(String data) {
         Log.d(TAG, "on push data:" + data);
-        Message msg = Message.obtain(null, BindService.CMD_PUSH, 0, 0);
+        Message msg = Message.obtain(null, ConnectionService.CMD_PUSH, 0, 0);
         Bundle bundle = new Bundle();
         bundle.putString("data", data);
         msg.setData(bundle);
-        BindService.sendMsg(msg);
+        sendMsg(msg);
     }
 
     @Override
     public void onNotification(PushedNotification notification) {
-        notificationHandler.handlerNotification(this, BindService.bound, notification);
+        notificationHandler.handlerNotification(this, bound, notification);
     }
 
-    public static void onHttp(String sequenceId, int code, Map<String, String> headers, String body) {
+    @Override
+    public void onHttp(String sequenceId, int code, Map<String, String> headers, String body) {
         Log.d(TAG, "onHttp  " + code);
-        Message msg = Message.obtain(null, BindService.CMD_HTTP_RESPONSE, 0, 0);
+        Message msg = Message.obtain(null, ConnectionService.CMD_HTTP_RESPONSE, 0, 0);
         Bundle bundle = new Bundle();
         bundle.putString("sequenceId", sequenceId);
         bundle.putInt("code", code);
         bundle.putString("body", body);
         bundle.putSerializable("headers", (Serializable) headers);
         msg.setData(bundle);
-        BindService.sendMsg(msg);
+        sendMsg(msg);
     }
 
-
-    public static void onConnect() {
-        sendConnect();
-    }
-
-    public static void sendConnect() {
+    public void sendConnect() {
         if (client == null) {
             return;
         }
         int id;
         if (client.isConnected()) {
-            id = BindService.CMD_CONNECTED;
+            id = ConnectionService.CMD_CONNECTED;
         } else {
-            id = BindService.CMD_DISCONNECT;
+            id = ConnectionService.CMD_DISCONNECT;
         }
         Message msg = Message.obtain(null, id, 0, 0);
         Bundle bundle = new Bundle();
         bundle.putString("uid", client.getUid());
         bundle.putStringArray("tags", client.getTags());
         msg.setData(bundle);
-        BindService.sendMsg(msg);
+        sendMsg(msg);
     }
 
-    public static void onDisconnect() {
+    @Override
+    public void onConnect() {
+        sendConnect();
+    }
+
+    @Override
+    public void onDisconnect() {
         sendConnect();
     }
 
@@ -233,12 +294,15 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
         }
     }
 
-    public static void publishNotification(PushedNotification pushedNotification) {
-        if (ConnectionService.instance != null) {
-            ConnectionService.instance.onNotification(pushedNotification);
+    public void sendMsg(Message msg) {
+        if (bound) {
+            try {
+                remoteClient.send(msg);
+            } catch (Exception e) {
+                Log.e(TAG, "sendMsg error!", e);
+            }
         } else {
-            Log.i(TAG, "publishNotification from main process");
-            RemoteClient.publishNotification(pushedNotification);
+            Log.d(TAG, "sendMsg not bound");
         }
     }
 }
