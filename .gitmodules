@@ -4,3 +4,6 @@
 [submodule "android-push-sdk/sub/socket.io-client-java"]
 	path = android-push-sdk/sub/socket.io-client-java
 	url = https://github.com/xuduo/socket.io-client-java
+[submodule "android-push-sdk/sub/okhttp"]
+	path = android-push-sdk/sub/okhttp
+	url = https://github.com/longpo/okhttp
