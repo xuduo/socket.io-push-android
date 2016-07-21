@@ -39,6 +39,7 @@ import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+import io.socket.engineio.client.transports.WebSocket;
 
 
 public class SocketIOProxyClient implements PushSubscriber {
@@ -367,7 +368,7 @@ public class SocketIOProxyClient implements PushSubscriber {
         }
         try {
             IO.Options opts = new IO.Options();
-            opts.transports = new String[]{"websocket"};
+            opts.transports = new String[]{WebSocket.NAME};
             if (host.startsWith("https")) {
                 try {
                     opts.sslContext = SSLContext.getInstance("TLS");

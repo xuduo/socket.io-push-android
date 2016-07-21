@@ -51,12 +51,12 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
             if (cmd == RemoteClient.CMD_SUBSCRIBE_BROADCAST) {
                 String topic = bundle.getString("topic");
                 boolean receiveTtlPackets = bundle.getBoolean("receiveTtlPackets", false);
-               client.subscribeBroadcast(topic, receiveTtlPackets);
+                client.subscribeBroadcast(topic, receiveTtlPackets);
             } else if (cmd == RemoteClient.CMD_SET_PUSH_ID) {
                 client.setPushId(bundle.getString("pushId"));
             } else if (cmd == RemoteClient.CMD_REQUEST) {
                 RequestInfo info = (RequestInfo) bundle.getSerializable("requestInfo");
-               client.request(info);
+                client.request(info);
             } else if (cmd == RemoteClient.CMD_REGISTER_CLIENT) {
                 remoteClient = msg.replyTo;
                 bound = true;
@@ -135,7 +135,7 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
         if (client != null) {
             RequestInfo requestInfo = new RequestInfo();
             requestInfo.setPath("/androidBind");
-           client.request(requestInfo);
+            client.request(requestInfo);
         }
         return messenger.getBinder();
     }
@@ -202,8 +202,10 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
         super.onDestroy();
-        client.disconnect();
-        client = null;
+        if (client != null) {
+            client.disconnect();
+            client = null;
+        }
     }
 
     @Override
