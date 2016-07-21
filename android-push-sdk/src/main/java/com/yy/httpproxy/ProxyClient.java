@@ -29,7 +29,6 @@ public class ProxyClient implements PushCallback {
         this.config = config;
         if (config.getRemoteClient() != null) {
             config.getRemoteClient().setProxyClient(this);
-            config.getRemoteClient().setHandler(handler);
         }
     }
 

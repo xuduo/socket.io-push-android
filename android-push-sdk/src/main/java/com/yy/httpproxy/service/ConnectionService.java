@@ -51,37 +51,37 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
             if (cmd == RemoteClient.CMD_SUBSCRIBE_BROADCAST) {
                 String topic = bundle.getString("topic");
                 boolean receiveTtlPackets = bundle.getBoolean("receiveTtlPackets", false);
-                client.subscribeBroadcast(topic, receiveTtlPackets);
+                client().subscribeBroadcast(topic, receiveTtlPackets);
             } else if (cmd == RemoteClient.CMD_SET_PUSH_ID) {
-                client.setPushId(bundle.getString("pushId"));
+                client().setPushId(bundle.getString("pushId"));
             } else if (cmd == RemoteClient.CMD_REQUEST) {
                 RequestInfo info = (RequestInfo) bundle.getSerializable("requestInfo");
-                client.request(info);
+                client().request(info);
             } else if (cmd == RemoteClient.CMD_REGISTER_CLIENT) {
                 remoteClient = msg.replyTo;
                 bound = true;
                 sendConnect();
             } else if (cmd == RemoteClient.CMD_UNSUBSCRIBE_BROADCAST) {
                 String topic = bundle.getString("topic");
-                client.unsubscribeBroadcast(topic);
+                client().unsubscribeBroadcast(topic);
             } else if (cmd == RemoteClient.CMD_STATS) {
                 String path = bundle.getString("path");
                 int successCount = bundle.getInt("successCount");
                 int errorCount = bundle.getInt("errorCount");
                 int latency = bundle.getInt("latency");
-                client.reportStats(path, successCount, errorCount, latency);
+                client().reportStats(path, successCount, errorCount, latency);
             } else if (cmd == RemoteClient.CMD_UNBIND_UID) {
-                client.unbindUid();
+                client().unbindUid();
             } else if (cmd == RemoteClient.CMD_SET_TOKEN) {
                 String token = bundle.getString("token");
                 setToken(token);
             } else if (cmd == RemoteClient.CMD_HTTP) {
                 HttpRequest request = (HttpRequest) bundle.getSerializable("request");
-                client.http(request);
+                client().http(request);
             } else if (cmd == RemoteClient.CMD_ADD_TAG) {
-                client.addTag(bundle.getString("tag"));
+                client().addTag(bundle.getString("tag"));
             } else if (cmd == RemoteClient.CMD_REMOVE_TAG) {
-                client.removeTag(bundle.getString("tag"));
+                client().removeTag(bundle.getString("tag"));
             }
         }
     }
@@ -92,9 +92,20 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
         Log.i(TAG, "ConnectionService onCreate");
     }
 
+    private SocketIOProxyClient client() {
+        if (client == null) {
+            initClient(null);
+        }
+        return client;
+    }
+
     private void startForegroundService() {
-        Intent intent = new Intent(this, ForegroundService.class);
-        startService(intent);
+        try {
+            Intent intent = new Intent(this, ForegroundService.class);
+            startService(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "start ForegroundService error", e);
+        }
     }
 
     private String getFromIntentOrPref(Intent intent, String name) {
@@ -132,11 +143,9 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "onBind");
-        if (client != null) {
-            RequestInfo requestInfo = new RequestInfo();
-            requestInfo.setPath("/androidBind");
-            client.request(requestInfo);
-        }
+        RequestInfo requestInfo = new RequestInfo();
+        requestInfo.setPath("/androidBind");
+        client().request(requestInfo);
         return messenger.getBinder();
     }
 
@@ -217,11 +226,9 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     @Override
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "onUnbind");
-        if (client != null) {
-            RequestInfo requestInfo = new RequestInfo();
-            requestInfo.setPath("/androidUnbind");
-            client.request(requestInfo);
-        }
+        RequestInfo requestInfo = new RequestInfo();
+        requestInfo.setPath("/androidUnbind");
+        client().request(requestInfo);
         bound = false;
         return true;
     }

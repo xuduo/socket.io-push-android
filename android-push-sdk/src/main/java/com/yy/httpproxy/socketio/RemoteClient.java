@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 
@@ -56,7 +57,7 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
     private static RemoteClient instance;
     private Map<String, HttpRequest> replyCallbacks = new ConcurrentHashMap<>();
     private long timeout = 10000;
-    private Handler handler;
+    private Handler handler = new Handler(Looper.getMainLooper());
     private String host;
     private String pushId;
     private String notificationHandler;
@@ -83,6 +84,15 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
             postTimeout();
         }
     };
+
+    public RemoteClient(Context context, String host, String pushId, String notificationHandler, String logger) {
+        this.context = context;
+        this.host = host;
+        this.pushId = pushId;
+        this.notificationHandler = notificationHandler;
+        this.logger = logger;
+        startServices();
+    }
 
     private void postTimeout() {
         handler.removeCallbacks(timeoutTask);
@@ -141,10 +151,6 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         bundle.putSerializable("request", request);
         msg.setData(bundle);
         sendMsg(msg);
-    }
-
-    public void setHandler(Handler handler) {
-        this.handler = handler;
     }
 
     public void addTag(String tag) {
@@ -230,19 +236,24 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         }
     };
 
-    public RemoteClient(Context context, String host, String pushId, String notificationHandler, String logger) {
-        this.context = context;
-        this.host = host;
-        this.pushId = pushId;
-        this.notificationHandler = notificationHandler;
-        this.logger = logger;
-        startServices();
+    private void startServices() {
+        handler.post(startServiceRunnable);
     }
 
-    private void startServices() {
-        startRemoteService();
-        startDummyService();
-    }
+    private Runnable startServiceRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!mBound) {
+                try {
+                    startRemoteService();
+                    startDummyService();
+                } catch (Exception e) {
+                    Log.e(TAG, "start service exception, will try restart", e);
+                }
+                handler.postDelayed(startServiceRunnable, 5000L);
+            }
+        }
+    };
 
     private void startDummyService() {
         Intent intent = new Intent(context, DummyService.class);
