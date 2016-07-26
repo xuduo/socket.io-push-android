@@ -180,6 +180,9 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
             } else if (cmd == ConnectionService.CMD_CONNECTED && connected == false) {
                 connected = true;
                 reSendFailedRequest();
+                for (Map.Entry<String, Boolean> topic : topics.entrySet()) {
+                    doSubscribe(topic.getKey(), topic.getValue());
+                }
                 if (proxyClient.getConfig().getConnectCallback() != null) {
                     String uid = null;
                     Set<String> tags = new HashSet<>();
@@ -219,10 +222,6 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
             msg.replyTo = messenger;
             sendMsg(msg);
             instance = RemoteClient.this;
-
-            for (Map.Entry<String, Boolean> topic : topics.entrySet()) {
-                doSubscribe(topic.getKey(), topic.getValue());
-            }
 
         }
 

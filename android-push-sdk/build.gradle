@@ -17,8 +17,7 @@ sourceSets {
 
     main.java.srcDirs += 'sub/engine.io-client-java/src/main/java'
     main.java.srcDirs += 'sub/socket.io-client-java/src/main/java'
-    main.java.srcDirs += 'sub/okhttp/okhttp/src/main/java'
-    main.java.srcDirs += 'sub/okhttp/okhttp/src/main/java-templates'
+    main.java.srcDirs += 'sub/okhttp/okhttp-ws/src/main/java'
 }
 
 sourceSets.main.compileClasspath += configurations.provided
@@ -30,11 +29,10 @@ idea {
 }
 
 dependencies {
-    compile(group: 'com.squareup.okhttp3', name: 'okhttp-ws', version: '3.4.1') {
-        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+    compile(group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.4.1') {
+        exclude group: 'com.squareup.okhttp3', module: 'okhttp-ws'
     }
     compile group: 'com.squareup.okio', name: 'okio', version: '1.9.0'
-//    compile group: 'com.squareup.moshi', name: 'moshi', version: '1.1.0'
     provided files('libs/support-v4-19.1.0.jar')
     provided files('libs/android.jar')
     provided files('libs/HwPush_SDK_V2705.jar')
@@ -42,7 +40,7 @@ dependencies {
 }
 
 group = "com.yy"
-version = "1.0.110"
+version = "1.0.112"
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'

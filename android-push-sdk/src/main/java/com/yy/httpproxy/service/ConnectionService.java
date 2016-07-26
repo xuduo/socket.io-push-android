@@ -143,9 +143,6 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "onBind");
-        RequestInfo requestInfo = new RequestInfo();
-        requestInfo.setPath("/androidBind");
-        client().request(requestInfo);
         return messenger.getBinder();
     }
 
@@ -220,7 +217,11 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     @Override
     public void onRebind(Intent intent) {
         Log.d(TAG, "onRebind");
-        onBind(intent);
+        if (client != null) {
+            RequestInfo requestInfo = new RequestInfo();
+            requestInfo.setPath("/androidBind");
+            client().request(requestInfo);
+        }
     }
 
     @Override
