@@ -145,6 +145,9 @@
             </intent-filter>
         </receiver>
         <!-- 小米配置结束-->
+
+        <!-- test配置 -->
+        <activity android:name=".test.TestActivity"></activity>
     </application>
 
 </manifest>
