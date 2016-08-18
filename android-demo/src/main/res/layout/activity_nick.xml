@@ -29,7 +29,7 @@
         android:layout_below="@+id/et_nick_nickname"
         android:layout_marginTop="20dp"
         android:singleLine="true"
-        android:text="http://221.5.104.214:10001" />
+        android:text="https://spush.yy.com" />
 
     <Button
         android:id="@+id/btn_nick_enter"
