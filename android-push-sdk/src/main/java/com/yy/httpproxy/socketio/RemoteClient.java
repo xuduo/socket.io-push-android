@@ -61,6 +61,7 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
     private String host;
     private String pushId;
     private String notificationHandler;
+    private String dnsHandler;
     private String logger;
 
     private Runnable timeoutTask = new Runnable() {
@@ -85,12 +86,13 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         }
     };
 
-    public RemoteClient(Context context, String host, String pushId, String notificationHandler, String logger) {
+    public RemoteClient(Context context, String host, String pushId, String notificationHandler, String logger, String dnsHandler) {
         this.context = context;
         this.host = host;
         this.pushId = pushId;
         this.notificationHandler = notificationHandler;
         this.logger = logger;
+        this.dnsHandler = dnsHandler;
         startServices();
     }
 
@@ -266,6 +268,9 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         intent.putExtra("logger", logger);
         if (notificationHandler != null) {
             intent.putExtra("notificationHandler", notificationHandler);
+        }
+        if (dnsHandler != null) {
+            intent.putExtra("dnsHandler", dnsHandler);
         }
         context.startService(intent);
         Intent bindIntent = new Intent(context, ConnectionService.class);

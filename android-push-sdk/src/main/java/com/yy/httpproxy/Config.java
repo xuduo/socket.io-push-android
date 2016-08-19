@@ -24,6 +24,7 @@ public class Config {
     private String host;
     private String pushId;
     private String notificationHandler;
+    private String dnsHandler;
     private String logger;
 
     public Config(Context context) {
@@ -33,7 +34,7 @@ public class Config {
 
     public RemoteClient getRemoteClient() {
         if (remoteClient == null) {
-            remoteClient = new RemoteClient(context, host, pushId, notificationHandler, logger);
+            remoteClient = new RemoteClient(context, host, pushId, notificationHandler, logger, dnsHandler);
         }
         return remoteClient;
     }
@@ -68,6 +69,11 @@ public class Config {
 
     public Config setNotificationHandler(Class notificationHandler) {
         this.notificationHandler = notificationHandler.getName();
+        return this;
+    }
+
+    public Config setDnsHandler(Class dnsHandler) {
+        this.dnsHandler = dnsHandler.getName();
         return this;
     }
 

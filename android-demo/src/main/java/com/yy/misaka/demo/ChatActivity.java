@@ -13,6 +13,7 @@ import android.widget.EditText;
 import com.google.gson.Gson;
 import com.yy.httpproxy.Config;
 import com.yy.httpproxy.ProxyClient;
+import com.yy.httpproxy.service.DefaultDnsHandler;
 import com.yy.misaka.demo.util.JsonSerializer;
 import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.subscribe.ConnectCallback;
@@ -66,6 +67,7 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
         proxyClient = new ProxyClient(new Config(this).setHost(host).setConnectCallback(this)
                 .setPushCallback(this)
                 .setNotificationHandler(DefaultNotificationHandler.class)
+                .setDnsHandler(DefaultDnsHandler.class)
                 .setRequestSerializer(new JsonSerializer())
                 .setLogger(DemoLogger.class));
         proxyClient.subscribeAndReceiveTtlPackets(chatTopic);

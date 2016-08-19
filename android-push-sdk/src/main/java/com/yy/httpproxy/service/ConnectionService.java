@@ -29,6 +29,7 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     private static final String TAG = "ConnectionService";
     public static SocketIOProxyClient client;
     private NotificationHandler notificationHandler;
+    private DnsHandler dnsHandler;
     private static NotificationProvider notificationProvider;
 
     public static final int CMD_PUSH = 2;
@@ -176,8 +177,6 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
         }
         if (client == null) {
             String pushId = getFromIntentOrPref(intent, "pushId");
-            String handlerClassName = getFromIntentOrPref(intent, "notificationHandler");
-            Class handlerClass;
 
             if (host == null) {
                 Log.e(TAG, "host is null , exit");
@@ -185,23 +184,38 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
                 return;
             }
 
-            if (handlerClassName == null) {
+            notificationHandler = (NotificationHandler) initClassByName(getFromIntentOrPref(intent, "notificationHandler"));
+            if (notificationHandler == null) {
                 notificationHandler = new DefaultNotificationHandler();
-            } else {
-                try {
-                    handlerClass = Class.forName(handlerClassName);
-                    notificationHandler = (NotificationHandler) handlerClass.newInstance();
-                } catch (Exception e) {
-                    Log.e(TAG, "handlerClass error", e);
-                    notificationHandler = new DefaultNotificationHandler();
-                }
             }
+
+            dnsHandler = (DnsHandler) initClassByName(getFromIntentOrPref(intent, "dnsHandler"));
+            if (dnsHandler == null) {
+                dnsHandler = new DefaultDnsHandler();
+            }
+
             notificationProvider = ProviderFactory.getProvider(this.getApplicationContext());
-            client = new SocketIOProxyClient(this.getApplicationContext(), host, notificationProvider);
+            client = new SocketIOProxyClient(this.getApplicationContext(), host, notificationProvider, dnsHandler);
             client.setPushId(pushId);
             client.setPushCallback(this);
             client.setSocketCallback(this);
         }
+    }
+
+    private Object initClassByName(String handlerClassName) {
+        Class handlerClass;
+        Object handler = null;
+        if (handlerClassName != null) {
+            try {
+                handlerClass = Class.forName(handlerClassName);
+                handler = handlerClass.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+                handler = null;
+            }
+
+        }
+        return handler;
     }
 
     @Override

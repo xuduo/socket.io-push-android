@@ -7,11 +7,10 @@ import android.util.Base64;
 import com.yy.httpproxy.AndroidLoggingHandler;
 import com.yy.httpproxy.requester.HttpRequest;
 import com.yy.httpproxy.requester.RequestInfo;
-import com.yy.httpproxy.service.ConnectionService;
+import com.yy.httpproxy.service.DnsHandler;
 import com.yy.httpproxy.service.PushedNotification;
 import com.yy.httpproxy.stats.Stats;
 import com.yy.httpproxy.subscribe.CachedSharedPreference;
-import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.subscribe.PushSubscriber;
 import com.yy.httpproxy.thirdparty.NotificationProvider;
@@ -352,7 +351,7 @@ public class SocketIOProxyClient implements PushSubscriber {
 
     private Socket socket;
 
-    public SocketIOProxyClient(Context context, String host, NotificationProvider provider) {
+    public SocketIOProxyClient(Context context, String host, NotificationProvider provider, DnsHandler dnsHandler) {
         this.packageName = context.getPackageName();
         cachedSharedPreference = new CachedSharedPreference(context);
         try {
@@ -369,6 +368,7 @@ public class SocketIOProxyClient implements PushSubscriber {
         try {
             IO.Options opts = new IO.Options();
             opts.transports = new String[]{WebSocket.NAME};
+            opts.dnsHandler = dnsHandler;
             if (host.startsWith("https")) {
                 try {
                     opts.sslContext = SSLContext.getInstance("TLS");
@@ -406,6 +406,7 @@ public class SocketIOProxyClient implements PushSubscriber {
             socket.on(Socket.EVENT_DISCONNECT, disconnectListener);
             socket.connect();
             postStatsTask();
+
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
