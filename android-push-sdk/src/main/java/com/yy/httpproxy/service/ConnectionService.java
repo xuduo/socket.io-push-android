@@ -193,6 +193,7 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
             if (dnsHandler == null) {
                 dnsHandler = new DefaultDnsHandler();
             }
+            dnsHandler.init(this.getApplicationContext());
 
             notificationProvider = ProviderFactory.getProvider(this.getApplicationContext());
             client = new SocketIOProxyClient(this.getApplicationContext(), host, notificationProvider, dnsHandler);
