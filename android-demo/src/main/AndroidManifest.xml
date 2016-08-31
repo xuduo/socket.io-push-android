@@ -31,7 +31,7 @@
         android:name=".appmodel.DemoApp"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".NickNameActivity"
+            android:name=".ConnectActivity"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,16 +39,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".HttpActivity"
-            android:screenOrientation="portrait"
-            android:label="SyncWhiteBoard" >
-        </activity>
-        <activity
             android:name=".ChatActivity"
             android:screenOrientation="portrait"
             android:label="ChatRoom" >
         </activity>
 
+        <activity android:name=".NickNameActivity"></activity>
+        <activity android:name=".DrawActivity"></activity>
         <service android:name="com.yy.httpproxy.service.ConnectionService" android:process=":push" android:enabled="true"/>
         <service android:name="com.yy.httpproxy.service.ForegroundService" android:process=":push" android:enabled="true"/>
         <service android:name="com.yy.httpproxy.service.DummyService" android:process=":push" android:enabled="true"/>

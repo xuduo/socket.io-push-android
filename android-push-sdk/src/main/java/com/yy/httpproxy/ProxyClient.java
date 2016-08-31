@@ -1,29 +1,15 @@
 package com.yy.httpproxy;
 
-
 import android.os.Handler;
 import android.os.Looper;
-
-import com.yy.httpproxy.requester.HttpCallback;
-import com.yy.httpproxy.requester.HttpRequest;
-import com.yy.httpproxy.requester.HttpResponse;
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.subscribe.PushCallback;
-import com.yy.httpproxy.util.Log;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class ProxyClient implements PushCallback {
-
     private Config config;
     public static final String TAG = "ProxyClient";
     private long mainThreadId = Looper.getMainLooper().getThread().getId();
     private Handler handler = new Handler(Looper.getMainLooper());
-    private Map<String, HttpCallback> replayHandlers = new HashMap<>();
 
     public ProxyClient(Config config) {
         this.config = config;
@@ -100,37 +86,11 @@ public class ProxyClient implements PushCallback {
         }
     }
 
-    private void callSuccessOnMainThread(final HttpCallback replyHandler, final HttpResponse response) {
-        if (Thread.currentThread().getId() == mainThreadId) {
-            replyHandler.onResult(response);
-        } else {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    replyHandler.onResult(response);
-                }
-            });
-        }
-    }
-
     public String getPushId() {
         return getConfig().getPushId();
     }
 
-    public void onResponse(HttpResponse response) {
-        HttpCallback replyHandler = replayHandlers.remove(response.getSequenceId());
-        if (replyHandler != null) {
-            callSuccessOnMainThread(replyHandler, response);
-        }
-    }
-
     public Config getConfig() {
         return config;
-    }
-
-    public void http(HttpRequest request, HttpCallback httpCallback) {
-        replayHandlers.put(request.getSequenceId(), httpCallback);
-        config.getRemoteClient().
-                http(request);
     }
 }

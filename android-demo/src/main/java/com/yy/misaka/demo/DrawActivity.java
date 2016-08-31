@@ -8,21 +8,21 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
-import com.yy.httpproxy.Config;
-import com.yy.httpproxy.ProxyClient;
-import com.yy.httpproxy.ReplyHandler;
-import com.yy.misaka.demo.util.JsonSerializer;
+import com.google.gson.Gson;
 import com.yy.httpproxy.subscribe.ConnectCallback;
+import com.yy.httpproxy.subscribe.PushCallback;
+import com.yy.misaka.demo.appmodel.DemoApp;
 
 import java.util.Random;
 import java.util.Set;
 
 
-public class DrawActivity extends Activity implements ConnectCallback {
+public class DrawActivity extends Activity implements ConnectCallback, PushCallback {
 
     private static final String TAG = "DrawActivity";
+    private static String drawTopic = "drawTopic";
+    private static String endlineTopic = "endlineTopic";
     private DrawView drawView;
-    private ProxyClient proxyClient;
     private TextView latency;
     private TextView count;
     private TextView connect;
@@ -35,12 +35,8 @@ public class DrawActivity extends Activity implements ConnectCallback {
         totalTime += System.currentTimeMillis() - timestamp;
         totalCount++;
         latency.setText((totalTime / totalCount) + "ms");
-    }
+        count.setText(totalCount + "dots");
 
-    private void update(long timestamp, int num) {
-        totalTime += System.currentTimeMillis() - timestamp;
-        latency.setText((totalTime / num) + "ms");
-        count.setText("" + num);
     }
 
     private void resetLatency() {
@@ -57,12 +53,49 @@ public class DrawActivity extends Activity implements ConnectCallback {
         setContentView(R.layout.activity_draw);
         latency = (TextView) findViewById(R.id.tv_latency);
         count = (TextView) findViewById(R.id.tv_count);
-
+        connect = (TextView) findViewById(R.id.tv_connect);
+        drawView = (DrawView) findViewById(R.id.draw_view);
+        DemoApp.APP_CONTEXT.proxyClient.getConfig().setConnectCallback(this);
+        DemoApp.APP_CONTEXT.proxyClient.getConfig().setPushCallback(this);
+        DemoApp.APP_CONTEXT.proxyClient.subscribeBroadcast(drawTopic);
+        DemoApp.APP_CONTEXT.proxyClient.subscribeBroadcast(endlineTopic);
         updateConnect();
+
+        Random random = new Random();
+        myColor = myColors[random.nextInt(myColors.length)];
+
+        drawView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                DrawView.Dot dot = new DrawView.Dot();
+                dot.xPercent = event.getX() / view.getWidth();
+                dot.yPercent = event.getY() / view.getHeight();
+                dot.myColor = myColor;
+                if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
+                    DemoApp.APP_CONTEXT.httpApi.sendMessage(dot, drawTopic);
+                    return true;
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    dot.endline = true;
+                    DemoApp.APP_CONTEXT.httpApi.sendMessage(dot, drawTopic);
+                    return true;
+                }else {
+                    return false;
+                }
+            }
+        });
+
+        findViewById(R.id.btn_clear).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawView.clear();
+                resetLatency();
+            }
+        });
     }
 
+
     private void updateConnect() {
-        connect.setText(proxyClient.isConnected() ? "connected" : "disconnected");
+        connect.setText(DemoApp.APP_CONTEXT.proxyClient.isConnected() ? "connected" : "disconnected");
     }
 
     @Override
@@ -73,5 +106,15 @@ public class DrawActivity extends Activity implements ConnectCallback {
     @Override
     public void onDisconnect() {
         updateConnect();
+    }
+
+    @Override
+    public void onPush(String data) {
+        DrawView.Dot dot = new Gson().fromJson(data, DrawView.Dot.class);
+        drawView.addDot(dot);
+        updateLatency(dot.timestamp);
+        if(dot.endline){
+            drawView.endLine();
+        }
     }
 }

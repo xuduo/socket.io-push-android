@@ -18,12 +18,16 @@ public class DrawView extends View {
         public float yPercent;
         public int myColor;
         public long timestamp = System.currentTimeMillis();
+        public boolean endline = false;
 
         @Override
         public String toString() {
             return "Dot{" +
                     "xPercent=" + xPercent +
-                    ", yPercent=" + yPercent + ", myColor = " + myColor +
+                    ", yPercent=" + yPercent +
+                    ", myColor=" + myColor +
+                    ", timestamp=" + timestamp +
+                    ", endline=" + endline +
                     '}';
         }
     }
@@ -90,22 +94,7 @@ public class DrawView extends View {
         invalidate();
     }
 
-    public int  clearColor(Dot dot){
-        int color = dot.myColor;
-        int count = 0;
-        for(Iterator it = lines.iterator(); it.hasNext();){
-            ArrayList<Dot> dots = (ArrayList<Dot>)it.next();
-
-            for (Iterator itDot = dots.iterator(); itDot.hasNext();){
-                Dot temp = (Dot)itDot.next();
-                if (temp.myColor == color) {
-                    itDot.remove();
-                } else {
-                    count++;
-                }
-            }
-        }
-        invalidate();
-        return count;
+    public int kk(){
+        return lines.size();
     }
 }

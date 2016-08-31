@@ -11,29 +11,20 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.google.gson.Gson;
-import com.yy.httpproxy.Config;
-import com.yy.httpproxy.ProxyClient;
-import com.yy.httpproxy.service.DefaultDnsHandler;
-import com.yy.misaka.demo.util.JsonSerializer;
-import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
-import com.yy.httpproxy.util.Logger;
+import com.yy.misaka.demo.appmodel.DemoApp;
 import com.yy.misaka.demo.adapter.ChatMessagesAdapter;
-import com.yy.misaka.demo.appmodel.HttpApiModel;
 import com.yy.misaka.demo.entity.Message;
 
 import java.util.Set;
 
-public class ChatActivity extends Activity implements PushCallback, ConnectCallback {
-
+public class ChatActivity extends Activity implements ConnectCallback, PushCallback{
     public final static String chatTopic = "chatRoom";
     public final static String TAG = "ChatActivity";
     private RecyclerView recyclerViewMessages;
-    private ProxyClient proxyClient;
-    private HttpApiModel httpApiModel;
     private ChatMessagesAdapter chatMessagesAdapter;
-    private static final String API_URL = "http://spush.yy.com/api/push";
+    public static final String API_URL = "http://spush.yy.com/api/push";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,19 +32,24 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
         Log.i("DemoLogger", "ChatActivity onCreate");
         setContentView(R.layout.activity_chat);
         init();
+
+        DemoApp.APP_CONTEXT.proxyClient.subscribeAndReceiveTtlPackets(chatTopic);
+        DemoApp.APP_CONTEXT.proxyClient.getConfig().setPushCallback(this).setConnectCallback(this);
     }
 
     private void init() {
         final String nickName = getIntent().getStringExtra("nickName");
-        final String host = getIntent().getStringExtra("host");
         final EditText editTextInput = (EditText) findViewById(R.id.et_input);
         findViewById(R.id.btn_send).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(String.valueOf(editTextInput.getText()).length() == 0){
+                    return;
+                }
                 Message message = new Message();
                 message.setMessage(String.valueOf(editTextInput.getText()));
                 message.setNickName(nickName);
-                httpApiModel.sendMessage(message);
+                DemoApp.APP_CONTEXT.httpApi.sendMessage(message, chatTopic);
                 editTextInput.setText("");
             }
         });
@@ -64,30 +60,13 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
         recyclerViewMessages.setLayoutManager(linearLayoutManager);
         recyclerViewMessages.setAdapter(chatMessagesAdapter);
         recyclerViewMessages.scrollToPosition(chatMessagesAdapter.getItemCount() - 1);
-        proxyClient = new ProxyClient(new Config(this).setHost(host).setConnectCallback(this)
-                .setPushCallback(this)
-                .setNotificationHandler(DefaultNotificationHandler.class)
-                .setDnsHandler(DefaultDnsHandler.class)
-                .setRequestSerializer(new JsonSerializer())
-                .setLogger(DemoLogger.class));
-        proxyClient.subscribeAndReceiveTtlPackets(chatTopic);
-        httpApiModel = new HttpApiModel(API_URL, proxyClient);
+
         updateConnect();
-
     }
 
-    public static class DemoLogger implements Logger {
-
-        @Override
-        public void log(int level, String message, Throwable e) {
-            Log.d("DemoLogger", "demo " + message, e);
-        }
-    }
-
-    public static void launch(Context context, String nickName, String host) {
+    public static void launch(Context context, String nickName) {
         Intent intent = new Intent();
         intent.putExtra("nickName", nickName);
-        intent.putExtra("host", host);
         intent.setClass(context, ChatActivity.class);
         context.startActivity(intent);
     }
@@ -98,15 +77,13 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
     }
 
     private void updateConnect() {
-        String connectState = proxyClient.isConnected() ? "(connected)" : "(disconnected)";
+        String connectState = DemoApp.APP_CONTEXT.proxyClient.isConnected() ? "(connected)" : "(disconnected)";
         setTitle("ChatRoom" + connectState);
     }
 
     @Override
-    public void onConnect(String uid, Set<String> tags) {
-        Log.i(TAG, "onConnect " + tags);
+    public void onConnect(String uid, Set<String> topics) {
         updateConnect();
-        proxyClient.addTag("tag3");
     }
 
     @Override
@@ -126,7 +103,5 @@ public class ChatActivity extends Activity implements PushCallback, ConnectCallb
         } catch (Exception e) {
 
         }
-
     }
-
 }

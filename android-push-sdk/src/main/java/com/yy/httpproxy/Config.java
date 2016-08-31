@@ -4,10 +4,8 @@ import android.content.Context;
 
 import com.yy.httpproxy.serializer.RequestSerializer;
 import com.yy.httpproxy.socketio.RemoteClient;
-import com.yy.httpproxy.subscribe.CachedSharedPreference;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
-import com.yy.httpproxy.subscribe.PushIdGenerator;
 import com.yy.httpproxy.subscribe.RandomPushIdGenerator;
 import com.yy.httpproxy.util.Logger;
 

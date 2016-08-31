@@ -2,6 +2,7 @@ package com.yy.misaka.demo.util;
 
 
 import java.security.cert.CertificateException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
@@ -24,7 +25,7 @@ public class HttpUtils {
 
     private static OkHttpClient okHttpClient = getUnsafeOkHttpClient();
 
-    public static void request(String url, Map<String, Object> params, Callback callback) {
+    public static void request(String url, HashMap<String, String> params, Callback callback) {
         StringBuilder okRequestURL = new StringBuilder(url);
         if (params != null) {
             okRequestURL.append("?");

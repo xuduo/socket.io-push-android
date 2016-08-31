@@ -43,14 +43,4 @@
         android:layout_margin="10dp"
         android:layout_toRightOf="@id/tv_count"
         android:text="0dots" />
-
-    <TextView
-        android:id="@+id/tv_msg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
-        android:text="Msg:"
-        android:textSize="15sp" />
-
 </RelativeLayout>

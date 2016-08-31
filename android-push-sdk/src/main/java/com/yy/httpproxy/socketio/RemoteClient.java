@@ -55,36 +55,12 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
     private Context context;
     private boolean connected = false;
     private static RemoteClient instance;
-    private Map<String, HttpRequest> replyCallbacks = new ConcurrentHashMap<>();
-    private long timeout = 10000;
     private Handler handler = new Handler(Looper.getMainLooper());
     private String host;
     private String pushId;
     private String notificationHandler;
     private String dnsHandler;
     private String logger;
-
-    private Runnable timeoutTask = new Runnable() {
-        @Override
-        public void run() {
-            Iterator<Map.Entry<String, HttpRequest>> it = replyCallbacks.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, HttpRequest> pair = it.next();
-                HttpRequest request = pair.getValue();
-                if (request.timeoutForRequest(timeout)) {
-                    HttpResponse response = new HttpResponse();
-                    response.setSequenceId(request.getSequenceId());
-                    response.setHeaders(new HashMap<String, String>());
-                    response.setBody("request timeout after " + timeout);
-                    Log.i(TAG, "request timeout " + request.getUrl());
-                    proxyClient.onResponse(response);
-                    it.remove();
-                    continue;
-                }
-            }
-            postTimeout();
-        }
-    };
 
     public RemoteClient(Context context, String host, String pushId, String notificationHandler, String logger, String dnsHandler) {
         this.context = context;
@@ -94,13 +70,6 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         this.logger = logger;
         this.dnsHandler = dnsHandler;
         startServices();
-    }
-
-    private void postTimeout() {
-        handler.removeCallbacks(timeoutTask);
-        if (replyCallbacks.size() > 0) {
-            handler.postDelayed(timeoutTask, 1000);
-        }
     }
 
     public void unsubscribeBroadcast(String topic) {
@@ -132,29 +101,6 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
         context.unbindService(mConnection);
     }
 
-
-    private void reSendFailedRequest() {
-        if (!replyCallbacks.isEmpty()) {
-            List<HttpRequest> values = new ArrayList<>(replyCallbacks.values());
-            replyCallbacks.clear();
-            for (HttpRequest request : values) {
-                Log.i(TAG, "onConnected repost request " + request.getUrl());
-                http(request);
-            }
-        }
-    }
-
-    public void http(HttpRequest request) {
-        request.setTimestamp();
-        replyCallbacks.put(request.getSequenceId(), request);
-        postTimeout();
-        Message msg = Message.obtain(null, CMD_HTTP, 0, 0);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("request", request);
-        msg.setData(bundle);
-        sendMsg(msg);
-    }
-
     public void addTag(String tag) {
         Message msg = Message.obtain(null, CMD_ADD_TAG, 0, 0);
         Bundle bundle = new Bundle();
@@ -181,7 +127,6 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
                 proxyClient.onPush(data);
             } else if (cmd == ConnectionService.CMD_CONNECTED && connected == false) {
                 connected = true;
-                reSendFailedRequest();
                 for (Map.Entry<String, Boolean> topic : topics.entrySet()) {
                     doSubscribe(topic.getKey(), topic.getValue());
                 }
@@ -204,10 +149,6 @@ public class RemoteClient implements PushSubscriber, HttpRequester {
                 if (proxyClient.getConfig().getConnectCallback() != null) {
                     proxyClient.getConfig().getConnectCallback().onDisconnect();
                 }
-            } else if (cmd == ConnectionService.CMD_HTTP_RESPONSE) {
-                HttpResponse response = HttpResponse.fromBundle(bundle);
-                replyCallbacks.remove(response.getSequenceId());
-                proxyClient.onResponse(response);
             }
         }
     }

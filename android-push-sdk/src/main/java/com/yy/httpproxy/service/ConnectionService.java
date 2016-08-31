@@ -76,9 +76,6 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
             } else if (cmd == RemoteClient.CMD_SET_TOKEN) {
                 String token = bundle.getString("token");
                 setToken(token);
-            } else if (cmd == RemoteClient.CMD_HTTP) {
-                HttpRequest request = (HttpRequest) bundle.getSerializable("request");
-                client().http(request);
             } else if (cmd == RemoteClient.CMD_ADD_TAG) {
                 client().addTag(bundle.getString("tag"));
             } else if (cmd == RemoteClient.CMD_REMOVE_TAG) {

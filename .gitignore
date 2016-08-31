@@ -10,3 +10,4 @@ pids
 pid_debug
 .gradle
 build
+android-push-sdk/secring.gpg

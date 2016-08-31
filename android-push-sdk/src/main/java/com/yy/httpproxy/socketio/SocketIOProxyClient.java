@@ -419,44 +419,6 @@ public class SocketIOProxyClient implements PushSubscriber {
         this.pushCallback = null;
     }
 
-    public void http(final HttpRequest requestInfo) {
-
-        try {
-
-            if (socket.connected()) {
-                JSONArray array = new JSONArray();
-                array.put(requestInfo.getMethod());
-                array.put(requestInfo.getUrl());
-                array.put(JSONUtil.toJSONObject(requestInfo.getHeaders()));
-                array.put(JSONUtil.toJSONObject(requestInfo.getParams()));
-                final long start = System.currentTimeMillis();
-                socket.emit("http", new Object[]{array}, new Ack() {
-                    @Override
-                    public void call(Object... args) {
-                        try {
-                            JSONArray result = (JSONArray) args[0];
-                            Log.d(TAG, "httpResponse " + (System.currentTimeMillis() - start) + " " + requestInfo.getUrl());
-                            int code = result.getInt(0);
-                            Map<String, String> headerMap = JSONUtil.toMapOneLevelString(result.getJSONObject(1));
-                            String body = result.get(2).toString();
-                            if (socketCallback != null) {
-                                socketCallback.onHttp(requestInfo.getSequenceId(), code, headerMap, body);
-                            }
-                        } catch (Exception e) {
-                            if (socketCallback != null) {
-                                socketCallback.onHttp(requestInfo.getSequenceId(), 0, new HashMap<String, String>(), e.getMessage());
-                            }
-                            Log.e(TAG, "HttpRequest parse result exception ", e);
-                        }
-                    }
-                });
-            }
-
-        } catch (Exception e) {
-            Log.e(TAG, "HttpRequest exception ", e);
-        }
-    }
-
     public void request(RequestInfo requestInfo) {
 
         try {

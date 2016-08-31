@@ -1,6 +1,7 @@
 package com.yy.misaka.demo;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -20,25 +21,25 @@ public class NickNameActivity extends Activity {
 
     private void init() {
         final EditText etNickName = (EditText) findViewById(R.id.et_nick_nickname);
-        final EditText etHost = (EditText) findViewById(R.id.et_host);
+
         findViewById(R.id.btn_nick_enter).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String nickname = String.valueOf(etNickName.getText()).trim();
-                String host = String.valueOf(etHost.getText()).trim();
                 if (nickname.equals("")) {
                     Toast.makeText(NickNameActivity.this, "Nickname can't be null", Toast.LENGTH_SHORT).show();
                 } else {
-                    ChatActivity.launch(NickNameActivity.this, nickname, host);
+                    ChatActivity.launch(NickNameActivity.this, nickname);
                 }
             }
         });
 
-        findViewById(R.id.btn_http_enter).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_draw_enter).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String host = String.valueOf(etHost.getText()).trim();
-                HttpActivity.launch(NickNameActivity.this, host);
+                Intent intent = new Intent();
+                intent.setClass(NickNameActivity.this, DrawActivity.class);
+                startActivity(intent);
             }
         });
     }
