@@ -9,7 +9,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 
-import com.yy.httpproxy.requester.HttpRequest;
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.socketio.RemoteClient;
 import com.yy.httpproxy.socketio.SocketIOProxyClient;
@@ -38,7 +37,6 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     public static final int CMD_RESPONSE = 4;
     public static final int CMD_CONNECTED = 5;
     public static final int CMD_DISCONNECT = 6;
-    public static final int CMD_HTTP_RESPONSE = 7;
     private final Messenger messenger = new Messenger(new IncomingHandler());
     private Messenger remoteClient;
     private boolean bound = false;
@@ -259,19 +257,6 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     @Override
     public void onNotification(PushedNotification notification) {
         notificationHandler.handlerNotification(this, bound, notification);
-    }
-
-    @Override
-    public void onHttp(String sequenceId, int code, Map<String, String> headers, String body) {
-        Log.d(TAG, "onHttp  " + code);
-        Message msg = Message.obtain(null, ConnectionService.CMD_HTTP_RESPONSE, 0, 0);
-        Bundle bundle = new Bundle();
-        bundle.putString("sequenceId", sequenceId);
-        bundle.putInt("code", code);
-        bundle.putString("body", body);
-        bundle.putSerializable("headers", (Serializable) headers);
-        msg.setData(bundle);
-        sendMsg(msg);
     }
 
     public void sendConnect() {

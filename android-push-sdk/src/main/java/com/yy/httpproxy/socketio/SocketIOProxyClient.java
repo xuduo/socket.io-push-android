@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.util.Base64;
 
 import com.yy.httpproxy.AndroidLoggingHandler;
-import com.yy.httpproxy.requester.HttpRequest;
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.service.DnsHandler;
 import com.yy.httpproxy.service.PushedNotification;
@@ -34,7 +33,6 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import io.socket.client.Ack;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
@@ -92,8 +90,6 @@ public class SocketIOProxyClient implements PushSubscriber {
         void onConnect();
 
         void onDisconnect();
-
-        void onHttp(String sequenceId, int code, Map<String, String> headers, String body);
     }
 
     private final Emitter.Listener connectListener = new Emitter.Listener() {

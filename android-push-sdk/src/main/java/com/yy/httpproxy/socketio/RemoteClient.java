@@ -12,27 +12,19 @@ import android.os.Message;
 import android.os.Messenger;
 
 import com.yy.httpproxy.ProxyClient;
-import com.yy.httpproxy.requester.HttpRequest;
-import com.yy.httpproxy.requester.HttpRequester;
-import com.yy.httpproxy.requester.HttpResponse;
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.service.DummyService;
-import com.yy.httpproxy.service.PushedNotification;
 import com.yy.httpproxy.subscribe.PushSubscriber;
 import com.yy.httpproxy.util.Log;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 
-public class RemoteClient implements PushSubscriber, HttpRequester {
+public class RemoteClient implements PushSubscriber {
 
     private static final String TAG = "RemoteClient";
     public static final int CMD_SUBSCRIBE_BROADCAST = 1;

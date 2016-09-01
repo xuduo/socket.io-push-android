@@ -1,7 +1,6 @@
 package com.yy.httpproxy;
 
 import android.content.Context;
-
 import com.yy.httpproxy.serializer.RequestSerializer;
 import com.yy.httpproxy.socketio.RemoteClient;
 import com.yy.httpproxy.subscribe.ConnectCallback;
