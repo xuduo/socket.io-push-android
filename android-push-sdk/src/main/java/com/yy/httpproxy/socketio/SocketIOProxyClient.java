@@ -218,9 +218,12 @@ public class SocketIOProxyClient implements PushSubscriber {
     };
 
     private void updateLastPacketId(String id, Object ttl, Object unicast, String topic) {
-        Boolean reciveTtl = topics.get(topic);
         if (id != null && ttl != null) {
             Log.d(TAG, "on push topic " + topic + " id " + id);
+            Boolean reciveTtl = topics.get(topic);
+            if (reciveTtl == null) {
+                reciveTtl = false;
+            }
             if (unicast != null) {
                 cachedSharedPreference.save("lastUnicastId", id);
             } else if (reciveTtl && topic != null) {
