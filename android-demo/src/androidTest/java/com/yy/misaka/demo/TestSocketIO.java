@@ -1,6 +1,5 @@
 package com.yy.misaka.demo;
 
-import android.content.IntentFilter;
 import android.util.Log;
 
 import com.yy.misaka.demo.test.TestActivity;
@@ -22,16 +21,6 @@ public class TestSocketIO extends TestBase {
     public final static String TAG = "TestSocketIO";
     private String pushData = "Hello World";
     private int timeOut = 10;
-    private MyBroadcastReceiver myBroadcastReceiver;
-
-    @Override
-    public void mySetUp() {
-        super.mySetUp();
-        myBroadcastReceiver = new MyBroadcastReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.yy.misaka.demo.YY_NOTIFICATION");
-        mActivity.registerReceiver(myBroadcastReceiver, filter);
-    }
 
     public void testInit() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
@@ -79,12 +68,6 @@ public class TestSocketIO extends TestBase {
         });
         boolean resutl = signal.await(timeOut, TimeUnit.SECONDS);
         assertEquals(resutl, true);
-    }
-
-    @Override
-    public void myTearDowm() {
-        super.myTearDowm();
-        mActivity.unregisterReceiver(myBroadcastReceiver);
     }
 
     private void pushTest(boolean isTopic) throws InterruptedException{
