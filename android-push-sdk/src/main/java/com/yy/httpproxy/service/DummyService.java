@@ -1,10 +1,9 @@
 package com.yy.httpproxy.service;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
+
 import com.yy.httpproxy.util.Log;
 
 public class DummyService extends Service {
@@ -14,8 +13,6 @@ public class DummyService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setPriority(Notification.PRIORITY_MIN);
         Log.i(TAG, "DummyService onCreate");
     }
 

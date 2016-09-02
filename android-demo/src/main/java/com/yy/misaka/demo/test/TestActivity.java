@@ -22,7 +22,7 @@ import java.util.Set;
 public class TestActivity extends Activity implements ConnectCallback, PushCallback{
 
     private static final String TAG = "TestActivity";
-    public static String host = "http://spush.yy.com";
+    public static String host = "https://spush.yy.com";
     public static final String topic = "testTopic";
     public ProxyClient proxyClient;
     private TextView tv_socketState,tv_pushId;
