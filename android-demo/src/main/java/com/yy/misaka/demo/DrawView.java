@@ -93,8 +93,4 @@ public class DrawView extends View {
         lines.clear();
         invalidate();
     }
-
-    public int kk(){
-        return lines.size();
-    }
 }
