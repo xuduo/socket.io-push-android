@@ -13,16 +13,16 @@ import com.yy.httpproxy.ProxyClient;
 import com.yy.httpproxy.service.DefaultDnsHandler;
 import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.subscribe.ConnectCallback;
+import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.util.Logger;
 import com.yy.misaka.demo.appmodel.DemoApp;
-import com.yy.misaka.demo.util.JsonSerializer;
 
 import java.util.Set;
 
 /**
  * Created by huangzhilong on 2016/8/31.
  */
-public class ConnectActivity extends Activity implements ConnectCallback{
+public class ConnectActivity extends Activity implements ConnectCallback, PushCallback{
     private EditText editText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +37,7 @@ public class ConnectActivity extends Activity implements ConnectCallback{
                 DemoApp.APP_CONTEXT.proxyClient = new ProxyClient(new Config(DemoApp.APP_CONTEXT).setHost(host).setConnectCallback(ConnectActivity.this)
                         .setNotificationHandler(DefaultNotificationHandler.class)
                         .setDnsHandler(DefaultDnsHandler.class)
-                        .setRequestSerializer(new JsonSerializer())
+                        .setPushCallback(ConnectActivity.this)
                         .setLogger(DemoLogger.class));
             }
         });
@@ -54,6 +54,11 @@ public class ConnectActivity extends Activity implements ConnectCallback{
     @Override
     public void onDisconnect() {
         Toast.makeText(this, "Connect Socket failed", Toast.LENGTH_SHORT);
+    }
+
+    @Override
+    public void onPush(String data) {
+
     }
 
     public static class DemoLogger implements Logger {

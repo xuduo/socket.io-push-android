@@ -1,7 +1,6 @@
 package com.yy.httpproxy;
 
 import android.content.Context;
-import com.yy.httpproxy.serializer.RequestSerializer;
 import com.yy.httpproxy.socketio.RemoteClient;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
@@ -15,7 +14,6 @@ public class Config {
 
     private RemoteClient remoteClient;
     private Context context;
-    private RequestSerializer requestSerializer;
     private PushCallback pushCallback;
     private ConnectCallback connectCallback;
     private String host;
@@ -38,15 +36,6 @@ public class Config {
 
     public Config setHost(String host) {
         this.host = host;
-        return this;
-    }
-
-    public RequestSerializer getRequestSerializer() {
-        return requestSerializer;
-    }
-
-    public Config setRequestSerializer(RequestSerializer requestSerializer) {
-        this.requestSerializer = requestSerializer;
         return this;
     }
 

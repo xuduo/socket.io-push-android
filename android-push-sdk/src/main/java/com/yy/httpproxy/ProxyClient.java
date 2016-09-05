@@ -2,6 +2,7 @@ package com.yy.httpproxy;
 
 import android.os.Handler;
 import android.os.Looper;
+
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.subscribe.PushCallback;
 
@@ -32,9 +33,9 @@ public class ProxyClient implements PushCallback {
                 removeTag(tag);
     }
 
-    public void request(String path, Object body) {
+    public void request(String path, byte[]data) {
         final RequestInfo requestInfo = new RequestInfo();
-        requestInfo.setBody(config.getRequestSerializer().toBinary(path, body));
+        requestInfo.setBody(data);
         requestInfo.setPath(path);
 
         config.getRemoteClient().

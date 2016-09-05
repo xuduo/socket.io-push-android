@@ -8,12 +8,11 @@ import android.widget.TextView;
 
 import com.yy.httpproxy.Config;
 import com.yy.httpproxy.ProxyClient;
+import com.yy.httpproxy.service.DefaultDnsHandler;
 import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.misaka.demo.R;
-import com.yy.misaka.demo.util.JsonSerializer;
-
 import java.util.Set;
 
 /**
@@ -47,8 +46,8 @@ public class TestActivity extends Activity implements ConnectCallback, PushCallb
         proxyClient = new ProxyClient(new Config(this).setHost(host)
                 .setConnectCallback(this)
                 .setPushCallback(this)
-                .setNotificationHandler(DefaultNotificationHandler.class)
-                .setRequestSerializer(new JsonSerializer()));
+                .setDnsHandler(DefaultDnsHandler.class)
+                .setNotificationHandler(DefaultNotificationHandler.class));
         proxyClient.subscribeBroadcast(topic);
         pushId = proxyClient.getPushId();
         tv_pushId.setText("pushId: " + pushId);
