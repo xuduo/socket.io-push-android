@@ -61,6 +61,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="com.yy.httpproxy.service.BootBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
 
         <!-- 华为配置开始-->
         <receiver android:name="com.yy.httpproxy.thirdparty.HuaweiReceiver">
