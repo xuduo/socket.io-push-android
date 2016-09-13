@@ -299,7 +299,7 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     }
 
     public void sendMsg(Message msg) {
-        if (bound) {
+        if (bound && remoteClient != null) {
             try {
                 remoteClient.send(msg);
             } catch (Exception e) {

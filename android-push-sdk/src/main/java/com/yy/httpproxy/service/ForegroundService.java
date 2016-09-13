@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+
 import com.yy.httpproxy.util.Log;
 
 public class ForegroundService extends Service {
@@ -13,6 +14,7 @@ public class ForegroundService extends Service {
     private final String TAG = "FakeService";
 
     public static ConnectionService instance;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -43,10 +45,14 @@ public class ForegroundService extends Service {
     }
 
     public void beginForeground() {
-        if(instance != null) {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(instance);
-            builder.setPriority(Notification.PRIORITY_MIN);
-            instance.startForeground(12345, builder.build());
+        if (instance != null) {
+            try {
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(instance);
+                builder.setPriority(Notification.PRIORITY_MIN);
+                instance.startForeground(12345, builder.build());
+            } catch (Exception e) {
+                Log.e(TAG, "beginForeground  error");
+            }
         }
     }
 
