@@ -116,6 +116,7 @@ public class RemoteClient implements PushSubscriber {
             Bundle bundle = msg.getData();
             if (cmd == ConnectionService.CMD_PUSH) {
                 String data = bundle.getString("data");
+                Log.d(TAG, "push data: " + data);
                 proxyClient.onPush(data);
             } else if (cmd == ConnectionService.CMD_CONNECTED && connected == false) {
                 connected = true;

@@ -5,6 +5,7 @@ import android.os.Looper;
 
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.subscribe.PushCallback;
+import com.yy.httpproxy.util.Log;
 
 public class ProxyClient implements PushCallback {
     private Config config;
@@ -75,11 +76,13 @@ public class ProxyClient implements PushCallback {
     public void onPush(final String data) {
         if (config.getPushCallback() != null) {
             if (Thread.currentThread().getId() == mainThreadId) {
+                Log.d(TAG, "mainThreadId push data: " + data);
                 config.getPushCallback().onPush(data);
             } else {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
+                        Log.d(TAG, "post push data: " + data);
                         config.getPushCallback().onPush(data);
                     }
                 });

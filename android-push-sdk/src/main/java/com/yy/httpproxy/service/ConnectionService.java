@@ -302,6 +302,7 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
         if (bound && remoteClient != null) {
             try {
                 remoteClient.send(msg);
+                Log.d(TAG, "sendMsg message");
             } catch (Exception e) {
                 Log.e(TAG, "sendMsg error!", e);
             }
