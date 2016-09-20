@@ -43,7 +43,7 @@ public class RemoteClient implements PushSubscriber {
     private ProxyClient proxyClient;
     private Messenger mService;
     private boolean mBound;
-    private final Messenger messenger = new Messenger(new IncomingHandler());
+    private Messenger messenger = null;
     private Context context;
     private boolean connected = false;
     private static RemoteClient instance;
@@ -178,6 +178,9 @@ public class RemoteClient implements PushSubscriber {
     private Runnable startServiceRunnable = new Runnable() {
         @Override
         public void run() {
+            if (messenger == null) {
+                messenger = new Messenger(new IncomingHandler());
+            }
             if (!mBound) {
                 try {
                     startRemoteService();

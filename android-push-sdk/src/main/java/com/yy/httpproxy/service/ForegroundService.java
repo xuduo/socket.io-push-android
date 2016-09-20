@@ -11,17 +11,21 @@ import com.yy.httpproxy.util.Log;
 
 public class ForegroundService extends Service {
 
-    private final String TAG = "FakeService";
+    private final String TAG = "ForegroundService";
 
     public static ConnectionService instance;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setPriority(Notification.PRIORITY_MIN);
-        startForeground(12345, builder.build());
-        beginForeground();
+        try {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+            builder.setPriority(Notification.PRIORITY_MIN);
+            startForeground(12345, builder.build());
+            beginForeground();
+        } catch (Exception e) {
+            Log.e(TAG, "startForeground  error");
+        }
         stopSelf();
         Log.i(TAG, "FakeService onCreate");
     }
@@ -46,13 +50,9 @@ public class ForegroundService extends Service {
 
     public void beginForeground() {
         if (instance != null) {
-            try {
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(instance);
-                builder.setPriority(Notification.PRIORITY_MIN);
-                instance.startForeground(12345, builder.build());
-            } catch (Exception e) {
-                Log.e(TAG, "beginForeground  error");
-            }
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(instance);
+            builder.setPriority(Notification.PRIORITY_MIN);
+            instance.startForeground(12345, builder.build());
         }
     }
 
