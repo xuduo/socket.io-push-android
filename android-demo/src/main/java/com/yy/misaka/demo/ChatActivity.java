@@ -24,7 +24,7 @@ public class ChatActivity extends Activity implements ConnectCallback, PushCallb
     public final static String TAG = "ChatActivity";
     private RecyclerView recyclerViewMessages;
     private ChatMessagesAdapter chatMessagesAdapter;
-    public static final String API_URL = "http://spush.yy.com/api/push";
+    public static final String API_URL = "https://xh-push.yy.com:11443/api/push";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

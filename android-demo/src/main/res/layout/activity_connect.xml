@@ -7,7 +7,7 @@
     <EditText
         android:id="@+id/et_host"
         android:singleLine="true"
-        android:text="https://spush.yy.com"
+        android:text="https://xh-push.yy.com:20443"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
