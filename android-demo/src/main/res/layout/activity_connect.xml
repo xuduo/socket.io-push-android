@@ -6,7 +6,6 @@
 
     <EditText
         android:id="@+id/et_host"
-        android:singleLine="true"
         android:text="https://spush.yy.com"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
