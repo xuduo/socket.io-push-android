@@ -12,6 +12,7 @@ import android.os.Messenger;
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.socketio.RemoteClient;
 import com.yy.httpproxy.socketio.SocketIOProxyClient;
+import com.yy.httpproxy.subscribe.CachedSharedPreference;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.thirdparty.NotificationProvider;
 import com.yy.httpproxy.thirdparty.ProviderFactory;
@@ -21,6 +22,7 @@ import com.yy.httpproxy.util.LogcatLogger;
 import com.yy.httpproxy.util.Logger;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ConnectionService extends Service implements PushCallback, SocketIOProxyClient.Callback {
@@ -51,8 +53,6 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
                 String topic = bundle.getString("topic");
                 boolean receiveTtlPackets = bundle.getBoolean("receiveTtlPackets", false);
                 client().subscribeBroadcast(topic, receiveTtlPackets);
-            } else if (cmd == RemoteClient.CMD_SET_PUSH_ID) {
-                client().setPushId(bundle.getString("pushId"));
             } else if (cmd == RemoteClient.CMD_REQUEST) {
                 RequestInfo info = (RequestInfo) bundle.getSerializable("requestInfo");
                 client().request(info);
@@ -71,6 +71,9 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
                 client().reportStats(path, successCount, errorCount, latency);
             } else if (cmd == RemoteClient.CMD_UNBIND_UID) {
                 client().unbindUid();
+            } else if (cmd == RemoteClient.CMD_BIND_UID) {
+                HashMap<String,String> data = (HashMap<String, String>) bundle.getSerializable("data");
+                client().bindUid(data);
             } else if (cmd == RemoteClient.CMD_SET_TOKEN) {
                 String token = bundle.getString("token");
                 setToken(token);
@@ -109,11 +112,11 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
         if (intent != null) {
             value = intent.getStringExtra(name);
         }
-        SharedPreferences pref = getSharedPreferences("RemoteService", MODE_PRIVATE);
+        CachedSharedPreference pref = new CachedSharedPreference(this);
         if (value == null) {
-            value = pref.getString(name, null);
+            value = pref.get(name);
         } else {
-            pref.edit().putString(name, value).commit();
+            pref.save(name, value);
         }
         return value;
     }
@@ -191,8 +194,7 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
             dnsHandler.init(this.getApplicationContext());
 
             notificationProvider = ProviderFactory.getProvider(this.getApplicationContext());
-            client = new SocketIOProxyClient(this.getApplicationContext(), host, notificationProvider, dnsHandler);
-            client.setPushId(pushId);
+            client = new SocketIOProxyClient(this.getApplicationContext(), host, pushId, notificationProvider, dnsHandler);
             client.setPushCallback(this);
             client.setSocketCallback(this);
         }

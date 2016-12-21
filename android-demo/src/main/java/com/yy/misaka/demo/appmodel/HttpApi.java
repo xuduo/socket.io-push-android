@@ -18,16 +18,22 @@ import okhttp3.Response;
 public class HttpApi {
     private String url;
     private static final String TAG = "HttpApi";
+
+    public interface CB {
+        void latency(long latency);
+    }
+
     public HttpApi(String url) {
         this.url = url;
     }
 
-    public void sendMessage(Object msg, String topic) {
+    public void sendMessage(Object msg, String topic,final CB cb) {
         HashMap<String, String> params = new HashMap<>();
         String msgStr = JsonHelper.toJson(msg, "UTF-8");
         Log.d(TAG, "msgStr " + msgStr);
         params.put("json", msgStr);
         params.put("topic", topic);
+        final long start = System.currentTimeMillis();
         HttpUtils.request(url, params, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -36,7 +42,10 @@ public class HttpApi {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d(TAG, "sendMessage onResponse" + response.body());
+                Log.d(TAG, "sendMessage onResponse " + " p: " + response.protocol() + " " + response.body().string());
+                if (cb != null) {
+                    cb.latency(System.currentTimeMillis() - start);
+                }
             }
         });
     }

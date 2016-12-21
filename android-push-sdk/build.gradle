@@ -17,9 +17,6 @@ sourceSets {
 
     main.java.srcDirs += 'sub/engine.io-client-java/src/main/java'
     main.java.srcDirs += 'sub/socket.io-client-java/src/main/java'
-    main.java.srcDirs += 'sub/okhttp/okhttp/src/main/java'
-    main.java.srcDirs += 'sub/okhttp/okhttp/src/main/java-templates'
-    main.java.srcDirs += 'sub/okhttp/okhttp-ws/src/main/java'
 }
 
 sourceSets.main.compileClasspath += configurations.provided
@@ -31,7 +28,7 @@ idea {
 }
 
 dependencies {
-    compile group: 'com.squareup.okio', name: 'okio', version: '1.9.0'
+    compile 'com.squareup.okhttp3:okhttp-ws:3.4.2'
     provided files('libs/support-v4-19.1.0.jar')
     provided files('libs/android.jar')
     provided files('libs/HwPush_SDK_V2705.jar')
@@ -39,7 +36,7 @@ dependencies {
 }
 
 group = "com.yy"
-version = "1.0.119"
+version = "1.0.123"
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -82,7 +79,7 @@ uploadArchives {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
+                authentication(userName: 'xuudoo@gmail.com', password: 'qwe12345')
             }
 
             pom.project {

@@ -28,17 +28,15 @@ public class RemoteClient implements PushSubscriber {
 
     private static final String TAG = "RemoteClient";
     public static final int CMD_SUBSCRIBE_BROADCAST = 1;
-    public static final int CMD_SET_PUSH_ID = 2;
     public static final int CMD_REQUEST = 3;
     public static final int CMD_REGISTER_CLIENT = 4;
     public static final int CMD_UNSUBSCRIBE_BROADCAST = 5;
     public static final int CMD_STATS = 6;
     public static final int CMD_UNBIND_UID = 7;
     public static final int CMD_SET_TOKEN = 8;
-    public static final int CMD_THIRD_PARTY_ON_NOTIFICATION = 9;
-    public static final int CMD_HTTP = 10;
     public static final int CMD_ADD_TAG = 11;
     public static final int CMD_REMOVE_TAG = 12;
+    public static final int CMD_BIND_UID = 13;
     private Map<String, Boolean> topics = new HashMap<>();
     private ProxyClient proxyClient;
     private Messenger mService;
@@ -105,6 +103,14 @@ public class RemoteClient implements PushSubscriber {
         Message msg = Message.obtain(null, CMD_REMOVE_TAG, 0, 0);
         Bundle bundle = new Bundle();
         bundle.putString("tag", tag);
+        msg.setData(bundle);
+        sendMsg(msg);
+    }
+
+    public void bindUid(HashMap<String, String> data) {
+        Message msg = Message.obtain(null, CMD_BIND_UID, 0, 0);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", data);
         msg.setData(bundle);
         sendMsg(msg);
     }

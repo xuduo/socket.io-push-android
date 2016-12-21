@@ -57,6 +57,7 @@ public class SocketIOProxyClient implements PushSubscriber {
     private String host = "";
     private String packageName = "";
     private String[] tags = new String[]{};
+    private Socket socket;
 
 
     public void unsubscribeBroadcast(String topic) {
@@ -187,6 +188,14 @@ public class SocketIOProxyClient implements PushSubscriber {
             } catch (JSONException e) {
                 Log.e(TAG, "sendTokenToServer error ", e);
             }
+        }
+    }
+
+    public void bindUid(Map<String, String> data) {
+        if (socket.connected()) {
+            Log.i(TAG, "bindUid " + pushId);
+            JSONObject object = JSONUtil.toJSONObject(data);
+            socket.emit("bindUid", object);
         }
     }
 
@@ -348,9 +357,7 @@ public class SocketIOProxyClient implements PushSubscriber {
         stats.reportStats(path, successCount, errorCount, latency);
     }
 
-    private Socket socket;
-
-    public SocketIOProxyClient(Context context, String host, NotificationProvider provider, DnsHandler dnsHandler) {
+    public SocketIOProxyClient(Context context, String host, String pushId, NotificationProvider provider, DnsHandler dnsHandler) {
         this.packageName = context.getPackageName();
         cachedSharedPreference = new CachedSharedPreference(context);
         try {
@@ -364,6 +371,10 @@ public class SocketIOProxyClient implements PushSubscriber {
         if (provider == null) {
             topics.put("noti", true);
         }
+        if (pushId == null) {
+            pushId = cachedSharedPreference.get("pushId");
+        }
+        this.pushId = pushId;
         try {
             IO.Options opts = new IO.Options();
             opts.transports = new String[]{WebSocket.NAME};
@@ -489,12 +500,6 @@ public class SocketIOProxyClient implements PushSubscriber {
 
     public void setSocketCallback(Callback socketCallback) {
         this.socketCallback = socketCallback;
-    }
-
-
-    public void setPushId(String pushId) {
-        this.pushId = pushId;
-        sendPushIdAndTopicToServer();
     }
 
     public String getUid() {

@@ -3,6 +3,7 @@ package com.yy.misaka.demo;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,6 +13,7 @@ import com.google.gson.Gson;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.misaka.demo.appmodel.DemoApp;
+import com.yy.misaka.demo.appmodel.HttpApi;
 
 import java.util.Random;
 import java.util.Set;
@@ -21,28 +23,51 @@ public class DrawActivity extends Activity implements ConnectCallback, PushCallb
 
     private static final String TAG = "DrawActivity";
     private static String drawTopic = "drawTopic";
-    private static String endlineTopic = "endlineTopic";
     private DrawView drawView;
     private TextView latency;
+    private TextView apiLatency;
     private TextView count;
     private TextView connect;
     private long totalTime;
     private long totalCount;
+    private long totalApiTime;
+    private long totalApiCount;
     public int myColors[] = {Color.BLACK, Color.DKGRAY, Color.CYAN, Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA};
     public int myColor;
+    private Handler handler = new Handler();
+    private HttpApi.CB cb = new HttpApi.CB() {
+        @Override
+        public void latency(final long latency) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    updateApiLatency(latency);
+                }
+            });
+        }
+    };
 
     private void updateLatency(long timestamp) {
         totalTime += System.currentTimeMillis() - timestamp;
         totalCount++;
-        latency.setText((totalTime / totalCount) + "ms");
+        latency.setText("all:" + (totalTime / totalCount) + "ms");
         count.setText(totalCount + "dots");
+    }
 
+
+    private void updateApiLatency(long latency) {
+        totalApiTime += latency;
+        totalApiCount++;
+        apiLatency.setText("api:" + (totalApiTime / totalApiCount) + "ms");
     }
 
     private void resetLatency() {
         totalCount = 0;
         totalTime = 0;
+        totalApiCount = 0;
+        totalApiTime = 0;
         latency.setText("0ms");
+        apiLatency.setText("0ms");
         count.setText("0dots");
     }
 
@@ -52,13 +77,13 @@ public class DrawActivity extends Activity implements ConnectCallback, PushCallb
         Log.i("DemoLogger", "DrawActivity onCreate");
         setContentView(R.layout.activity_draw);
         latency = (TextView) findViewById(R.id.tv_latency);
+        apiLatency = (TextView) findViewById(R.id.tv_api_latency);
         count = (TextView) findViewById(R.id.tv_count);
         connect = (TextView) findViewById(R.id.tv_connect);
         drawView = (DrawView) findViewById(R.id.draw_view);
         DemoApp.APP_CONTEXT.proxyClient.getConfig().setConnectCallback(this);
         DemoApp.APP_CONTEXT.proxyClient.getConfig().setPushCallback(this);
         DemoApp.APP_CONTEXT.proxyClient.subscribeBroadcast(drawTopic);
-        DemoApp.APP_CONTEXT.proxyClient.subscribeBroadcast(endlineTopic);
         updateConnect();
 
         Random random = new Random();
@@ -70,15 +95,16 @@ public class DrawActivity extends Activity implements ConnectCallback, PushCallb
                 DrawView.Dot dot = new DrawView.Dot();
                 dot.xPercent = event.getX() / view.getWidth();
                 dot.yPercent = event.getY() / view.getHeight();
-                dot.myColor = myColor;
+                dot.setIntColor(myColor);
+                Log.d(TAG, "onTouch " + dot);
                 if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_MOVE) {
-                    DemoApp.APP_CONTEXT.httpApi.sendMessage(dot, drawTopic);
+                    DemoApp.APP_CONTEXT.httpApi.sendMessage(dot, drawTopic, cb);
                     return true;
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
                     dot.endline = true;
-                    DemoApp.APP_CONTEXT.httpApi.sendMessage(dot, drawTopic);
+                    DemoApp.APP_CONTEXT.httpApi.sendMessage(dot, drawTopic, cb);
                     return true;
-                }else {
+                } else {
                     return false;
                 }
             }
@@ -87,7 +113,7 @@ public class DrawActivity extends Activity implements ConnectCallback, PushCallb
         findViewById(R.id.btn_clear).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawView.clear();
+                DemoApp.APP_CONTEXT.httpApi.sendMessage(new DrawView.Dot(), drawTopic, null);
                 resetLatency();
             }
         });
@@ -110,11 +136,13 @@ public class DrawActivity extends Activity implements ConnectCallback, PushCallb
 
     @Override
     public void onPush(String data) {
+        Log.d(TAG, "push " + data);
         DrawView.Dot dot = new Gson().fromJson(data, DrawView.Dot.class);
+        if (dot.xPercent == 0 && dot.yPercent == 0) {
+            drawView.clear();
+            return;
+        }
         drawView.addDot(dot);
         updateLatency(dot.timestamp);
-        if(dot.endline){
-            drawView.endLine();
-        }
     }
 }

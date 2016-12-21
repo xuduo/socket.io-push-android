@@ -77,8 +77,8 @@ public class HttpUtils {
                     return true;
                 }
             });
-            builder.protocols(Util.immutableList(
-                    Protocol.HTTP_2, Protocol.SPDY_3, Protocol.HTTP_1_1));
+//            builder.protocols(Util.immutableList(
+//                     Protocol.HTTP_1_1));
             OkHttpClient okHttpClient = builder.build();
             return okHttpClient;
         } catch (Exception e) {

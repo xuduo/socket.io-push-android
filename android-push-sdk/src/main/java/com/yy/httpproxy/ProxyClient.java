@@ -7,6 +7,9 @@ import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.util.Log;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ProxyClient implements PushCallback {
     private Config config;
     public static final String TAG = "ProxyClient";
@@ -70,6 +73,10 @@ public class ProxyClient implements PushCallback {
 
     public void unbindUid() {
         config.getRemoteClient().unbindUid();
+    }
+
+    public void bindUid(HashMap<String,String> data) {
+        config.getRemoteClient().bindUid(data);
     }
 
     @Override

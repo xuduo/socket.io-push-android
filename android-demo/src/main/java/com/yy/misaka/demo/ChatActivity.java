@@ -19,7 +19,7 @@ import com.yy.misaka.demo.entity.Message;
 
 import java.util.Set;
 
-public class ChatActivity extends Activity implements ConnectCallback, PushCallback{
+public class ChatActivity extends Activity implements ConnectCallback, PushCallback {
     public final static String chatTopic = "chatRoom";
     public final static String TAG = "ChatActivity";
     private RecyclerView recyclerViewMessages;
@@ -43,13 +43,13 @@ public class ChatActivity extends Activity implements ConnectCallback, PushCallb
         findViewById(R.id.btn_send).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(String.valueOf(editTextInput.getText()).length() == 0){
+                if (String.valueOf(editTextInput.getText()).length() == 0) {
                     return;
                 }
                 Message message = new Message();
                 message.setMessage(String.valueOf(editTextInput.getText()));
                 message.setNickName(nickName);
-                DemoApp.APP_CONTEXT.httpApi.sendMessage(message, chatTopic);
+                DemoApp.APP_CONTEXT.httpApi.sendMessage(message, chatTopic, null);
                 editTextInput.setText("");
             }
         });

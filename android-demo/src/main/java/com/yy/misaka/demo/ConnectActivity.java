@@ -12,6 +12,7 @@ import com.yy.httpproxy.Config;
 import com.yy.httpproxy.ProxyClient;
 import com.yy.httpproxy.service.DefaultDnsHandler;
 import com.yy.httpproxy.service.DefaultNotificationHandler;
+import com.yy.httpproxy.service.ForegroundService;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.util.Logger;
@@ -41,6 +42,13 @@ public class ConnectActivity extends Activity implements ConnectCallback, PushCa
                         .setLogger(DemoLogger.class));
             }
         });
+
+        findViewById(R.id.btn_foreground_test).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startForegroundService();
+            }
+        });
     }
 
     @Override
@@ -59,6 +67,15 @@ public class ConnectActivity extends Activity implements ConnectCallback, PushCa
     @Override
     public void onPush(String data) {
 
+    }
+
+    private void startForegroundService() {
+        try {
+            Intent intent = new Intent(this, ForegroundService.class);
+            startService(intent);
+        } catch (Exception e) {
+            com.yy.httpproxy.util.Log.e("", "start ForegroundService error", e);
+        }
     }
 
     public static class DemoLogger implements Logger {
