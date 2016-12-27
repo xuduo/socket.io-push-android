@@ -4,9 +4,6 @@ import android.content.Context;
 
 import com.yy.httpproxy.util.Log;
 
-import com.yy.httpproxy.thirdparty.HuaweiProvider;
-import com.yy.httpproxy.thirdparty.NotificationProvider;
-import com.yy.httpproxy.thirdparty.XiaomiProvider;
 import com.yy.httpproxy.util.SystemProperty;
 
 public class ProviderFactory {
@@ -19,15 +16,22 @@ public class ProviderFactory {
 
     public static NotificationProvider getProvider(Context context) {
         final SystemProperty prop = new SystemProperty(context);
-        if (isSystem(prop, KEY_HUAWEI_VERSION) && HuaweiProvider.available(context) && !huaweiBug(prop)) {
+        boolean isHuaweiSystem = isSystem(prop, KEY_HUAWEI_VERSION);
+        boolean isHuaweiAvailable = HuaweiProvider.available(context);
+        boolean huaweiBug = huaweiBug(prop);
+        Log.i(TAG, "isHuaweiSystem " + isHuaweiSystem + ", isHuaweiAvailable " + isHuaweiAvailable + ", huaweiBug " + huaweiBug);
+        if (isHuaweiSystem && isHuaweiAvailable && !huaweiBug) {
             Log.i(TAG, "HuaweiProvider");
             return new HuaweiProvider(context);
-        } else if (isSystem(prop, KEY_MIUI_VERSION) && XiaomiProvider.available(context)) {
-            Log.i(TAG, "XiaomiProvider");
-            return new XiaomiProvider(context);
         } else {
-            Log.i(TAG, "No provider");
-            return null;
+            boolean isXiaomi = isSystem(prop, KEY_MIUI_VERSION);
+            if (isXiaomi && XiaomiProvider.available(context)) {
+                Log.i(TAG, "XiaomiProvider");
+                return new XiaomiProvider(context);
+            } else {
+                Log.i(TAG, "No provider");
+                return null;
+            }
         }
     }
 
@@ -41,6 +45,7 @@ public class ProviderFactory {
     private static boolean huaweiBug(SystemProperty prop) {
         String productName = prop.get("ro.product.name");
         String emuiVersion = prop.get("ro.build.version.emui");
+        Log.d(TAG, "huawei productName " + productName + " emuiVersion " + emuiVersion);
         return HUAWEI_BUG_VERSION.equals(emuiVersion) && HUAWEI_BUG_NAME.equals(productName);
     }
 
