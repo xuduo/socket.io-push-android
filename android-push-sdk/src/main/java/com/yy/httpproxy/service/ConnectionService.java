@@ -72,7 +72,7 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
             } else if (cmd == RemoteClient.CMD_UNBIND_UID) {
                 client().unbindUid();
             } else if (cmd == RemoteClient.CMD_BIND_UID) {
-                HashMap<String,String> data = (HashMap<String, String>) bundle.getSerializable("data");
+                HashMap<String, String> data = (HashMap<String, String>) bundle.getSerializable("data");
                 client().bindUid(data);
             } else if (cmd == RemoteClient.CMD_SET_TOKEN) {
                 String token = bundle.getString("token");
@@ -81,6 +81,9 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
                 client().addTag(bundle.getString("tag"));
             } else if (cmd == RemoteClient.CMD_REMOVE_TAG) {
                 client().removeTag(bundle.getString("tag"));
+            } else if (cmd == RemoteClient.CMD_NOTIFICATION_CLICK) {
+                String id = bundle.getString("id");
+                client().sendNotificationClick(id);
             }
         }
     }
@@ -297,6 +300,16 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
         } else {
             Log.i(TAG, "setToken from main process");
             RemoteClient.setToken(token);
+        }
+    }
+
+    public static void sendNotificationClick(String id) {
+        if (client != null) {
+            Log.i(TAG, "sendNotificationClick " + id);
+            client.sendNotificationClick(id);
+        } else {
+            Log.i(TAG, "sendNotificationClick from main process");
+            RemoteClient.sendNotificationClick(id);
         }
     }
 

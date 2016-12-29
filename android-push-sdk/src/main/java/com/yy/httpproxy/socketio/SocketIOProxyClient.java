@@ -3,6 +3,7 @@ package com.yy.httpproxy.socketio;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Base64;
+import android.util.Pair;
 
 import com.yy.httpproxy.AndroidLoggingHandler;
 import com.yy.httpproxy.requester.RequestInfo;
@@ -23,8 +24,12 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import javax.net.ssl.HostnameVerifier;
@@ -58,18 +63,16 @@ public class SocketIOProxyClient implements PushSubscriber {
     private String packageName = "";
     private String[] tags = new String[]{};
     private Socket socket;
-
+    private List<Pair> cachedEvent = new ArrayList<Pair>();
 
     public void unsubscribeBroadcast(String topic) {
         topics.remove(topic);
         topicToLastPacketId.remove(topic);
-        if (socket.connected()) {
-            JSONObject data = new JSONObject();
-            try {
-                data.put("topic", topic);
-                socket.emit("unsubscribeTopic", data);
-            } catch (JSONException e) {
-            }
+        JSONObject data = new JSONObject();
+        try {
+            data.put("topic", topic);
+            sendObjectToServer("unsubscribeTopic", data);
+        } catch (JSONException e) {
         }
     }
 
@@ -98,6 +101,7 @@ public class SocketIOProxyClient implements PushSubscriber {
         public void call(Object... args) {
             stats.onConnect();
             sendPushIdAndTopicToServer();
+            sendCachedObjectToServer();
         }
     };
 
@@ -114,13 +118,11 @@ public class SocketIOProxyClient implements PushSubscriber {
     };
 
     public void unbindUid() {
-        if (pushId != null && socket.connected()) {
-            socket.emit("unbindUid");
-        }
+        sendObjectToServer("unbindUid", null);
     }
 
     private void sendPushIdAndTopicToServer() {
-        if (pushId != null && socket.connected()) {
+        if (pushId != null) {
             Log.i(TAG, "sendPushIdAndTopicToServer " + pushId);
             JSONObject object = new JSONObject();
             try {
@@ -153,7 +155,7 @@ public class SocketIOProxyClient implements PushSubscriber {
                 if (lastUniCastId != null) {
                     object.put("lastUnicastId", lastUniCastId);
                 }
-                socket.emit("pushId", object);
+                sendObjectToServer("pushId", object);
             } catch (JSONException e) {
                 Log.e(TAG, "connectListener error ", e);
             }
@@ -177,26 +179,38 @@ public class SocketIOProxyClient implements PushSubscriber {
     };
 
     public void sendTokenToServer() {
-        if (notificationProvider != null && notificationProvider.getToken() != null && socket.connected()) {
+        if (notificationProvider != null && notificationProvider.getToken() != null) {
             Log.i(TAG, "sendTokenToServer " + pushId);
             JSONObject object = new JSONObject();
             try {
                 object.put("token", notificationProvider.getToken());
                 object.put("type", notificationProvider.getType());
                 object.put("package_name", packageName);
-                socket.emit("token", object);
+                sendObjectToServer("token", object, true);
             } catch (JSONException e) {
                 Log.e(TAG, "sendTokenToServer error ", e);
             }
         }
     }
 
-    public void bindUid(Map<String, String> data) {
-        if (socket.connected()) {
-            Log.i(TAG, "bindUid " + pushId);
-            JSONObject object = JSONUtil.toJSONObject(data);
-            socket.emit("bindUid", object);
+    public void sendNotificationClick(String id) {
+        JSONObject object = new JSONObject();
+        try {
+            object.put("id", id);
+            if (notificationProvider != null) {
+                object.put("type", notificationProvider.getType());
+            }
+            Log.i(TAG, "notificationClick " + id);
+            sendObjectToServer("notificationClick", object, true);
+        } catch (JSONException e) {
+            Log.e(TAG, "sendNotificationClick error ", e);
         }
+    }
+
+    public void bindUid(Map<String, String> data) {
+        Log.i(TAG, "bindUid " + pushId);
+        JSONObject object = JSONUtil.toJSONObject(data);
+        sendObjectToServer("bindUid", object);
     }
 
     private final Emitter.Listener notificationListener = new Emitter.Listener() {
@@ -217,7 +231,8 @@ public class SocketIOProxyClient implements PushSubscriber {
                         JSONObject object = new JSONObject();
                         object.put("id", id);
                         object.put("timestamp", timestamp);
-                        socket.emit("notificationReply", object);
+                        Log.d(TAG, "notificationReply " + id + " " + timestamp);
+                        sendObjectToServer("notificationReply", object, true);
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "handle notification error ", e);
@@ -332,18 +347,16 @@ public class SocketIOProxyClient implements PushSubscriber {
     };
 
     private void sendStats() {
-        if (socket.connected()) {
-            try {
-                JSONArray requestStats = stats.getRequestJsonArray();
-                if (requestStats.length() > 0) {
-                    JSONObject object = new JSONObject();
-                    object.put("requestStats", requestStats);
-                    socket.emit("stats", object);
-                    Log.d(TAG, "send stats " + requestStats.length());
-                }
-            } catch (JSONException e) {
-                Log.e(TAG, "sendStats error", e);
+        try {
+            JSONArray requestStats = stats.getRequestJsonArray();
+            if (requestStats.length() > 0) {
+                JSONObject object = new JSONObject();
+                object.put("requestStats", requestStats);
+                sendObjectToServer("stats", object);
+                Log.d(TAG, "send stats " + requestStats.length());
             }
+        } catch (JSONException e) {
+            Log.e(TAG, "sendStats error", e);
         }
         postStatsTask();
     }
@@ -430,23 +443,19 @@ public class SocketIOProxyClient implements PushSubscriber {
     }
 
     public void request(RequestInfo requestInfo) {
-
         try {
             Log.d(TAG, "request " + requestInfo.getPath());
 
             requestInfo.setTimestamp();
 
-            if (socket.connected()) {
-                JSONObject object = new JSONObject();
-                if (requestInfo.getBody() != null) {
-                    object.put("data", Base64.encodeToString(requestInfo.getBody(), Base64.NO_WRAP));
-                }
-                object.put("path", requestInfo.getPath());
-                object.put("sequenceId", String.valueOf(requestInfo.getSequenceId()));
-
-                socket.emit("packetProxy", object);
-
+            JSONObject object = new JSONObject();
+            if (requestInfo.getBody() != null) {
+                object.put("data", Base64.encodeToString(requestInfo.getBody(), Base64.NO_WRAP));
             }
+            object.put("path", requestInfo.getPath());
+            object.put("sequenceId", String.valueOf(requestInfo.getSequenceId()));
+
+            sendObjectToServer("packetProxy", object);
 
         } catch (Exception e) {
         }
@@ -456,41 +465,59 @@ public class SocketIOProxyClient implements PushSubscriber {
     public void subscribeBroadcast(String topic, boolean receiveTtlPackets) {
         if (!topics.containsKey(topic)) {
             topics.put(topic, receiveTtlPackets);
-            if (socket.connected()) {
-                JSONObject data = new JSONObject();
-                try {
-                    data.put("topic", topic);
-                    String lastPacketId = topicToLastPacketId.get(topic);
-                    if (lastPacketId != null && receiveTtlPackets) {
-                        data.put("lastPacketId", lastPacketId);
-                    }
-                    socket.emit("subscribeTopic", data);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            JSONObject data = new JSONObject();
+            try {
+                data.put("topic", topic);
+                String lastPacketId = topicToLastPacketId.get(topic);
+                if (lastPacketId != null && receiveTtlPackets) {
+                    data.put("lastPacketId", lastPacketId);
                 }
+                sendObjectToServer("subscribeTopic", data);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
     }
 
     public void addTag(String tag) {
-        if (socket.connected()) {
-            JSONObject data = new JSONObject();
-            try {
-                data.put("tag", tag);
-                socket.emit("addTag", data);
-            } catch (JSONException e) {
-            }
+        JSONObject data = new JSONObject();
+        try {
+            data.put("tag", tag);
+            sendObjectToServer("addTag", data);
+        } catch (JSONException e) {
         }
     }
 
     public void removeTag(String tag) {
+        JSONObject data = new JSONObject();
+        try {
+            data.put("tag", tag);
+            sendObjectToServer("removeTag", data);
+        } catch (JSONException e) {
+        }
+    }
+
+    private void sendObjectToServer(String event, Object object) {
+        sendObjectToServer(event, object, false);
+    }
+
+    private void sendObjectToServer(String event, Object object, boolean cached) {
         if (socket.connected()) {
-            JSONObject data = new JSONObject();
-            try {
-                data.put("tag", tag);
-                socket.emit("removeTag", data);
-            } catch (JSONException e) {
+            if (object == null) {
+                socket.emit(event);
+            } else {
+                socket.emit(event, object);
             }
+        } else if (cached) {
+            cachedEvent.add(new Pair<>(event, object));
+        }
+    }
+
+    private void sendCachedObjectToServer() {
+        List<Pair> newList = new ArrayList<>(cachedEvent);
+        cachedEvent.clear();
+        for (Pair<String, Objects> p : newList) {
+            sendObjectToServer(p.first, p.second);
         }
     }
 

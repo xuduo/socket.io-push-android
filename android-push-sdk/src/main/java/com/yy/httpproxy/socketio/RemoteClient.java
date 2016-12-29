@@ -37,6 +37,7 @@ public class RemoteClient implements PushSubscriber {
     public static final int CMD_ADD_TAG = 11;
     public static final int CMD_REMOVE_TAG = 12;
     public static final int CMD_BIND_UID = 13;
+    public static final int CMD_NOTIFICATION_CLICK = 14;
     private Map<String, Boolean> topics = new HashMap<>();
     private ProxyClient proxyClient;
     private Messenger mService;
@@ -113,6 +114,16 @@ public class RemoteClient implements PushSubscriber {
         bundle.putSerializable("data", data);
         msg.setData(bundle);
         sendMsg(msg);
+    }
+
+    public static void sendNotificationClick(String id) {
+        if (instance != null) {
+            Message msg = Message.obtain(null, CMD_NOTIFICATION_CLICK, 0, 0);
+            Bundle bundle = new Bundle();
+            bundle.putString("id", id);
+            msg.setData(bundle);
+            instance.sendMsg(msg);
+        }
     }
 
     private class IncomingHandler extends Handler {
