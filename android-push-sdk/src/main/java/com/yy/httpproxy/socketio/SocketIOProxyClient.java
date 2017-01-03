@@ -216,27 +216,28 @@ public class SocketIOProxyClient implements PushSubscriber {
     private final Emitter.Listener notificationListener = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            if (socketCallback != null) {
-                try {
-                    JSONObject data = (JSONObject) args[0];
-                    JSONObject android = data.optJSONObject("android");
-                    Log.i(TAG, "on notification topic " + android);
-                    String id = data.optString("id", null);
-                    if (socketCallback != null) {
-                        socketCallback.onNotification(new PushedNotification(id, android));
-                    }
-                    updateLastPacketId(id, data.optString("ttl", null), data.optString("unicast", null), "noti");
-                    long timestamp = data.optLong("timestamp", 0);
-                    if (timestamp > 0 && id != null) {
-                        JSONObject object = new JSONObject();
-                        object.put("id", id);
-                        object.put("timestamp", timestamp);
-                        Log.d(TAG, "notificationReply " + id + " " + timestamp);
-                        sendObjectToServer("notificationReply", object, true);
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "handle notification error ", e);
+            try {
+                JSONObject data = (JSONObject) args[0];
+                JSONObject android = data.optJSONObject("android");
+                Log.i(TAG, "on notification topic " + android);
+                String id = data.optString("id", null);
+                updateLastPacketId(id, data.optString("ttl", null), data.optString("unicast", null), "noti");
+                long timestamp = data.optLong("timestamp", 0);
+                if (timestamp > 0 && id != null) {
+                    JSONObject object = new JSONObject();
+                    object.put("id", id);
+                    object.put("timestamp", timestamp);
+                    Log.d(TAG, "notificationReply " + id + " " + timestamp);
+                    sendObjectToServer("notificationReply", object, true);
                 }
+
+                String title = android.optString("title");
+                if (socketCallback != null && title != null && !title.isEmpty()) {
+                    socketCallback.onNotification(new PushedNotification(id, android));
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "handle notification error ", e);
             }
         }
     };
