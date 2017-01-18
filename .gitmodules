@@ -1,0 +1,3 @@
+[submodule "android-push-sdk/sub/engine.io-client-java"]
+	path = android-push-sdk/sub/engine.io-client-java
+	url = https://github.com/xuduo/engine.io-client-java
