@@ -392,7 +392,7 @@ public class SocketIOProxyClient implements PushSubscriber {
         try {
             IO.Options opts = new IO.Options();
             opts.transports = new String[]{WebSocket.NAME};
-            opts.dnsHandler = dnsHandler;
+           // opts.dnsHandler = dnsHandler;
             if (host.startsWith("https")) {
                 try {
                     opts.sslContext = SSLContext.getInstance("TLS");
