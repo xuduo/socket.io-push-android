@@ -15,7 +15,7 @@ sourceSets {
         compileClasspath += configurations.provided
     }
 
-    //main.java.srcDirs += 'sub/engine.io-client-java/src/main/java'
+    main.java.srcDirs += 'sub/engine.io-client-java/src/main/java'
     //main.java.srcDirs += 'sub/socket.io-client-java/src/main/java'
 }
 
@@ -28,8 +28,10 @@ idea {
 }
 
 dependencies {
-    //compile 'com.squareup.okhttp3:okhttp-ws:3.4.2'
-    compile 'io.socket:socket.io-client:0.8.3'
+    compile 'com.squareup.okhttp3:okhttp:3.5.0'
+    compile('io.socket:socket.io-client:0.8.3') {
+        exclude group: 'io.socket', module: 'engine.io-client'
+    }
     provided files('libs/support-v4-19.1.0.jar')
     provided files('libs/android.jar')
     provided files('libs/HwPush_SDK_V2705.jar')
@@ -37,7 +39,7 @@ dependencies {
 }
 
 group = "com.yy"
-version = "1.0.127"
+version = "1.0.128"
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
