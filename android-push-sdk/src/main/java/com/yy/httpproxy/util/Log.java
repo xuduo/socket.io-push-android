@@ -19,7 +19,7 @@ public class Log {
         if (logger != null) {
             log(Logger.INFO, tag, message, null);
         } else {
-            android.util.Log.d(tag, message);
+            android.util.Log.i(tag, message);
         }
     }
 
@@ -27,7 +27,7 @@ public class Log {
         if (logger != null) {
             log(Logger.ERROR, tag, message, null);
         } else {
-            android.util.Log.d(tag, message);
+            android.util.Log.e(tag, message);
         }
     }
 
@@ -35,7 +35,7 @@ public class Log {
         if (logger != null) {
             log(Logger.ERROR, tag, message, e);
         } else {
-            android.util.Log.d(tag, message);
+            android.util.Log.e(tag, message, e);
         }
     }
 

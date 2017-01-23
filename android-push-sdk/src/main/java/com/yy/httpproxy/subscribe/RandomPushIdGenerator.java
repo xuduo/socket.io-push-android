@@ -8,9 +8,8 @@ import java.security.SecureRandom;
 /**
  * Created by xuduo on 10/20/15.
  */
-public class RandomPushIdGenerator implements PushIdGenerator {
+public class RandomPushIdGenerator {
 
-    @Override
     public String generatePushId(Context context) {
         CachedSharedPreference cachedSharedPreference = new CachedSharedPreference(context);
         String pushId = cachedSharedPreference.get("pushId");
