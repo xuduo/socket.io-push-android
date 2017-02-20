@@ -122,7 +122,8 @@ public class YYNotificationReceiver extends NotificationReceiver {
     /**
      *  如果使用DelegateToClientNotificationHandler ,UI进程存活的时候,会调用此方法,不弹出通知.
      *  UI进程被杀,push进程存活的时候,使用默认的样式弹出
-     */
+     *  使用小米华为推送时，不会调用
+     */
     @Override
     public void onNotificationArrived(Context context, PushedNotification notification) {
         Log.d("YYNotificationReceiver", "onNotificationArrived " + notification.id + " values " + notification.values);
