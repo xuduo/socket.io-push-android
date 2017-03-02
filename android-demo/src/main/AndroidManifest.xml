@@ -106,6 +106,7 @@
 
         <!-- 小米配置开始-->
         <!-- 被杀后,push进程无法通过intent 拉起main进程,XiaomiReceiver 要跑在主进程-->
+        <!-- 坑！KEY ID 需要写在 strings.xml 否则会被当作数字处理 -->
         <meta-data android:name="XIAOMI_APP_ID"
             android:value="@string/XIAOMI_APP_ID" />
         <meta-data android:name="XIAOMI_APP_KEY"
