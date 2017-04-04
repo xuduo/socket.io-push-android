@@ -1,7 +1,7 @@
-##socket.io-push-android [![Build Status](https://travis-ci.org/xuduo/socket.io-push-android.svg?branch=master)](https://travis-ci.org/xuduo/socket.io-push-android)
+## socket.io-push-android [![Build Status](https://travis-ci.org/xuduo/socket.io-push-android.svg?branch=master)](https://travis-ci.org/xuduo/socket.io-push-android)
 demo实现了一个聊天室功能,
 
-#####添加maven/gradle依赖
+##### 添加maven/gradle依赖
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.yy/android-push-sdk/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.yy/android-push-sdk)
 
@@ -21,10 +21,10 @@ gradle
 compile 'com.yy:android-push-sdk:${versoion}'
 ```
 
-####AndroidManifest.xml添加receiver,service,permission
+#### AndroidManifest.xml添加receiver,service,permission
 参见Demo的[AndroidManifest.xml](src/main/AndroidManifest.xml)
 
-####Proguard
+#### Proguard
 
 混淆配置
 ```
@@ -42,7 +42,7 @@ compile 'com.yy:android-push-sdk:${versoion}'
 
 ```
 
-#####初始化ProxyClient
+##### 初始化ProxyClient
 每次UI进程启动需要初始化,初始化后会自动启动push进程.
 
 ```java
@@ -69,7 +69,7 @@ Proxy proxyClient = new ProxyClient(new Config(this)
 ```
 
 
-#####获取pushId
+##### 获取pushId
 
 由客户端自动生成, proxyClient实例化后即可获得
 
@@ -80,7 +80,7 @@ String pushId = proxyClient.getPushId();
 
 
 
-####subscribe/unsbuscribe topic
+#### subscribe/unsbuscribe topic
 
 调用不需考虑当时是否连线, 重连也不需要重新sub/unsub,sdk里已经处理
 ```java
@@ -91,7 +91,7 @@ proxyClient.unsubscribeBroadcast("aTopic");
 
 
 
-####接收push
+#### 接收push
 ```java
 public interface PushCallback {
 
@@ -104,7 +104,7 @@ public interface PushCallback {
 ```
 
 
-####接收notification(使用DefaultNotificationHandler/DelegateToClientNotificationHandler)
+#### 接收notification(使用DefaultNotificationHandler/DelegateToClientNotificationHandler)
 sdk默认会弹出系统通知
 arrive和click后会调用receiver的方法
 ```java
@@ -137,7 +137,7 @@ config.setNotificationHandler(MyHandlerClass.class); //不能混淆这个类
 ```
 
 
-####自定义弹出通知(使用自定义NotificationHandler)
+#### 自定义弹出通知(使用自定义NotificationHandler)
 可以用代码根据业务服务器下发的notification中的自定义payload字段,展示不同的效果
 
 注意!NotificationHandler的实例,是在push进程中的!
@@ -162,7 +162,7 @@ config.setNotificationHandler("yourFullyQualifiedHandlerClassName"); //不能混
 
 
 
-####绑定UID
+#### 绑定UID
 绑定UID是业务服务器调用push-server接口进行绑定的(pushId - uid)的关系
 
 由于安全性的问题,客户端无法直接绑定
@@ -190,7 +190,7 @@ proxyClient.unbindUid();
 
 
 
-####集成小米push
+#### 集成小米push
 
 
 [华为push官方接入文档](http://dev.xiaomi.com/doc/?page_id=1670)
@@ -210,7 +210,7 @@ proxyClient.unbindUid();
 
 
 
-####集成华为push
+#### 集成华为push
 
 [华为push官方接入文档](http://developer.huawei.com/push)
 
@@ -226,7 +226,7 @@ proxyClient.unbindUid();
 2. 对于开启的手机,无法使用自定义NotificationHandler控制notification弹出
 
 
-####UI进程单独使用push功能
+#### UI进程单独使用push功能
 
 ```java
     String pushId = new RandomPushIdGenerator().generatePushId(pushId); //生成随机pushId
