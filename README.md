@@ -22,7 +22,7 @@ compile 'com.yy:android-push-sdk:${versoion}'
 ```
 
 #### AndroidManifest.xml添加receiver,service,permission
-参见Demo的[AndroidManifest.xml](src/main/AndroidManifest.xml)
+参见Demo的[AndroidManifest.xml](android-demo/src/main/AndroidManifest.xml)
 
 #### Proguard
 
