@@ -8,7 +8,7 @@ import com.yy.httpproxy.util.SystemProperty;
 
 public class ProviderFactory {
 
-    private static final String KEY_HUAWEI_VERSION = "ro.confg.hw_systemversion";
+    private static final String KEY_HUAWEI_VERSION = "ro.build.version.emui";
     private static final String KEY_MIUI_VERSION = "ro.miui.ui.version.name";
     private static final String TAG = "ProviderFactory";
     private static final String HUAWEI_BUG_NAME = "NXT-AL10";
@@ -44,7 +44,7 @@ public class ProviderFactory {
 
     private static boolean huaweiBug(SystemProperty prop) {
         String productName = prop.get("ro.product.name");
-        String emuiVersion = prop.get("ro.build.version.emui");
+        String emuiVersion = prop.get(KEY_HUAWEI_VERSION);
         Log.d(TAG, "huawei productName " + productName + " emuiVersion " + emuiVersion);
         return HUAWEI_BUG_VERSION.equals(emuiVersion) && HUAWEI_BUG_NAME.equals(productName);
     }
