@@ -1,5 +1,9 @@
 ## socket.io-push-android [![Build Status](https://travis-ci.org/xuduo/socket.io-push-android.svg?branch=master)](https://travis-ci.org/xuduo/socket.io-push-android)
-demo实现了一个聊天室功能,
+demo实现了一个聊天室功能, 编译clone后 需要pull submodule
+```
+git clone https://github.com/xuduo/socket.io-push-android
+git submodule update --recursive --remote
+```
 
 ##### 添加maven/gradle依赖
 
