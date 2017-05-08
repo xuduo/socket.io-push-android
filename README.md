@@ -164,8 +164,6 @@ public interface NotificationHandler {
 config.setNotificationHandler("yourFullyQualifiedHandlerClassName"); //不能混淆这个类
 ```
 
-
-
 #### 绑定UID
 绑定UID是业务服务器调用push-server接口进行绑定的(pushId - uid)的关系
 
@@ -180,8 +178,9 @@ public interface ConnectCallback {
     /**
      *  
      * @param uid 连接push-server后,在服务器绑定的uid,如未绑定,uid = ""
+     * @param uid 连接push-server后,在服务器绑定的tags
      */
-    void onConnect(String uid);
+    void onConnect(String uid, Set<String> tags);
 
     void onDisconnect();
 
@@ -192,6 +191,14 @@ public interface ConnectCallback {
 proxyClient.unbindUid();
 ```
 
+##### 添加删除tag
+
+```java
+proxyClient.addTag("tag1");
+proxyClient.removeTag("tag2");
+```
+
+tag回调同上
 
 
 #### 集成小米push
