@@ -34,4 +34,8 @@ public class PushedNotification {
         this.payload = payload;
     }
 
+    @Override
+    public int hashCode() {
+        return this.id.hashCode() + this.message.hashCode() + this.title.hashCode() + this.payload.hashCode();
+    }
 }

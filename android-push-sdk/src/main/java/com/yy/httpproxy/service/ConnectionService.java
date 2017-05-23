@@ -2,12 +2,12 @@ package com.yy.httpproxy.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.text.format.DateFormat;
 
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.socketio.RemoteClient;
@@ -21,9 +21,8 @@ import com.yy.httpproxy.util.Log;
 import com.yy.httpproxy.util.LogcatLogger;
 import com.yy.httpproxy.util.Logger;
 
-import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 public class ConnectionService extends Service implements PushCallback, SocketIOProxyClient.Callback {
 
@@ -36,9 +35,9 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     public static final int CMD_PUSH = 2;
     public static final int CMD_NOTIFICATION_CLICKED = 3;
     public static final int CMD_NOTIFICATION_ARRIVED = 5;
-    public static final int CMD_RESPONSE = 4;
     public static final int CMD_CONNECTED = 5;
     public static final int CMD_DISCONNECT = 6;
+    private CachedSharedPreference pref;
     private final Messenger messenger = new Messenger(new IncomingHandler());
     private Messenger remoteClient;
     private boolean bound = false;
@@ -91,6 +90,7 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     @Override
     public void onCreate() {
         super.onCreate();
+        pref = new CachedSharedPreference(this);
         Log.i(TAG, "ConnectionService onCreate");
     }
 
@@ -115,7 +115,6 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
         if (intent != null) {
             value = intent.getStringExtra(name);
         }
-        CachedSharedPreference pref = new CachedSharedPreference(this);
         if (value == null) {
             value = pref.get(name);
         } else {
@@ -261,7 +260,18 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
 
     @Override
     public void onNotification(PushedNotification notification) {
-        notificationHandler.handlerNotification(this, bound, notification);
+        Log.i(TAG, "onNotification " + notification);
+        String hashCode = notification.hashCode() + "";
+        DateFormat df = new DateFormat();
+        Date now = new Date();
+        String today = "noti_" + df.format("yyyy-MM-dd", now).toString();
+        String yesterday = "noti_" + df.format("yyyy-MM-dd", new Date(now.getTime() - 24 * 3600 * 1000)).toString();
+        if (!pref.getStringSet(today).contains(hashCode) && !pref.getStringSet(yesterday).contains(hashCode)) {
+            pref.addStringSet(today, hashCode);
+            notificationHandler.handlerNotification(this, bound, notification);
+        } else {
+            Log.i(TAG, "skip duplicate notification");
+        }
     }
 
     public void sendConnect() {

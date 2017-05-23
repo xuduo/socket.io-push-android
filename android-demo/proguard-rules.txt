@@ -2,7 +2,39 @@
 -keep class com.huawei.android.pushselfshow.** {*;}
 -keep class com.huawei.android.microkernel.** {*;}
 -keep class com.baidu.mapapi.** {*;}
--dontwarn com.huawei.**
 
 -dontwarn com.yy.httpproxy.thirdparty.**
 -dontwarn okio.**
+
+-dontwarn com.taobao.**
+-dontwarn anet.channel.**
+-dontwarn anetwork.channel.**
+-dontwarn org.android.**
+-dontwarn com.xiaomi.**
+-dontwarn com.huawei.**
+-dontwarn org.apache.thrift.**
+
+-keepattributes *Annotation*
+
+-keep class com.taobao.** {*;}
+-keep class org.android.** {*;}
+-keep class anet.channel.** {*;}
+-keep class com.umeng.** {*;}
+-keep class com.xiaomi.** {*;}
+-keep class com.huawei.** {*;}
+-keep class org.apache.thrift.** {*;}
+-keep class com.alibaba.sdk.android.**{*;}
+-keep class com.ut.**{*;}
+-keep class com.ta.**{*;}
+
+-keep public class com.umeng.message.example.example.R$*{
+   public static final int *;
+}
+
+#避免log打印输出
+ -assumenosideeffects class android.util.Log {
+      public static *** v(...);
+      public static *** d(...);
+      public static *** i(...);
+      public static *** w(...);
+ }

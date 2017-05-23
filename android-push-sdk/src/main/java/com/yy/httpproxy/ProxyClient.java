@@ -1,25 +1,57 @@
 package com.yy.httpproxy;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 
 import com.yy.httpproxy.requester.RequestInfo;
+import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.subscribe.PushCallback;
+import com.yy.httpproxy.thirdparty.UmengProvider;
 import com.yy.httpproxy.util.Log;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.Map;
 
 public class ProxyClient implements PushCallback {
+
     private Config config;
     public static final String TAG = "ProxyClient";
-    private long mainThreadId = Looper.getMainLooper().getThread().getId();
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private long mainThreadId;
+    private Handler handler;
 
-    public ProxyClient(Config config) {
+    public ProxyClient(final Config config) {
+        if (!isMainProcess(config.getContext())) {
+            Log.i(TAG, "not in main process, skip init , start service ");
+            registerUmeng(config.getContext());
+            return;
+        }
+        Log.i(TAG, "init " + config);
         this.config = config;
+        handler = new Handler(Looper.getMainLooper());
+        mainThreadId = Looper.getMainLooper().getThread().getId();
+
         if (config.getRemoteClient() != null) {
             config.getRemoteClient().setProxyClient(this);
+        }
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                registerUmeng(config.getContext());
+            }
+        }, 2000L);
+
+    }
+
+    private void registerUmeng(Context context) {
+        if (UmengProvider.available(context)) {
+            UmengProvider.register(context);
         }
     }
 
@@ -37,7 +69,7 @@ public class ProxyClient implements PushCallback {
                 removeTag(tag);
     }
 
-    public void request(String path, byte[]data) {
+    public void request(String path, byte[] data) {
         final RequestInfo requestInfo = new RequestInfo();
         requestInfo.setBody(data);
         requestInfo.setPath(path);
@@ -75,7 +107,7 @@ public class ProxyClient implements PushCallback {
         config.getRemoteClient().unbindUid();
     }
 
-    public void bindUid(HashMap<String,String> data) {
+    public void bindUid(HashMap<String, String> data) {
         config.getRemoteClient().bindUid(data);
     }
 
@@ -95,6 +127,43 @@ public class ProxyClient implements PushCallback {
                 });
             }
         }
+    }
+
+    public boolean isMainProcess(Context context) {
+        BufferedReader cmdlineReader = null;
+        String packageName = context.getPackageName();
+        try {
+            cmdlineReader = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(
+                            "/proc/" + android.os.Process.myPid() + "/cmdline"),
+                    "iso-8859-1"));
+            int c;
+            StringBuilder processName = new StringBuilder();
+            while ((c = cmdlineReader.read()) > 0) {
+                processName.append((char) c);
+            }
+            Log.d(TAG, "/proc/ file name " + processName.toString() + ", packageName " + packageName);
+            return processName.toString().equals(packageName);
+        } catch (Exception e) {
+            Log.e(TAG, "read /proc/ error ", e);
+            int pid = android.os.Process.myPid();
+            ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
+                if (processInfo.pid == pid) {
+                    Log.d(TAG, "processInfo.processName file name " + processInfo.processName + ", packageName " + packageName);
+                    return processInfo.processName.equals(packageName);
+                }
+            }
+        } finally {
+            if (cmdlineReader != null) {
+                try {
+                    cmdlineReader.close();
+                } catch (IOException e) {
+
+                }
+            }
+        }
+        return false;
     }
 
     public String getPushId() {

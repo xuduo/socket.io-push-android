@@ -1,6 +1,7 @@
 package com.yy.httpproxy;
 
 import android.content.Context;
+
 import com.yy.httpproxy.socketio.RemoteClient;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
@@ -74,5 +75,40 @@ public class Config {
 
     public String getPushId() {
         return pushId;
+    }
+
+    public String getLogger() {
+        return logger;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public String getNotificationHandler() {
+        return notificationHandler;
+    }
+
+    public String getDnsHandler() {
+        return dnsHandler;
+    }
+
+    @Override
+    public String toString() {
+        return "Config{" +
+                "remoteClient=" + remoteClient +
+                ", context=" + context +
+                ", pushCallback=" + pushCallback +
+                ", connectCallback=" + connectCallback +
+                ", host='" + host + '\'' +
+                ", pushId='" + pushId + '\'' +
+                ", notificationHandler='" + notificationHandler + '\'' +
+                ", dnsHandler='" + dnsHandler + '\'' +
+                ", logger='" + logger + '\'' +
+                '}';
     }
 }

@@ -28,6 +28,8 @@ public class ProviderFactory {
             if (isXiaomi && XiaomiProvider.available(context)) {
                 Log.i(TAG, "XiaomiProvider");
                 return new XiaomiProvider(context);
+            } else if (UmengProvider.available(context)) {
+                return new UmengProvider(context);
             } else {
                 Log.i(TAG, "No provider");
                 return null;

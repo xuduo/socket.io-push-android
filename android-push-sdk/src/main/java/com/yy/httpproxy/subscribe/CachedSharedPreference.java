@@ -5,7 +5,9 @@ import android.content.SharedPreferences;
 import android.os.Build;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 public class CachedSharedPreference {
@@ -25,6 +27,16 @@ public class CachedSharedPreference {
         } else {
             editor.commit();
         }
+    }
+
+    public Set<String> getStringSet(String key) {
+        return preferences.getStringSet(key, new HashSet<String>());
+    }
+
+    public void addStringSet(String key, String value) {
+        Set<String> values = getStringSet(key);
+        values.add(value);
+        preferences.edit().putStringSet(key, values).commit();
     }
 
     public String get(String key) {

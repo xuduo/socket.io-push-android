@@ -14,6 +14,7 @@ import com.yy.httpproxy.subscribe.CachedSharedPreference;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.subscribe.PushSubscriber;
 import com.yy.httpproxy.thirdparty.NotificationProvider;
+import com.yy.httpproxy.thirdparty.UmengProvider;
 import com.yy.httpproxy.util.JSONUtil;
 import com.yy.httpproxy.util.Log;
 
@@ -25,7 +26,6 @@ import java.net.URISyntaxException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -382,7 +382,7 @@ public class SocketIOProxyClient implements PushSubscriber {
         }
         this.host = host;
         this.notificationProvider = provider;
-        if (provider == null) {
+        if (provider == null || notificationProvider instanceof UmengProvider) {
             topics.put("noti", true);
         }
         if (pushId == null) {

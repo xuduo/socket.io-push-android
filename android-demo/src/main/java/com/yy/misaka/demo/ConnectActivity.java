@@ -35,11 +35,6 @@ public class ConnectActivity extends Activity implements ConnectCallback, PushCa
             @Override
             public void onClick(View v) {
                 String host = String.valueOf(editText.getText()).trim();
-                DemoApp.APP_CONTEXT.proxyClient = new ProxyClient(new Config(DemoApp.APP_CONTEXT).setHost(host).setConnectCallback(ConnectActivity.this)
-                        .setNotificationHandler(DefaultNotificationHandler.class)
-                        .setDnsHandler(DefaultDnsHandler.class)
-                        .setPushCallback(ConnectActivity.this)
-                        .setLogger(DemoLogger.class));
             }
         });
 

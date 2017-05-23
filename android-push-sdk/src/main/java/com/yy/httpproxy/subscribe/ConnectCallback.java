@@ -10,7 +10,7 @@ public interface ConnectCallback {
     /**
      * @param uid 连接push-server后,在服务器绑定的uid
      */
-    void onConnect(String uid, Set<String> topics);
+    void onConnect(String uid, Set<String> tags);
 
     void onDisconnect();
 
