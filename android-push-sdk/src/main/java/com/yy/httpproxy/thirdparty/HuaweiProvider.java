@@ -23,7 +23,7 @@ public class HuaweiProvider implements NotificationProvider {
         try {
             return Class.forName("com.huawei.android.pushagent.api.PushManager") != null
                     && Class.forName("com.yy.httpproxy.thirdparty.HuaweiReceiver") != null
-                    && ServiceCheckUtil.isServiceAvailable(context, HuaweiReceiver.class);
+                    && ServiceCheckUtil.isBroadcastReceiverAvailable(context, HuaweiReceiver.class);
         } catch (Throwable e) {
             Log.e(TAG, "available ", e);
             return false;

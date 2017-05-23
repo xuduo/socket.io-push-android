@@ -57,9 +57,9 @@ public class UmengProvider implements NotificationProvider {
 
     public static boolean available(Context context) {
         try {
-            boolean available = Class.forName("com.umeng.message.PushAgent") != null
-                    && Class.forName("com.umeng.message.UmengIntentService") != null
-                    && ServiceCheckUtil.isServiceAvailable(context, UmengIntentService.class);
+            boolean available = ServiceCheckUtil.isIntentServiceAvailable(context, UmengIntentService.class) &&
+                    Class.forName("com.umeng.message.PushAgent") != null
+                    && Class.forName("com.umeng.message.UmengIntentService") != null;
             Log.d(TAG, "available " + available);
             return available;
         } catch (Throwable e) {

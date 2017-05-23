@@ -48,7 +48,7 @@ public class XiaomiProvider implements NotificationProvider {
         try {
             return Class.forName("com.xiaomi.mipush.sdk.MiPushClient") != null
                     && Class.forName("com.yy.httpproxy.thirdparty.XiaomiReceiver") != null
-                    && ServiceCheckUtil.isServiceAvailable(context, XiaomiReceiver.class) && getMetaDataValue(context, "XIAOMI_APP_ID") != null && getMetaDataValue(context, "XIAOMI_APP_ID") != null;
+                    && ServiceCheckUtil.isBroadcastReceiverAvailable(context, XiaomiReceiver.class) && getMetaDataValue(context, "XIAOMI_APP_ID") != null && getMetaDataValue(context, "XIAOMI_APP_ID") != null;
         } catch (Throwable e) {
             Log.e(TAG, "available ", e);
             return false;

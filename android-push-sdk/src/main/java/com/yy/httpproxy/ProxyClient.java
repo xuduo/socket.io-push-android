@@ -1,6 +1,7 @@
 package com.yy.httpproxy;
 
 import android.app.ActivityManager;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -11,6 +12,7 @@ import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.thirdparty.UmengProvider;
 import com.yy.httpproxy.util.Log;
+import com.yy.httpproxy.util.ServiceCheckUtil;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -26,9 +28,15 @@ public class ProxyClient implements PushCallback {
     private Handler handler;
 
     public ProxyClient(final Config config) {
-        if (!isMainProcess(config.getContext())) {
+        String packageName = config.getContext().getPackageName();
+        String processName = getProcessName(config.getContext());
+        if (!packageName.equals(processName)) {
+            String pushProcess = ServiceCheckUtil.getPushProcessName(config.getContext());
             Log.i(TAG, "not in main process, skip init , start service ");
-            registerUmeng(config.getContext());
+            if (pushProcess.equals(processName)) {
+                Log.i(TAG, "in push process, registerUmeng");
+                registerUmeng(config.getContext());
+            }
             return;
         }
         Log.i(TAG, "init " + config);
@@ -129,9 +137,8 @@ public class ProxyClient implements PushCallback {
         }
     }
 
-    public boolean isMainProcess(Context context) {
+    public String getProcessName(Context context) {
         BufferedReader cmdlineReader = null;
-        String packageName = context.getPackageName();
         try {
             cmdlineReader = new BufferedReader(new InputStreamReader(
                     new FileInputStream(
@@ -142,16 +149,16 @@ public class ProxyClient implements PushCallback {
             while ((c = cmdlineReader.read()) > 0) {
                 processName.append((char) c);
             }
-            Log.d(TAG, "/proc/ file name " + processName.toString() + ", packageName " + packageName);
-            return processName.toString().equals(packageName);
+            Log.d(TAG, "/proc/ file name " + processName.toString());
+            return processName.toString();
         } catch (Exception e) {
             Log.e(TAG, "read /proc/ error ", e);
             int pid = android.os.Process.myPid();
             ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
             for (ActivityManager.RunningAppProcessInfo processInfo : manager.getRunningAppProcesses()) {
                 if (processInfo.pid == pid) {
-                    Log.d(TAG, "processInfo.processName file name " + processInfo.processName + ", packageName " + packageName);
-                    return processInfo.processName.equals(packageName);
+                    Log.d(TAG, "processInfo.processName file name " + processInfo.processName);
+                    return processInfo.processName;
                 }
             }
         } finally {
@@ -163,7 +170,7 @@ public class ProxyClient implements PushCallback {
                 }
             }
         }
-        return false;
+        return context.getPackageName();
     }
 
     public String getPushId() {
