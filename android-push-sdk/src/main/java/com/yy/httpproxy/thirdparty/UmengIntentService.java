@@ -51,6 +51,9 @@ public class UmengIntentService extends UmengMessageService {
                 if (ForegroundService.instance != null) {
                     ForegroundService.instance.onNotification(pushedNotification);
                 }
+                if (ConnectionService.client != null) {
+                    ConnectionService.client.sendUmengReply(obj.getString("id"));
+                }
 
                 Log.d(TAG, "umeng on arrive " + msg.custom);
             } catch (Exception e) {
