@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.service.ConnectionService;
@@ -26,8 +27,10 @@ public class ProxyClient implements PushCallback {
     public static final String TAG = "ProxyClient";
     private long mainThreadId;
     private Handler handler;
+    public static long uptime;
 
     public ProxyClient(final Config config) {
+        uptime = SystemClock.elapsedRealtime();
         String packageName = config.getContext().getPackageName();
         String processName = getProcessName(config.getContext());
         if (!packageName.equals(processName)) {

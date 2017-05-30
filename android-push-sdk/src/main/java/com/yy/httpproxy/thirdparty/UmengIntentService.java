@@ -2,11 +2,13 @@ package com.yy.httpproxy.thirdparty;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 
 import com.umeng.message.UTrack;
 import com.umeng.message.UmengMessageService;
 import com.umeng.message.common.UmLog;
 import com.umeng.message.entity.UMessage;
+import com.yy.httpproxy.ProxyClient;
 import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.service.ForegroundService;
@@ -34,7 +36,8 @@ public class UmengIntentService extends UmengMessageService {
 
     @Override
     public void onMessage(Context context, Intent intent) {
-        Log.d(TAG, "message=" + intent.getStringExtra(AgooConstants.MESSAGE_BODY));
+        long appUptime = SystemClock.elapsedRealtime() - ProxyClient.uptime;
+        Log.d(TAG, "uptime=" + appUptime + "message=" + intent.getStringExtra(AgooConstants.MESSAGE_BODY));
         try {
             //可以通过MESSAGE_BODY取得消息体
             String message = intent.getStringExtra(AgooConstants.MESSAGE_BODY);
@@ -53,6 +56,9 @@ public class UmengIntentService extends UmengMessageService {
                 }
                 if (ConnectionService.client != null) {
                     ConnectionService.client.sendUmengReply(obj.getString("id"));
+                    if (appUptime < 3000) { //被友盟兄弟拉起
+                        ConnectionService.client.reportStats("umengStart", 1, 0, 0);
+                    }
                 }
 
                 Log.d(TAG, "umeng on arrive " + msg.custom);
