@@ -118,7 +118,7 @@ public class SocketIOProxyClient implements PushSubscriber {
     };
 
     public void unbindUid() {
-        sendObjectToServer("unbindUid", null, true);
+        sendObjectToServer("unbindUid", null);
     }
 
     private void sendPushIdAndTopicToServer() {
@@ -193,11 +193,11 @@ public class SocketIOProxyClient implements PushSubscriber {
         }
     }
 
-    public void sendUmengReply(String id) {
+    public void sendUmengReply(String id){
         try {
             JSONObject object = new JSONObject();
             object.put("id", id);
-            Log.d(TAG, "umengReply " + id);
+            Log.d(TAG, "notificationReply " + id);
             sendObjectToServer("umengReply", object, true);
         } catch (JSONException e) {
 
@@ -221,7 +221,7 @@ public class SocketIOProxyClient implements PushSubscriber {
     public void bindUid(Map<String, String> data) {
         Log.i(TAG, "bindUid " + pushId);
         JSONObject object = JSONUtil.toJSONObject(data);
-        sendObjectToServer("bindUid", object, true);
+        sendObjectToServer("bindUid", object);
     }
 
     private final Emitter.Listener notificationListener = new Emitter.Listener() {
@@ -403,7 +403,7 @@ public class SocketIOProxyClient implements PushSubscriber {
         try {
             IO.Options opts = new IO.Options();
             opts.transports = new String[]{WebSocket.NAME};
-            // opts.dnsHandler = dnsHandler;
+           // opts.dnsHandler = dnsHandler;
             if (host.startsWith("https")) {
                 try {
                     opts.sslContext = SSLContext.getInstance("TLS");

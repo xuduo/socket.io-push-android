@@ -2,11 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yy.misaka.demo" >
 
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
@@ -174,13 +169,29 @@
             android:value="5bf1308391c476e2948575e9a8bd3f34">
         </meta-data>
 
+        <service
+            android:name="com.taobao.accs.ChannelService"
+            android:exported="true"
+            android:process=":push">
+            <intent-filter>
+                <action android:name="com.taobao.accs.intent.action.SERVICE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.taobao.accs.intent.action.ELECTION" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.taobao.accs.data.MsgDistributeService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.taobao.accs.intent.action.RECEIVE" />
+            </intent-filter>
+        </service>
+
         <receiver
-            android:name="com.umeng.message.NotificationProxyBroadcastReceiver"
-            android:exported="false" >
-        </receiver>
-        <receiver
-            android:name="com.umeng.message.SystemReceiver"
-            android:process=":push" >
+            android:name="com.taobao.accs.EventReceiver"
+            android:process=":push">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -189,108 +200,107 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
-
                 <data android:scheme="package" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
         </receiver>
+
         <receiver
-            android:name="com.umeng.message.MessageReceiver"
-            android:exported="false"
-            android:process=":push" >
+            android:name="com.taobao.accs.ServiceReceiver"
+            android:process=":push">
+            <intent-filter>
+                <action android:name="com.taobao.accs.intent.action.COMMAND" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.taobao.accs.intent.action.START_FROM_AGOO" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.taobao.accs.ChannelService$KernelService"
+            android:process=":push" />
+
+        <service
+            android:name="org.android.agoo.accs.AgooService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.taobao.accs.intent.action.RECEIVE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.umeng.message.UmengIntentService"
+            android:exported="true"
+            android:process=":push">
             <intent-filter>
                 <action android:name="org.agoo.android.intent.action.RECEIVE" />
             </intent-filter>
-        </receiver>
-        <receiver
-            android:name="com.umeng.message.ElectionReceiver"
-            android:process=":push" >
-            <intent-filter>
-                <action android:name="org.agoo.android.intent.action.ELECTION_RESULT_V4" />
+        </service>
 
-                <category android:name="umeng" />
+        <service
+            android:name="com.umeng.message.XiaomiIntentService"
+            android:exported="true"
+            android:process=":push">
+            <intent-filter>
+                <action android:name="org.agoo.android.intent.action.RECEIVE" />
             </intent-filter>
-        </receiver>
+        </service>
+
         <receiver
-            android:name="com.umeng.message.RegistrationReceiver"
-            android:exported="false" >
+            android:name="com.taobao.agoo.AgooCommondReceiver"
+            android:exported="true"
+            android:process=":push">
             <intent-filter>
                 <action android:name="${applicationId}.intent.action.COMMAND" />
             </intent-filter>
-        </receiver>
-        <receiver android:name="com.umeng.message.UmengMessageBootReceiver" >
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
 
-        <service
-            android:name="com.umeng.message.UmengService"
-            android:exported="true"
-            android:label="PushService"
-            android:process=":push" >
-            <intent-filter>
-                <action android:name="${applicationId}.intent.action.START" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="${applicationId}.intent.action.COCKROACH" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="org.agoo.android.intent.action.PING_V4" />
-
-                <category android:name="umeng" />
-            </intent-filter>
-        </service>
-        <service
-            android:name="com.umeng.message.UmengIntentService"
-            android:process=":push" />
         <service
             android:name="com.umeng.message.UmengMessageIntentReceiverService"
             android:exported="true"
-            android:process=":push" >
+            android:process=":push">
             <intent-filter>
                 <action android:name="org.android.agoo.client.MessageReceiverService" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="org.android.agoo.client.ElectionReceiverService" />
-            </intent-filter>
         </service>
+
+        <receiver
+            android:name="com.umeng.message.NotificationProxyBroadcastReceiver"
+            android:exported="false" />
+
         <service
             android:name="com.umeng.message.UmengMessageCallbackHandlerService"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.umeng.messge.registercallback.action" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.umeng.message.unregistercallback.action" />
+                <action android:name="com.umeng.message.enablecallback.action" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.umeng.message.disablecallback.action" />
             </intent-filter>
             <intent-filter>
                 <action android:name="com.umeng.message.message.handler.action" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="com.umeng.message.autoupdate.handler.action" />
-            </intent-filter>
         </service>
-        <!-- If you donot want to use the standard notification bar in SDK, you can define IntentService instead to handle message. -->
 
         <service
             android:name="com.umeng.message.UmengDownloadResourceService"
             android:exported="false" />
-        <service
-            android:name="com.umeng.message.local.UmengLocalNotificationService"
-            android:exported="false" />
-        <receiver
-            android:name="com.umeng.message.NetworkReceiver" >
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
-        </receiver>
-        <service
-            android:name="com.umeng.message.UmengLocationService"
+
+        <provider
+            android:name="com.umeng.message.provider.MessageProvider"
+            android:authorities="${applicationId}.umeng.message"
             android:exported="false">
-            <intent-filter>
-                <action android:name="com.umeng.message.lbs.action" />
-            </intent-filter>
-        </service>
+            <grant-uri-permission android:pathPattern=".*" />
+        </provider>
 
         <!-- 友盟配置结束-->
 

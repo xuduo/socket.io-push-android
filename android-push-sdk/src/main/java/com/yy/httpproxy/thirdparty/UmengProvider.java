@@ -19,26 +19,40 @@ public class UmengProvider implements NotificationProvider {
 
     public UmengProvider(Context context) {
         Log.i(TAG, "UmengProvider init");
+//        PushAgent mPushAgent = PushAgent.getInstance(context);
+////注册推送服务，每次调用register方法都会回调该接口
+//        mPushAgent.register(new IUmengRegisterCallback() {
+//
+//            @Override
+//            public void onSuccess(String deviceToken) {
+//                Log.i(TAG, "onSuccess deviceToken" + deviceToken);
+//            }
+//
+//            @Override
+//            public void onFailure(String s, String s1) {
+//                Log.e(TAG, "onFailure " + s + " " + s1);
+//            }
+//        });
     }
 
     public static void register(Context context) {
-
+        Log.i(TAG, "register");
         PushAgent mPushAgent = PushAgent.getInstance(context);
-        mPushAgent.setDebugMode(true);
-        mPushAgent.setPushIntentServiceClass(UmengIntentService.class);
+//注册推送服务，每次调用register方法都会回调该接口
+        mPushAgent.register(new IUmengRegisterCallback() {
 
-        Log.i(TAG, "register " + mPushAgent.getRegistrationId());
-        if (mPushAgent.getRegistrationId() != null) {
-            ConnectionService.setToken(mPushAgent.getRegistrationId());
-        }
-        mPushAgent.enable(new IUmengRegisterCallback() {
             @Override
-            public void onRegistered(String deviceToken) {
+            public void onSuccess(String deviceToken) {
                 Log.i(TAG, "main process onSuccess deviceToken " + deviceToken);
                 ConnectionService.setToken(deviceToken);
             }
-        });
 
+            @Override
+            public void onFailure(String s, String s1) {
+                Log.e(TAG, "main process onFailure " + s + " " + s1);
+            }
+        });
+        mPushAgent.setPushIntentServiceClass(UmengIntentService.class);
     }
 
     public static boolean available(Context context) {
