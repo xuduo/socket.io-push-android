@@ -364,7 +364,7 @@ public class SocketIOProxyClient implements PushSubscriber {
             if (requestStats.length() > 0) {
                 JSONObject object = new JSONObject();
                 object.put("requestStats", requestStats);
-                sendObjectToServer("stats", object);
+                sendObjectToServer("stats", object, true);
                 Log.d(TAG, "send stats " + requestStats.length());
             }
         } catch (JSONException e) {

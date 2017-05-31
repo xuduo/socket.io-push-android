@@ -54,6 +54,7 @@ public class UmengIntentService extends UmengBaseIntentService {
                 if (ConnectionService.client != null) {
                     ConnectionService.client.sendUmengReply(obj.getString("id"));
                     if (appUptime < 3000) { //被友盟兄弟拉起
+                        Log.d(TAG, "start by host");
                         ConnectionService.client.reportStats("umengStart", 1, 0, 0);
                     }
                 }
