@@ -168,6 +168,9 @@
             android:name="UMENG_MESSAGE_SECRET"
             android:value="5bf1308391c476e2948575e9a8bd3f34">
         </meta-data>
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="Umeng"></meta-data>
 
         <service
             android:name="com.taobao.accs.ChannelService"
