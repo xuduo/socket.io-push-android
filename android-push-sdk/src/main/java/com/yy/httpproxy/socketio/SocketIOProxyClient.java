@@ -197,7 +197,7 @@ public class SocketIOProxyClient implements PushSubscriber {
         try {
             JSONObject object = new JSONObject();
             object.put("id", id);
-            Log.d(TAG, "notificationReply " + id);
+            Log.d(TAG, "sendUmengReply " + id);
             sendObjectToServer("umengReply", object, true);
         } catch (JSONException e) {
 

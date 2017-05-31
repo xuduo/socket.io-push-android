@@ -68,7 +68,7 @@ public class UmengIntentService extends UmengMessageService {
             }
 
         } catch (Exception e) {
-            UmLog.e(TAG, e.getMessage());
+            Log.e(TAG, "message error", e);
         }
     }
 }
