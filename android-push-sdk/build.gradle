@@ -36,11 +36,11 @@ dependencies {
     provided files('libs/android.jar')
     provided files('libs/HwPush_SDK_V2705.jar')
     provided files('libs/MiPush_SDK_Client_3_2_2.jar')
-    provided files('libs/com.umeng.message_3.1.1a.jar')
+    provided files('libs/com.umeng.message_v2.8.1L_Beta.jar')
 }
 
 group = "com.yy"
-version = "1.1.4"
+version = "1.1.8"
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'

@@ -11,6 +11,7 @@ import android.os.SystemClock;
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.subscribe.PushCallback;
+import com.yy.httpproxy.thirdparty.ProviderFactory;
 import com.yy.httpproxy.thirdparty.UmengProvider;
 import com.yy.httpproxy.util.Log;
 import com.yy.httpproxy.util.ServiceCheckUtil;
@@ -57,11 +58,10 @@ public class ProxyClient implements PushCallback {
                 registerUmeng(config.getContext());
             }
         }, 2000L);
-
     }
 
     private void registerUmeng(Context context) {
-        if (UmengProvider.available(context)) {
+        if (ProviderFactory.getProvider(context) instanceof UmengProvider) {
             UmengProvider.register(context);
         }
     }

@@ -4,28 +4,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 
-import com.umeng.message.UTrack;
-import com.umeng.message.UmengMessageService;
-import com.umeng.message.common.UmLog;
+import com.umeng.message.UmengBaseIntentService;
 import com.umeng.message.entity.UMessage;
 import com.yy.httpproxy.ProxyClient;
 import com.yy.httpproxy.service.ConnectionService;
-import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.service.ForegroundService;
 import com.yy.httpproxy.service.PushedNotification;
 import com.yy.httpproxy.util.Log;
 
-import org.android.agoo.common.AgooConstants;
+import org.android.agoo.client.BaseConstants;
 import org.json.JSONObject;
 
-public class UmengIntentService extends UmengMessageService {
+public class UmengIntentService extends UmengBaseIntentService {
 
     private static final String TAG = UmengIntentService.class.getName();
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG, "onCreate");
+        com.yy.httpproxy.util.Log.i(TAG, "onCreate");
         if (ForegroundService.instance == null) {
             Log.i(TAG, "start ConnectionService from umeng");
             Context context = getApplicationContext();
@@ -37,10 +34,10 @@ public class UmengIntentService extends UmengMessageService {
     @Override
     public void onMessage(Context context, Intent intent) {
         long appUptime = SystemClock.elapsedRealtime() - ProxyClient.uptime;
-        Log.d(TAG, "uptime=" + appUptime + "message=" + intent.getStringExtra(AgooConstants.MESSAGE_BODY));
+        Log.d(TAG, "uptime=" + appUptime + "message=" + intent.getStringExtra(BaseConstants.MESSAGE_BODY));
         try {
             //可以通过MESSAGE_BODY取得消息体
-            String message = intent.getStringExtra(AgooConstants.MESSAGE_BODY);
+            String message = intent.getStringExtra(BaseConstants.MESSAGE_BODY);
             UMessage msg = new UMessage(new JSONObject(message));
             Log.d(TAG, "message=" + message);      //消息体
             Log.d(TAG, "custom=" + msg.custom);    //自定义消息的内容
@@ -67,7 +64,7 @@ public class UmengIntentService extends UmengMessageService {
             }
 
         } catch (Exception e) {
-            UmLog.e(TAG, e.getMessage());
+            Log.e(TAG, "onMessage Error ", e);
         }
     }
 }

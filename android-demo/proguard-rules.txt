@@ -13,7 +13,8 @@
 -dontwarn com.xiaomi.**
 -dontwarn com.huawei.**
 -dontwarn org.apache.thrift.**
-
+-dontwarn com.umeng.**
+-dontwarn com.alipay.**
 -keepattributes *Annotation*
 
 -keep class com.taobao.** {*;}
