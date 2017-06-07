@@ -18,8 +18,10 @@ import com.yy.httpproxy.service.DummyService;
 import com.yy.httpproxy.subscribe.PushSubscriber;
 import com.yy.httpproxy.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,6 +40,7 @@ public class RemoteClient implements PushSubscriber {
     public static final int CMD_REMOVE_TAG = 12;
     public static final int CMD_BIND_UID = 13;
     public static final int CMD_NOTIFICATION_CLICK = 14;
+    public static final int CMD_SET_TAG = 15;
     private Map<String, Boolean> topics = new HashMap<>();
     private ProxyClient proxyClient;
     private Messenger mService;
@@ -126,6 +129,14 @@ public class RemoteClient implements PushSubscriber {
         }
     }
 
+    public void setTag(Set<String> tags) {
+        Message msg = Message.obtain(null, CMD_SET_TAG, 0, 0);
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("tags", new ArrayList(tags));
+        msg.setData(bundle);
+        sendMsg(msg);
+    }
+
     private class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
@@ -145,12 +156,8 @@ public class RemoteClient implements PushSubscriber {
                     Set<String> tags = new HashSet<>();
                     if (bundle != null) {
                         uid = bundle.getString("uid", "");
-                        String[] array = bundle.getStringArray("tags");
-                        if (array != null) {
-                            for (int i = 0; i < array.length; i++) {
-                                tags.add(array[i]);
-                            }
-                        }
+                        List<String> list = bundle.getStringArrayList("tags");
+                        tags.addAll(list);
                     }
                     proxyClient.getConfig().getConnectCallback().onConnect(uid, tags);
                 }

@@ -21,8 +21,10 @@ import com.yy.httpproxy.util.Log;
 import com.yy.httpproxy.util.LogcatLogger;
 import com.yy.httpproxy.util.Logger;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class ConnectionService extends Service implements PushCallback, SocketIOProxyClient.Callback {
 
@@ -58,7 +60,6 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
             } else if (cmd == RemoteClient.CMD_REGISTER_CLIENT) {
                 remoteClient = msg.replyTo;
                 bound = true;
-                sendConnect();
             } else if (cmd == RemoteClient.CMD_UNSUBSCRIBE_BROADCAST) {
                 String topic = bundle.getString("topic");
                 client().unsubscribeBroadcast(topic);
@@ -83,6 +84,9 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
             } else if (cmd == RemoteClient.CMD_NOTIFICATION_CLICK) {
                 String id = bundle.getString("id");
                 client().sendNotificationClick(id);
+            } else if (cmd == RemoteClient.CMD_SET_TAG) {
+                ArrayList<String> tags = bundle.getStringArrayList("tags");
+                client().setTags(new HashSet(tags));
             }
         }
     }
@@ -287,9 +291,11 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
         Message msg = Message.obtain(null, id, 0, 0);
         Bundle bundle = new Bundle();
         bundle.putString("uid", client.getUid());
-        bundle.putStringArray("tags", client.getTags());
+        ArrayList tags = new ArrayList(client.getTags());
+        bundle.putStringArrayList("tags", tags);
         msg.setData(bundle);
         sendMsg(msg);
+        Log.i(TAG, "sendConnect uid:" + client.getUid() + " , tags:" + tags);
     }
 
     @Override

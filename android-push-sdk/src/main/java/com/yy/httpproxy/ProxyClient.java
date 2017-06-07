@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Set;
 
 public class ProxyClient implements PushCallback {
 
@@ -71,6 +72,11 @@ public class ProxyClient implements PushCallback {
 
     public boolean isConnected() {
         return config.getRemoteClient().isConnected();
+    }
+
+    public void setTags(Set<String> tags){
+        config.getRemoteClient().
+                setTag(tags);
     }
 
     public void addTag(String tag) {

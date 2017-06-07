@@ -4,9 +4,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by xuduo on 6/20/16.
@@ -52,4 +56,25 @@ public class JSONUtil {
         }
     }
 
+    public static Set<String> toStringSet(JSONArray jsonArray) {
+        if (jsonArray != null) {
+            Set<String> array = new HashSet<>(jsonArray.length());
+            for (int i = 0; i < jsonArray.length(); i++) {
+                array.add(jsonArray.optString(i, ""));
+            }
+            return array;
+        } else {
+            return new HashSet<>();
+        }
+    }
+
+    public static JSONArray toJSONArray(Collection list) {
+        JSONArray array = new JSONArray();
+        if (list != null) {
+            for (Object o : list) {
+                array.put(o);
+            }
+        }
+        return array;
+    }
 }

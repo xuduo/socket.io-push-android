@@ -26,10 +26,13 @@ import java.net.URISyntaxException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Level;
 
 import javax.net.ssl.HostnameVerifier;
@@ -61,7 +64,7 @@ public class SocketIOProxyClient implements PushSubscriber {
     private Stats stats = new Stats();
     private String host = "";
     private String packageName = "";
-    private String[] tags = new String[]{};
+    private Set<String> tags = null;
     private Socket socket;
     private List<Pair> cachedEvent = new ArrayList<Pair>();
 
@@ -80,12 +83,22 @@ public class SocketIOProxyClient implements PushSubscriber {
         return host;
     }
 
-    public String[] getTags() {
-        return tags;
+    public Set<String> getTags() {
+        if (tags == null) {
+            return new HashSet<>();
+        } else {
+            return tags;
+        }
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(Set<String> tags) {
+        if (tags.equals(this.tags)) {
+            Log.i(TAG, "tags equal skip send to server");
+            return;
+        }
         this.tags = tags;
+        JSONArray array = JSONUtil.toJSONArray(tags);
+        sendObjectToServer("setTags", array);
     }
 
     public interface Callback {
@@ -155,6 +168,9 @@ public class SocketIOProxyClient implements PushSubscriber {
                 if (lastUniCastId != null) {
                     object.put("lastUnicastId", lastUniCastId);
                 }
+                if (tags != null) {
+                    object.put("tags", JSONUtil.toJSONArray(tags));
+                }
                 sendObjectToServer("pushId", object);
             } catch (JSONException e) {
                 Log.e(TAG, "connectListener error ", e);
@@ -168,7 +184,7 @@ public class SocketIOProxyClient implements PushSubscriber {
             JSONObject data = (JSONObject) args[0];
             String pushId = data.optString("id");
             uid = data.optString("uid", "");
-            tags = JSONUtil.toStringArray(data.optJSONArray("tags"));
+            tags = JSONUtil.toStringSet(data.optJSONArray("tags"));
             Log.d(TAG, "on pushId " + pushId + " ,uid " + uid);
             connected = true;
             if (socketCallback != null) {
@@ -193,7 +209,7 @@ public class SocketIOProxyClient implements PushSubscriber {
         }
     }
 
-    public void sendUmengReply(String id){
+    public void sendUmengReply(String id) {
         try {
             JSONObject object = new JSONObject();
             object.put("id", id);
@@ -403,7 +419,7 @@ public class SocketIOProxyClient implements PushSubscriber {
         try {
             IO.Options opts = new IO.Options();
             opts.transports = new String[]{WebSocket.NAME};
-           // opts.dnsHandler = dnsHandler;
+            // opts.dnsHandler = dnsHandler;
             if (host.startsWith("https")) {
                 try {
                     opts.sslContext = SSLContext.getInstance("TLS");
