@@ -15,17 +15,21 @@ import com.yy.httpproxy.util.ServiceCheckUtil;
 public class UmengProvider implements NotificationProvider {
 
     public final static String TAG = "UmengProvider";
-    private String token;
+    private static String token;
 
     public UmengProvider(Context context) {
         Log.i(TAG, "UmengProvider init");
     }
 
     public static void register(Context context) {
-        Log.i(TAG, "register");
         try {
             PushAgent mPushAgent = PushAgent.getInstance(context);
             mPushAgent.setDebugMode(false);
+            String regId = mPushAgent.getRegistrationId();
+            Log.i(TAG, "register " + mPushAgent.getRegistrationId());
+            if (regId != null && !regId.isEmpty()) {
+                token = regId;
+            }
             //注册推送服务，每次调用register方法都会回调该接口
             mPushAgent.register(new IUmengRegisterCallback() {
 

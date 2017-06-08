@@ -53,20 +53,13 @@ public class ProxyClient implements PushCallback {
             config.getRemoteClient().setProxyClient(this);
         }
 
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                registerUmeng(config.getContext());
-            }
-        }, 2000L);
+        registerUmeng(config.getContext());
 
     }
 
     private void registerUmeng(Context context) {
         if (ProviderFactory.getProvider(context) instanceof UmengProvider) {
-            if (UmengProvider.available(context)) {
-                UmengProvider.register(context);
-            }
+            UmengProvider.register(context);
         }
     }
 
@@ -74,19 +67,9 @@ public class ProxyClient implements PushCallback {
         return config.getRemoteClient().isConnected();
     }
 
-    public void setTags(Set<String> tags){
+    public void setTags(Set<String> tags) {
         config.getRemoteClient().
                 setTag(tags);
-    }
-
-    public void addTag(String tag) {
-        config.getRemoteClient().
-                addTag(tag);
-    }
-
-    public void removeTag(String tag) {
-        config.getRemoteClient().
-                removeTag(tag);
     }
 
     public void request(String path, byte[] data) {

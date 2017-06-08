@@ -36,8 +36,6 @@ public class RemoteClient implements PushSubscriber {
     public static final int CMD_STATS = 6;
     public static final int CMD_UNBIND_UID = 7;
     public static final int CMD_SET_TOKEN = 8;
-    public static final int CMD_ADD_TAG = 11;
-    public static final int CMD_REMOVE_TAG = 12;
     public static final int CMD_BIND_UID = 13;
     public static final int CMD_NOTIFICATION_CLICK = 14;
     public static final int CMD_SET_TAG = 15;
@@ -93,22 +91,6 @@ public class RemoteClient implements PushSubscriber {
     public void exit() {
         context.stopService(new Intent(context, ConnectionService.class));
         context.unbindService(mConnection);
-    }
-
-    public void addTag(String tag) {
-        Message msg = Message.obtain(null, CMD_ADD_TAG, 0, 0);
-        Bundle bundle = new Bundle();
-        bundle.putString("tag", tag);
-        msg.setData(bundle);
-        sendMsg(msg);
-    }
-
-    public void removeTag(String tag) {
-        Message msg = Message.obtain(null, CMD_REMOVE_TAG, 0, 0);
-        Bundle bundle = new Bundle();
-        bundle.putString("tag", tag);
-        msg.setData(bundle);
-        sendMsg(msg);
     }
 
     public void bindUid(HashMap<String, String> data) {

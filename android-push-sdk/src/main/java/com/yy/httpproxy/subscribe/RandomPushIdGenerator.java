@@ -25,8 +25,11 @@ public class RandomPushIdGenerator {
     public String generatePushId(Context context) {
         CachedSharedPreference cachedSharedPreference = new CachedSharedPreference(context);
         String pushId = cachedSharedPreference.get("pushId");
+        if (pushId != null) {
+            pushId = pushId.trim();
+        }
         Log.i(TAG, "read pushId from sharePref " + pushId);
-        if (pushId == null) {
+        if (pushId == null || pushId.isEmpty()) {
             File pushIdFile = null;
             try {
                 File root = android.os.Environment.getExternalStorageDirectory();
@@ -34,12 +37,15 @@ public class RandomPushIdGenerator {
                 dir.mkdirs();
                 pushIdFile = new File(dir, "pushId");
                 pushId = getStringFromFile(pushIdFile);
+                if (pushId != null) {
+                    pushId = pushId.trim();
+                }
                 Log.i(TAG, "read pushId from file " + pushId);
                 cachedSharedPreference.save("pushId", pushId);
             } catch (Exception e) {
                 Log.e(TAG, "generatePushId exception ", e);
             }
-            if (pushId == null) {
+            if (pushId == null || pushId.isEmpty()) {
                 pushId = new BigInteger(130, new SecureRandom()).toString(32);
                 cachedSharedPreference.save("pushId", pushId);
                 if (pushIdFile != null) {

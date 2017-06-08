@@ -26,7 +26,6 @@ import java.net.URISyntaxException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,7 +48,6 @@ import io.socket.engineio.client.transports.WebSocket;
 
 public class SocketIOProxyClient implements PushSubscriber {
 
-    private static final int PROTOCOL_VERSION = 1;
     private static String TAG = "SocketIOProxyClient";
     private final NotificationProvider notificationProvider;
     private PushCallback pushCallback;
@@ -59,7 +57,7 @@ public class SocketIOProxyClient implements PushSubscriber {
     private CachedSharedPreference cachedSharedPreference;
     private Map<String, Boolean> topics = new HashMap<>();
     private Map<String, String> topicToLastPacketId = new HashMap<>();
-    private boolean connected = false;
+    private boolean pushIdConnected = false;
     private String uid;
     private Stats stats = new Stats();
     private String host = "";
@@ -67,6 +65,7 @@ public class SocketIOProxyClient implements PushSubscriber {
     private Set<String> tags = null;
     private Socket socket;
     private List<Pair> cachedEvent = new ArrayList<Pair>();
+    private String tokenFromServer = "";
 
     public void unsubscribeBroadcast(String topic) {
         topics.remove(topic);
@@ -97,8 +96,10 @@ public class SocketIOProxyClient implements PushSubscriber {
             return;
         }
         this.tags = tags;
-        JSONArray array = JSONUtil.toJSONArray(tags);
-        sendObjectToServer("setTags", array);
+        if (pushIdConnected) {
+            JSONArray array = JSONUtil.toJSONArray(tags);
+            sendObjectToServer("setTags", array);
+        }
     }
 
     public interface Callback {
@@ -114,14 +115,13 @@ public class SocketIOProxyClient implements PushSubscriber {
         public void call(Object... args) {
             stats.onConnect();
             sendPushIdAndTopicToServer();
-            sendCachedObjectToServer();
         }
     };
 
     private final Emitter.Listener disconnectListener = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            connected = false;
+            pushIdConnected = false;
             uid = null;
             stats.onDisconnect();
             if (socketCallback != null) {
@@ -140,8 +140,11 @@ public class SocketIOProxyClient implements PushSubscriber {
             JSONObject object = new JSONObject();
             try {
                 object.put("id", pushId);
-                object.put("version", PROTOCOL_VERSION);
                 object.put("platform", "android");
+                JSONObject tokenObject = getTokenObject();
+                if (tokenObject != null) {
+                    object.put("token", tokenObject);
+                }
                 if (topics.size() > 0) {
                     JSONArray array = new JSONArray();
                     object.put("topics", array);
@@ -186,25 +189,35 @@ public class SocketIOProxyClient implements PushSubscriber {
             uid = data.optString("uid", "");
             tags = JSONUtil.toStringSet(data.optJSONArray("tags"));
             Log.d(TAG, "on pushId " + pushId + " ,uid " + uid);
-            connected = true;
+            pushIdConnected = true;
             if (socketCallback != null) {
                 socketCallback.onConnect();
             }
-            sendTokenToServer();
+            tokenFromServer = data.optString("token", "");
+            sendCachedObjectToServer();
         }
     };
 
-    public void sendTokenToServer() {
+    private JSONObject getTokenObject() {
         if (notificationProvider != null && notificationProvider.getToken() != null) {
-            Log.i(TAG, "sendTokenToServer " + pushId);
             JSONObject object = new JSONObject();
             try {
                 object.put("token", notificationProvider.getToken());
                 object.put("type", notificationProvider.getType());
                 object.put("package_name", packageName);
-                sendObjectToServer("token", object, true);
+                return object;
             } catch (JSONException e) {
                 Log.e(TAG, "sendTokenToServer error ", e);
+            }
+        }
+        return null;
+    }
+
+    public void sendTokenToServer() {
+        if (pushIdConnected) {
+            JSONObject object = getTokenObject();
+            if (object != null && !tokenFromServer.equals(notificationProvider.getToken())) {
+                sendObjectToServer("token", object);
             }
         }
     }
@@ -507,24 +520,6 @@ public class SocketIOProxyClient implements PushSubscriber {
         }
     }
 
-    public void addTag(String tag) {
-        JSONObject data = new JSONObject();
-        try {
-            data.put("tag", tag);
-            sendObjectToServer("addTag", data);
-        } catch (JSONException e) {
-        }
-    }
-
-    public void removeTag(String tag) {
-        JSONObject data = new JSONObject();
-        try {
-            data.put("tag", tag);
-            sendObjectToServer("removeTag", data);
-        } catch (JSONException e) {
-        }
-    }
-
     private void sendObjectToServer(String event, Object object) {
         sendObjectToServer(event, object, false);
     }
@@ -562,6 +557,6 @@ public class SocketIOProxyClient implements PushSubscriber {
     }
 
     public boolean isConnected() {
-        return connected;
+        return pushIdConnected;
     }
 }
