@@ -47,7 +47,7 @@ public class ConnectActivity extends Activity implements ConnectCallback, PushCa
     }
 
     @Override
-    public void onConnect(String uid, Set<String> topics) {
+    public void onConnect(String uid) {
         Intent intent = new Intent();
         intent.setClass(ConnectActivity.this, NickNameActivity.class);
         startActivity(intent);

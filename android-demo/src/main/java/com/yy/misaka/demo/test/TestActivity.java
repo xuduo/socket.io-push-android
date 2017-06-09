@@ -60,8 +60,8 @@ public class TestActivity extends Activity implements ConnectCallback, PushCallb
     }
 
     @Override
-    public void onConnect(String uid, Set<String> topics) {
-        Log.i(TAG, "socket Connect and uid is " + uid + topics.toString());
+    public void onConnect(String uid) {
+        Log.i(TAG, "socket Connect and uid is " + uid);
         tv_socketState.setText("connected");
         tv_socketState.setTextColor(Color.GREEN);
         if(connectCallBack != null) {

@@ -62,9 +62,10 @@ public class SocketIOProxyClient implements PushSubscriber {
     private Stats stats = new Stats();
     private String host = "";
     private String packageName = "";
-    private Set<String> tags = null;
+    private Set<String> tagsToSet = null;
+    private Set<String> tagsFromServer = new HashSet<>();
     private Socket socket;
-    private List<Pair> cachedEvent = new ArrayList<Pair>();
+    private List<Pair> cachedEvent = new ArrayList<>();
     private String tokenFromServer = "";
 
     public void unsubscribeBroadcast(String topic) {
@@ -82,20 +83,15 @@ public class SocketIOProxyClient implements PushSubscriber {
         return host;
     }
 
-    public Set<String> getTags() {
-        if (tags == null) {
-            return new HashSet<>();
-        } else {
-            return tags;
-        }
-    }
-
     public void setTags(Set<String> tags) {
-        if (tags.equals(this.tags)) {
+        if (tags == null) {
+            tags = new HashSet<>();
+        }
+        if (tags.equals(this.tagsFromServer)) {
             Log.i(TAG, "tags equal skip send to server");
             return;
         }
-        this.tags = tags;
+        this.tagsToSet = tags;
         if (pushIdConnected) {
             JSONArray array = JSONUtil.toJSONArray(tags);
             sendObjectToServer("setTags", array);
@@ -171,8 +167,8 @@ public class SocketIOProxyClient implements PushSubscriber {
                 if (lastUniCastId != null) {
                     object.put("lastUnicastId", lastUniCastId);
                 }
-                if (tags != null) {
-                    object.put("tags", JSONUtil.toJSONArray(tags));
+                if (tagsToSet != null) {
+                    object.put("tags", JSONUtil.toJSONArray(tagsToSet));
                 }
                 sendObjectToServer("pushId", object);
             } catch (JSONException e) {
@@ -187,7 +183,10 @@ public class SocketIOProxyClient implements PushSubscriber {
             JSONObject data = (JSONObject) args[0];
             String pushId = data.optString("id");
             uid = data.optString("uid", "");
-            tags = JSONUtil.toStringSet(data.optJSONArray("tags"));
+            tagsFromServer = JSONUtil.toStringSet(data.optJSONArray("tags"));
+            if (tagsFromServer.equals(tagsToSet)) {
+                tagsToSet = null;
+            }
             Log.d(TAG, "on pushId " + pushId + " ,uid " + uid);
             pushIdConnected = true;
             if (socketCallback != null) {

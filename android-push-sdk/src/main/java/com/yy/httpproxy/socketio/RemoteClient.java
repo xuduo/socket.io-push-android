@@ -135,13 +135,10 @@ public class RemoteClient implements PushSubscriber {
                 }
                 if (proxyClient.getConfig().getConnectCallback() != null) {
                     String uid = null;
-                    Set<String> tags = new HashSet<>();
                     if (bundle != null) {
                         uid = bundle.getString("uid", "");
-                        List<String> list = bundle.getStringArrayList("tags");
-                        tags.addAll(list);
                     }
-                    proxyClient.getConfig().getConnectCallback().onConnect(uid, tags);
+                    proxyClient.getConfig().getConnectCallback().onConnect(uid);
                 }
             } else if (cmd == ConnectionService.CMD_DISCONNECT && connected == true) {
                 connected = false;

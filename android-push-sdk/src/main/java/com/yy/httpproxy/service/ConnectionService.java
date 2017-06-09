@@ -287,11 +287,9 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
         Message msg = Message.obtain(null, id, 0, 0);
         Bundle bundle = new Bundle();
         bundle.putString("uid", client.getUid());
-        ArrayList tags = new ArrayList(client.getTags());
-        bundle.putStringArrayList("tags", tags);
         msg.setData(bundle);
         sendMsg(msg);
-        Log.i(TAG, "sendConnect uid:" + client.getUid() + " , tags:" + tags);
+        Log.i(TAG, "sendConnect uid:" + client.getUid());
     }
 
     @Override

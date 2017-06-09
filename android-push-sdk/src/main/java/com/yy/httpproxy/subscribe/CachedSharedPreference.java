@@ -30,7 +30,7 @@ public class CachedSharedPreference {
     }
 
     public Set<String> getStringSet(String key) {
-        return preferences.getStringSet(key, new HashSet<String>());
+        return new HashSet<>(preferences.getStringSet(key, new HashSet<String>()));
     }
 
     public void addStringSet(String key, String value) {
