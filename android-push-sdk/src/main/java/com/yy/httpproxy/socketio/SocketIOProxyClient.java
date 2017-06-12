@@ -137,10 +137,6 @@ public class SocketIOProxyClient implements PushSubscriber {
             try {
                 object.put("id", pushId);
                 object.put("platform", "android");
-                JSONObject tokenObject = getTokenObject();
-                if (tokenObject != null) {
-                    object.put("token", tokenObject);
-                }
                 if (topics.size() > 0) {
                     JSONArray array = new JSONArray();
                     object.put("topics", array);
@@ -193,7 +189,13 @@ public class SocketIOProxyClient implements PushSubscriber {
                 socketCallback.onConnect();
             }
             tokenFromServer = data.optString("token", "");
-            sendCachedObjectToServer();
+            sendTokenToServer();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    sendCachedObjectToServer();
+                }
+            }, 5000);
         }
     };
 
@@ -213,9 +215,13 @@ public class SocketIOProxyClient implements PushSubscriber {
     }
 
     public void sendTokenToServer() {
-        if (pushIdConnected) {
+        if (pushIdConnected && notificationProvider != null) {
+            if (tokenFromServer.equals(notificationProvider.getToken())) {
+                Log.i(TAG, "token equal skip send to server");
+                return;
+            }
             JSONObject object = getTokenObject();
-            if (object != null && !tokenFromServer.equals(notificationProvider.getToken())) {
+            if (object != null) {
                 sendObjectToServer("token", object);
             }
         }
