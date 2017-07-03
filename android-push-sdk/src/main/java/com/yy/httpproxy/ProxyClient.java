@@ -58,7 +58,7 @@ public class ProxyClient implements PushCallback {
     }
 
     private void registerUmeng(Context context) {
-        if (ProviderFactory.getProvider(context) instanceof UmengProvider) {
+        if (UmengProvider.class.equals(ProviderFactory.checkProvider(context))) {
             UmengProvider.register(context);
         }
     }

@@ -82,7 +82,7 @@ public class ChatActivity extends Activity implements ConnectCallback, PushCallb
     }
 
     @Override
-    public void onConnect(String uid, Set<String> topics) {
+    public void onConnect(String uid) {
         updateConnect();
     }
 
