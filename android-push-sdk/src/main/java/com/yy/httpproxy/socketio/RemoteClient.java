@@ -20,8 +20,6 @@ import com.yy.httpproxy.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,13 +62,18 @@ public class RemoteClient implements PushSubscriber {
         startServices();
     }
 
-    public void unsubscribeBroadcast(String topic) {
-        Message msg = Message.obtain(null, CMD_UNSUBSCRIBE_BROADCAST, 0, 0);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("topic", topic);
-        msg.setData(bundle);
-        sendMsg(msg);
-        topics.remove(topic);
+    public void unsubscribeBroadcast(final String topic) {
+        runInMainThread(new Runnable() {
+            @Override
+            public void run() {
+                Message msg = Message.obtain(null, CMD_UNSUBSCRIBE_BROADCAST, 0, 0);
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("topic", topic);
+                msg.setData(bundle);
+                sendMsg(msg);
+                topics.remove(topic);
+            }
+        });
     }
 
     public boolean isConnected() {
@@ -229,6 +232,14 @@ public class RemoteClient implements PushSubscriber {
         }
     }
 
+    private void runInMainThread(Runnable runnable) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            runnable.run();
+        } else {
+            handler.post(runnable);
+        }
+    }
+
     public void request(RequestInfo requestInfo) {
         Message msg = Message.obtain(null, CMD_REQUEST, 0, 0);
         Bundle bundle = new Bundle();
@@ -244,9 +255,14 @@ public class RemoteClient implements PushSubscriber {
 
 
     @Override
-    public void subscribeBroadcast(String topic, boolean receiveTtlPackets) {
-        topics.put(topic, receiveTtlPackets);
-        doSubscribe(topic, receiveTtlPackets);
+    public void subscribeBroadcast(final String topic, final boolean receiveTtlPackets) {
+        runInMainThread(new Runnable() {
+            @Override
+            public void run() {
+                topics.put(topic, receiveTtlPackets);
+                doSubscribe(topic, receiveTtlPackets);
+            }
+        });
     }
 
     private void doSubscribe(String topic, boolean receiveTtlPackets) {
