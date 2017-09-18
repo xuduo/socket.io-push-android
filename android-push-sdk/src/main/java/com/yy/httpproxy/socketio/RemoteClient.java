@@ -130,9 +130,6 @@ public class RemoteClient implements PushSubscriber {
                 proxyClient.onPush(data);
             } else if (cmd == ConnectionService.CMD_CONNECTED && connected == false) {
                 connected = true;
-                for (Map.Entry<String, Boolean> topic : topics.entrySet()) {
-                    doSubscribe(topic.getKey(), topic.getValue());
-                }
                 if (proxyClient.getConfig().getConnectCallback() != null) {
                     String uid = null;
                     if (bundle != null) {
@@ -149,6 +146,12 @@ public class RemoteClient implements PushSubscriber {
         }
     }
 
+    private void resubscribeTopics() {
+        for (Map.Entry<String, Boolean> topic : topics.entrySet()) {
+            doSubscribe(topic.getKey(), topic.getValue());
+        }
+    }
+
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             // service using a Messenger, so here we get a client-side
@@ -156,12 +159,11 @@ public class RemoteClient implements PushSubscriber {
             Log.i(TAG, "onServiceConnected");
             mService = new Messenger(service);
             mBound = true;
-
             Message msg = Message.obtain(null, CMD_REGISTER_CLIENT, 0, 0);
             msg.replyTo = messenger;
             sendMsg(msg);
             instance = RemoteClient.this;
-
+            resubscribeTopics();
         }
 
         public void onServiceDisconnected(ComponentName className) {
