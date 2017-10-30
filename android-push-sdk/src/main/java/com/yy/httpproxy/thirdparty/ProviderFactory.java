@@ -1,10 +1,14 @@
 package com.yy.httpproxy.thirdparty;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.yy.httpproxy.util.Log;
 
 import com.yy.httpproxy.util.SystemProperty;
+
+import java.lang.reflect.Method;
+import java.util.regex.Pattern;
 
 public class ProviderFactory {
 
@@ -18,10 +22,12 @@ public class ProviderFactory {
         Class provider = checkProvider(context);
         if (HuaweiProvider.class.equals(provider)) {
             return new HuaweiProvider(context);
-        } else if (XiaomiProvider.class.equals(provider)){
+        } else if (XiaomiProvider.class.equals(provider)) {
             return new XiaomiProvider(context);
-        } else if (UmengProvider.class.equals(provider)){
+        } else if (UmengProvider.class.equals(provider)) {
             return new UmengProvider(context);
+        } else if (MeizuProvider.class.equals(provider)) {
+            return new MeizuProvider(context);
         } else {
             return null;
         }
@@ -41,13 +47,21 @@ public class ProviderFactory {
             if (isXiaomi && XiaomiProvider.available(context)) {
                 Log.i(TAG, "XiaomiProvider");
                 return XiaomiProvider.class;
+            }  else if (isFlyme() && MeizuProvider.available(context)) {
+                Log.i(TAG, "MeizuProvider");
+                return MeizuProvider.class;
             } else if (UmengProvider.available(context)) {
+                Log.i(TAG, "UmengProvider");
                 return UmengProvider.class;
             } else {
                 Log.i(TAG, "No provider");
                 return null;
             }
         }
+    }
+
+    private static boolean isFlyme() {
+        return Build.FINGERPRINT.contains("Flyme") || Pattern.compile("Flyme", Pattern.CASE_INSENSITIVE).matcher(Build.DISPLAY).find();
     }
 
     private static boolean isSystem(SystemProperty prop, String key) {

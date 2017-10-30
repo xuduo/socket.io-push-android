@@ -2,6 +2,7 @@ package com.yy.httpproxy.util;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 
@@ -24,6 +25,23 @@ public class ServiceCheckUtil {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public static String getMetaDataValue(Context context, String metaDataName) {
+        String metaDataValue = null;
+        try {
+            ApplicationInfo appInfo = context.getPackageManager()
+                    .getApplicationInfo(context.getPackageName(),
+                            PackageManager.GET_META_DATA);
+            if (appInfo.metaData.containsKey(metaDataName)) {
+                metaDataValue = appInfo.metaData.get(metaDataName).toString();
+            }
+
+        } catch (Exception e) {
+            Log.e("ServiceCheckUtil", "getMetaDataValue error ", e);
+        }
+        return metaDataValue;
+
     }
 
     public static boolean isIntentServiceAvailable(Context context, Class className) {

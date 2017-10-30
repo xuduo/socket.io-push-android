@@ -18,8 +18,8 @@ public class XiaomiProvider implements NotificationProvider {
 
     public XiaomiProvider(Context context) {
 
-        String appId = getMetaDataValue(context, "XIAOMI_APP_ID");
-        String appKey = getMetaDataValue(context, "XIAOMI_APP_KEY");
+        String appId = ServiceCheckUtil.getMetaDataValue(context, "XIAOMI_APP_ID");
+        String appKey = ServiceCheckUtil.getMetaDataValue(context, "XIAOMI_APP_KEY");
         Log.i(TAG, appId + " " + appKey);
         MiPushClient.registerPush(context, appId, appKey);
 
@@ -48,7 +48,7 @@ public class XiaomiProvider implements NotificationProvider {
         try {
             return Class.forName("com.xiaomi.mipush.sdk.MiPushClient") != null
                     && Class.forName("com.yy.httpproxy.thirdparty.XiaomiReceiver") != null
-                    && ServiceCheckUtil.isBroadcastReceiverAvailable(context, XiaomiReceiver.class) && getMetaDataValue(context, "XIAOMI_APP_ID") != null && getMetaDataValue(context, "XIAOMI_APP_ID") != null;
+                    && ServiceCheckUtil.isBroadcastReceiverAvailable(context, XiaomiReceiver.class) && ServiceCheckUtil.getMetaDataValue(context, "XIAOMI_APP_ID") != null && ServiceCheckUtil.getMetaDataValue(context, "XIAOMI_APP_ID") != null;
         } catch (Throwable e) {
             Log.e(TAG, "available ", e);
             return false;
@@ -70,18 +70,5 @@ public class XiaomiProvider implements NotificationProvider {
         this.token = token;
     }
 
-    private static String getMetaDataValue(Context context, String metaDataName) {
-        String metaDataValue = null;
-        try {
-            ApplicationInfo appInfo = context.getPackageManager()
-                    .getApplicationInfo(context.getPackageName(),
-                            PackageManager.GET_META_DATA);
-            metaDataValue = appInfo.metaData.getString(metaDataName);
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "getMetaDataValue error ", e);
-        }
-        return metaDataValue;
-
-    }
 
 }

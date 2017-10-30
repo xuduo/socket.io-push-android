@@ -20,8 +20,19 @@
     <uses-permission android:name="android.permission.GET_TASKS" /><!-- xiaomi -->
     <uses-permission android:name="android.permission.VIBRATE"/><!-- xiaomi -->
 
-    <permission android:name="com.yy.misaka.demo.permission.MIPUSH_RECEIVE" android:protectionLevel="signature" /><!-- xiaomi -->
-    <uses-permission android:name="com.yy.misaka.demo.permission.MIPUSH_RECEIVE" /><!-- xiaomi -->
+    <permission android:name="${applicationId}.permission.MIPUSH_RECEIVE" android:protectionLevel="signature" /><!-- xiaomi -->
+    <uses-permission android:name="${applicationId}.permission.MIPUSH_RECEIVE" /><!-- xiaomi -->
+
+    <!-- 魅族 -->
+    <uses-permission android:name="com.meizu.flyme.push.permission.RECEIVE"></uses-permission>
+    <permission android:name="${applicationId}.push.permission.MESSAGE" android:protectionLevel="signature"/>
+    <uses-permission android:name="${applicationId}.push.permission.MESSAGE"></uses-permission>
+
+    <uses-permission android:name="com.meizu.c2dm.permission.RECEIVE" />
+    <permission android:name="${applicationId}.permission.C2D_MESSAGE"
+        android:protectionLevel="signature"></permission>
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE"/>
+
 
     <application
         android:allowBackup="true"
@@ -53,9 +64,9 @@
             android:enabled="true"
             android:exported="true" >
 
-            <!-- 这里com.yy.misaka.demo 改成app包名 -->
+            <!-- 这里${applicationId} 改成app包名 -->
             <intent-filter>
-                <action android:name="com.yy.misaka.demo.YY_NOTIFICATION" />
+                <action android:name="${applicationId}.YY_NOTIFICATION" />
             </intent-filter>
         </receiver>
 
@@ -307,8 +318,35 @@
 
         <!-- 友盟配置结束-->
 
+
+        <!-- meizu 开始 -->
+        <receiver android:name="com.yy.httpproxy.thirdparty.MyMzPushMessageReceiver">
+            <intent-filter>
+                <!-- 接收push消息 -->
+                <action android:name="com.meizu.flyme.push.intent.MESSAGE" />
+                <!-- 接收register消息 -->
+                <action android:name="com.meizu.flyme.push.intent.REGISTER.FEEDBACK" />
+                <!-- 接收unregister消息-->
+                <action android:name="com.meizu.flyme.push.intent.UNREGISTER.FEEDBACK"/>
+                <!-- 兼容低版本Flyme3推送服务配置 -->
+                <action android:name="com.meizu.c2dm.intent.REGISTRATION" />
+                <action android:name="com.meizu.c2dm.intent.RECEIVE" />
+                <category android:name="${applicationId}"></category>
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="MEIZU_APP_ID"
+            android:value="111476"/>
+
+        <meta-data
+            android:name="MEIZU_APP_KEY"
+            android:value="97499d37daaa4b03bdadeeae1146012f"/>
+
+        <!-- meizu 结束 -->
+
         <!-- test配置 -->
-        <activity android:name=".test.TestActivity"></activity>
+        <!--<activity android:name=".test.TestActivity"></activity>-->
     </application>
 
 </manifest>

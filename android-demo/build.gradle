@@ -53,4 +53,5 @@ dependencies {
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.android.support:recyclerview-v7:21.+'
     compile 'com.android.support:multidex:1.0.0'
+    compile 'com.meizu.flyme.internet:push-internal:3.4.2@aar'
 }

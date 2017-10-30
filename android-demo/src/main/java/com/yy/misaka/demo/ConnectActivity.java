@@ -8,17 +8,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.yy.httpproxy.Config;
-import com.yy.httpproxy.ProxyClient;
-import com.yy.httpproxy.service.DefaultDnsHandler;
-import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.service.ForegroundService;
 import com.yy.httpproxy.subscribe.ConnectCallback;
 import com.yy.httpproxy.subscribe.PushCallback;
 import com.yy.httpproxy.util.Logger;
-import com.yy.misaka.demo.appmodel.DemoApp;
-
-import java.util.Set;
 
 /**
  * Created by huangzhilong on 2016/8/31.

@@ -12,6 +12,7 @@ buildscript {
 allprojects {
     repositories {
         mavenCentral()
+        jcenter()
     }
     tasks.withType(JavaCompile) {
         sourceCompatibility = 1.7

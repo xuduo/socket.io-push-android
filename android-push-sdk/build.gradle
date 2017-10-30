@@ -32,6 +32,7 @@ dependencies {
     compile('io.socket:socket.io-client:0.8.3') {
         exclude group: 'io.socket', module: 'engine.io-client'
     }
+    provided 'com.meizu.flyme.internet:push-internal:3.4.3'
     provided files('libs/support-v4-19.1.0.jar')
     provided files('libs/android.jar')
     provided files('libs/HwPush_SDK_V2705.jar')
