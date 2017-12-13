@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import android.util.Log;
 
+import com.yy.httpproxy.thirdparty.ProviderFactory;
+
 public class NickNameActivity extends Activity {
 
     @Override
@@ -16,6 +18,11 @@ public class NickNameActivity extends Activity {
         super.onCreate(savedInstanceState);
         Log.i("DemoLogger", "NickNameActivity onCreate");
         setContentView(R.layout.activity_nick);
+        String provider = "socket.io";
+        if (ProviderFactory.checkProvider(this) != null) {
+            provider = ProviderFactory.checkProvider(this).getSimpleName();
+        }
+        setTitle("NotificationProvider :" + provider);
         init();
     }
 
