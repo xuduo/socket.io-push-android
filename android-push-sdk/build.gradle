@@ -34,7 +34,8 @@ dependencies {
     }
     provided files('libs/support-v4-19.1.0.jar')
     provided files('libs/android.jar')
-    provided files('libs/HwPush_SDK_V2705.jar')
+    provided files('libs/HMSSdkBase_2.5.2.300.jar')
+    provided files('libs/HMSSdkPush_2.5.2.300.jar')
     provided files('libs/MiPush_SDK_Client_3_2_2.jar')
     provided files('libs/com.umeng.message_3.1.1a.jar')
 }

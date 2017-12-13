@@ -103,7 +103,11 @@
         <!-- 华为配置结束-->
 
 
-        <!-- 小米配置开始-->
+        <meta-data
+            android:name="com.huawei.hms.client.appid" android:value="appid" />
+    <!-- value的值“appid”用实际申请的应用ID替换，来源于开发者联盟网站应用的服务详情。-->
+
+    <!-- 小米配置开始-->
         <!-- 被杀后,push进程无法通过intent 拉起main进程,XiaomiReceiver 要跑在主进程-->
         <!-- 坑！KEY ID 需要写在 strings.xml 否则会被当作数字处理 -->
         <meta-data android:name="XIAOMI_APP_ID"
