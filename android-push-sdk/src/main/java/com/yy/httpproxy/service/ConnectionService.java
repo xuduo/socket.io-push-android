@@ -303,6 +303,10 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
     }
 
     public static void setToken(String token) {
+        if (token == null || token.isEmpty()) {
+            Log.e(TAG, "token null return");
+            return;
+        }
         if (notificationProvider != null && client != null) {
             Log.i(TAG, "setToken " + token);
             notificationProvider.setToken(token);

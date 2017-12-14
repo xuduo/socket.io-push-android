@@ -12,6 +12,14 @@ android {
             keyAlias "123456"
             keyPassword "123456"
         }
+
+        debug {
+            storeFile file("123456.keystore")
+            storePassword "123456"
+            keyAlias "123456"
+            keyPassword "123456"
+        }
+
     }
 
     defaultConfig {

@@ -1,37 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.yy.misaka.demo" >
+    package="com.yy.misaka.demo">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/> <!-- huawei -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- huawei -->
 
 
     <uses-permission android:name="android.permission.GET_TASKS" /><!-- xiaomi -->
-    <uses-permission android:name="android.permission.VIBRATE"/><!-- xiaomi -->
+    <uses-permission android:name="android.permission.VIBRATE" /><!-- xiaomi -->
 
-    <permission android:name="com.yy.misaka.demo.permission.MIPUSH_RECEIVE" android:protectionLevel="signature" /><!-- xiaomi -->
-    <uses-permission android:name="com.yy.misaka.demo.permission.MIPUSH_RECEIVE" /><!-- xiaomi -->
+    <permission
+        android:name="${applicationId}.permission.MIPUSH_RECEIVE"
+        android:protectionLevel="signature" /><!-- xiaomi -->
+    <uses-permission android:name="${applicationId}.permission.MIPUSH_RECEIVE" /><!-- xiaomi -->
 
     <application
+        android:name=".appmodel.DemoApp"
         android:allowBackup="true"
         android:icon="@drawable/misaka"
         android:label="@string/app_name"
-        android:name=".appmodel.DemoApp"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".NickNameActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -39,23 +41,32 @@
         </activity>
         <activity
             android:name=".ChatActivity"
-            android:screenOrientation="portrait"
-            android:label="ChatRoom" >
-        </activity>
+            android:label="ChatRoom"
+            android:screenOrientation="portrait"></activity>
 
         <activity android:name=".DrawActivity"></activity>
-        <service android:name="com.yy.httpproxy.service.ConnectionService" android:process=":push" android:enabled="true"/>
-        <service android:name="com.yy.httpproxy.service.ForegroundService" android:process=":push" android:enabled="true"/>
-        <service android:name="com.yy.httpproxy.service.DummyService" android:process=":push" android:enabled="true"/>
+
+        <service
+            android:name="com.yy.httpproxy.service.ConnectionService"
+            android:enabled="true"
+            android:process=":push" />
+        <service
+            android:name="com.yy.httpproxy.service.ForegroundService"
+            android:enabled="true"
+            android:process=":push" />
+        <service
+            android:name="com.yy.httpproxy.service.DummyService"
+            android:enabled="true"
+            android:process=":push" />
 
         <receiver
             android:name=".appmodel.YYNotificationReceiver"
             android:enabled="true"
-            android:exported="true" >
+            android:exported="true">
 
-            <!-- 这里com.yy.misaka.demo 改成app包名 -->
+            <!-- 这里${applicationId} 改成app包名 -->
             <intent-filter>
-                <action android:name="com.yy.misaka.demo.YY_NOTIFICATION" />
+                <action android:name="${applicationId}.YY_NOTIFICATION" />
             </intent-filter>
         </receiver>
 
@@ -67,57 +78,70 @@
 
 
         <!-- 华为配置开始-->
-        <receiver android:name="com.yy.httpproxy.thirdparty.HuaweiReceiver">
+
+
+        <receiver android:name="com.huawei.hms.support.api.push.PushEventReceiver" >
+
             <intent-filter>
-                <!-- 必须,用于接收token-->
-                <action android:name="com.huawei.android.push.intent.REGISTRATION" />
-                <!-- 必须，用于接收消息-->
-                <action android:name="com.huawei.android.push.intent.RECEIVE" />
-                <!-- 可选，用于点击通知栏或通知栏上的按钮后触发onEvent回调-->
-                <action android:name="com.huawei.android.push.intent.CLICK" />
-            </intent-filter>
-            <meta-data android:name="CS_cloud_ablitity" android:value="@string/hwpush_ability_value"/>
-        </receiver>
-        <receiver
-            android:name="com.huawei.android.pushagent.PushEventReceiver">
-            <intent-filter>
-                <action android:name="com.huawei.android.push.intent.REFRESH_PUSH_CHANNEL" />
+
+                <!-- 接收通道发来的通知栏消息，兼容老版本PUSH -->
+
                 <action android:name="com.huawei.intent.action.PUSH" />
-                <action android:name="com.huawei.intent.action.PUSH_ON" />
-                <action android:name="com.huawei.android.push.PLUGIN" />
+
             </intent-filter>
+
         </receiver>
-        <receiver
-            android:name="com.huawei.android.pushagent.PushBootReceiver"
-            >
+
+        <receiver android:name="com.yy.httpproxy.thirdparty.HuaweiReceiver">
+
             <intent-filter>
-                <action android:name="com.huawei.android.push.intent.REGISTER" />
+
+                <!-- 必须,用于接收TOKEN -->
+
+                <action android:name="com.huawei.android.push.intent.REGISTRATION" />
+
+                <!-- 必须，用于接收消息 -->
+
+                <action android:name="com.huawei.android.push.intent.RECEIVE" />
+
+                <!-- 可选，用于点击通知栏或通知栏上的按钮后触发onEvent回调 -->
+
+                <action android:name="com.huawei.android.push.intent.CLICK" />
+
+                <!-- 可选，查看PUSH通道是否连接，不查看则不需要 -->
+
+                <action android:name="com.huawei.intent.action.PUSH_STATE" />
+
+
             </intent-filter>
-            <meta-data
-                android:name="CS_cloud_version"
-                android:value="\u0032\u0037\u0030\u0035" />
+
         </receiver>
-        <service
-            android:name="com.huawei.android.pushagent.PushService">
-        </service>
+        <provider
+            android:name="com.huawei.hms.update.provider.UpdateProvider"
+            android:authorities="${applicationId}.hms.update.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"></provider>
         <!-- 华为配置结束-->
 
 
         <meta-data
-            android:name="com.huawei.hms.client.appid" android:value="appid" />
-    <!-- value的值“appid”用实际申请的应用ID替换，来源于开发者联盟网站应用的服务详情。-->
+            android:name="com.huawei.hms.client.appid"
+            android:value="10513719" />
+        <!-- value的值“appid”用实际申请的应用ID替换，来源于开发者联盟网站应用的服务详情。-->
 
-    <!-- 小米配置开始-->
+        <!-- 小米配置开始-->
         <!-- 被杀后,push进程无法通过intent 拉起main进程,XiaomiReceiver 要跑在主进程-->
         <!-- 坑！KEY ID 需要写在 strings.xml 否则会被当作数字处理 -->
-        <meta-data android:name="XIAOMI_APP_ID"
+        <meta-data
+            android:name="XIAOMI_APP_ID"
             android:value="@string/XIAOMI_APP_ID" />
-        <meta-data android:name="XIAOMI_APP_KEY"
+        <meta-data
+            android:name="XIAOMI_APP_KEY"
             android:value="@string/XIAOMI_APP_KEY" />
+
         <receiver
-            android:exported="true"
             android:name="com.yy.httpproxy.thirdparty.XiaomiReceiver"
-           >
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.xiaomi.mipush.RECEIVE_MESSAGE" />
             </intent-filter>
@@ -130,8 +154,8 @@
         </receiver>
 
         <service
-            android:enabled="true"
-            android:name="com.xiaomi.push.service.XMPushService"/>
+            android:name="com.xiaomi.push.service.XMPushService"
+            android:enabled="true" />
         <service
             android:name="com.xiaomi.push.service.XMJobService"
             android:enabled="true"
@@ -139,19 +163,19 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <!--注：此service必须在3.0.1版本以后（包括3.0.1版本）加入-->
         <service
+            android:name="com.xiaomi.mipush.sdk.PushMessageHandler"
             android:enabled="true"
-            android:exported="true"
-            android:name="com.xiaomi.mipush.sdk.PushMessageHandler" />
-        <service android:enabled="true"
-            android:name="com.xiaomi.mipush.sdk.MessageHandleService" />
+            android:exported="true" />
+        <service
+            android:name="com.xiaomi.mipush.sdk.MessageHandleService"
+            android:enabled="true" />
         <!--注：此service必须在2.2.5版本以后（包括2.2.5版本）加入-->
         <receiver
-            android:exported="true"
-            android:name="com.xiaomi.push.service.receivers.NetworkStatusReceiver" >
-        </receiver>
+            android:name="com.xiaomi.push.service.receivers.NetworkStatusReceiver"
+            android:exported="true"></receiver>
         <receiver
-            android:exported="false"
-            android:name="com.xiaomi.push.service.receivers.PingReceiver" >
+            android:name="com.xiaomi.push.service.receivers.PingReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.xiaomi.push.PING_TIMER" />
             </intent-filter>
@@ -161,17 +185,15 @@
         <!-- 友盟配置开始-->
         <service
             android:name="com.yy.httpproxy.thirdparty.UmengIntentService"
-            android:process=":push"
-            android:exported="false" />
+            android:exported="false"
+            android:process=":push" />
 
         <meta-data
             android:name="UMENG_APPKEY"
-            android:value="59229cabf29d982ebd000b4b">
-        </meta-data>
+            android:value="59229cabf29d982ebd000b4b"></meta-data>
         <meta-data
             android:name="UMENG_MESSAGE_SECRET"
-            android:value="5bf1308391c476e2948575e9a8bd3f34">
-        </meta-data>
+            android:value="5bf1308391c476e2948575e9a8bd3f34"></meta-data>
         <meta-data
             android:name="UMENG_CHANNEL"
             android:value="Umeng"></meta-data>

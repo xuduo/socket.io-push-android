@@ -19,7 +19,7 @@ public class DemoApp extends Application {
     public static DemoApp APP_CONTEXT;
     public ProxyClient proxyClient;
     public HttpApi httpApi;
-    private String host = "https://169.254.54.220:10443";
+    private String host = "https://spush.yy.com";
 
     @Override
     public void onCreate() {

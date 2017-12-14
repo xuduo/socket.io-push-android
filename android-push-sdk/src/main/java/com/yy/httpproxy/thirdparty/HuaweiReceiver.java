@@ -1,34 +1,32 @@
 package com.yy.httpproxy.thirdparty;
 
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.yy.httpproxy.util.Log;
-
-import com.huawei.android.pushagent.api.PushEventReceiver;
+import com.huawei.hms.support.api.push.PushReceiver;
 import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.service.PushedNotification;
+import com.yy.httpproxy.util.Log;
 
 import org.json.JSONArray;
 
 /**
  * Created by Administrator on 2016/4/29.
  */
-public class HuaweiReceiver extends PushEventReceiver {
+public class HuaweiReceiver extends PushReceiver {
 
     private static final String TAG = "HuaweiReceiver";
 
-    @Override
     public void onToken(Context context, String token, Bundle extras) {
         String belongId = extras.getString("belongId");
         Log.i("DemoLogger", TAG + " token = " + token + ",belongId = " + belongId);
         ConnectionService.setToken(token);
     }
 
-    @Override
     public boolean onPushMsg(Context context, byte[] msg, Bundle bundle) {
         try {
             String content = "onPushMsg： " + new String(msg, "UTF-8");
@@ -68,6 +66,5 @@ public class HuaweiReceiver extends PushEventReceiver {
 
         }
     }
-
 
 }
