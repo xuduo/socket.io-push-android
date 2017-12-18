@@ -6,9 +6,9 @@ git submodule update --recursive --remote
 ```
 ##### 小米，华为，友盟均为可选接入。开启条件为 对应厂商系统&classpath里有对应sdk&androidManifest里有配置
 
-1. 小米推送 MiPush_SDK_Client_XXX.jar
-2. 华为推送 HMSSdkBase_XXX.jar HMSSdkPush_XXX.jar
-3. 友盟推送 com.umeng.message_XXX.jar alicloud-android-sdk-httpdns-XXX.jar utdid4all-XXX_proguard.jar libcocklogic-XXX.so libtnet-XXX.so
+1. 小米推送(所有MUI) MiPush_SDK_Client_XXX.jar
+2. 华为推送(EMUI5.0以上) HMSSdkBase_XXX.jar HMSSdkPush_XXX.jar
+3. 友盟推送(非小米华为) com.umeng.message_XXX.jar alicloud-android-sdk-httpdns-XXX.jar utdid4all-XXX_proguard.jar libcocklogic-XXX.so libtnet-XXX.so
 
 
 ##### 添加maven/gradle依赖
