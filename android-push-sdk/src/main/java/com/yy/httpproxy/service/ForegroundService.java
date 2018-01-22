@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
@@ -19,10 +20,12 @@ public class ForegroundService extends Service {
     public void onCreate() {
         super.onCreate();
         try {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-            builder.setPriority(Notification.PRIORITY_MIN);
-            startForeground(12345, builder.build());
-            beginForeground();
+            if (Build.VERSION.SDK_INT < 26) {
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                builder.setPriority(Notification.PRIORITY_MIN);
+                startForeground(12345, builder.build());
+                beginForeground();
+            }
         } catch (Exception e) {
             Log.e(TAG, "startForeground  error");
         }
@@ -50,9 +53,11 @@ public class ForegroundService extends Service {
 
     public void beginForeground() {
         if (instance != null) {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(instance);
-            builder.setPriority(Notification.PRIORITY_MIN);
-            instance.startForeground(12345, builder.build());
+            if (Build.VERSION.SDK_INT < 26) {
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(instance);
+                builder.setPriority(Notification.PRIORITY_MIN);
+                instance.startForeground(12345, builder.build());
+            }
         }
     }
 
