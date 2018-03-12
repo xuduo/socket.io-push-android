@@ -61,4 +61,9 @@ dependencies {
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.android.support:recyclerview-v7:21.+'
     compile 'com.android.support:multidex:1.0.0'
+    compile 'com.google.firebase:firebase-core:11.8.0' //接入GCM才需要
+    compile 'com.google.firebase:firebase-messaging:11.8.0' //接入GCM才需要
+    compile 'com.google.android.gms:play-services-base:11.8.0' //接入GCM才需要
 }
+
+apply plugin: 'com.google.gms.google-services' //接入GCM才需要, 并需要从后台下载google-services.json

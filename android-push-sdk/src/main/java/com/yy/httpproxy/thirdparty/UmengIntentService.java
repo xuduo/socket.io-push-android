@@ -4,13 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 
-import com.umeng.message.UTrack;
 import com.umeng.message.UmengMessageService;
-import com.umeng.message.common.UmLog;
 import com.umeng.message.entity.UMessage;
 import com.yy.httpproxy.ProxyClient;
 import com.yy.httpproxy.service.ConnectionService;
-import com.yy.httpproxy.service.DefaultNotificationHandler;
 import com.yy.httpproxy.service.ForegroundService;
 import com.yy.httpproxy.service.PushedNotification;
 import com.yy.httpproxy.util.Log;

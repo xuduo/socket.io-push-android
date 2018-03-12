@@ -16,9 +16,11 @@ public class ProviderFactory {
         Class provider = checkProvider(context);
         if (HuaweiProvider.class.equals(provider)) {
             return new HuaweiProvider(context);
-        } else if (XiaomiProvider.class.equals(provider)){
+        } else if (XiaomiProvider.class.equals(provider)) {
             return new XiaomiProvider(context);
-        } else if (UmengProvider.class.equals(provider)){
+        } else if (FirebaseProvider.class.equals(provider)) {
+            return new FirebaseProvider(context);
+        } else if (UmengProvider.class.equals(provider)) {
             return new UmengProvider(context);
         } else {
             return null;
@@ -38,6 +40,8 @@ public class ProviderFactory {
             if (isXiaomi && XiaomiProvider.available(context)) {
                 Log.i(TAG, "XiaomiProvider");
                 return XiaomiProvider.class;
+            } else if (FirebaseProvider.available(context)) {
+                return FirebaseProvider.class;
             } else if (UmengProvider.available(context)) {
                 return UmengProvider.class;
             } else {

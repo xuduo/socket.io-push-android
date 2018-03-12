@@ -34,14 +34,21 @@ dependencies {
     }
     provided files('libs/support-v4-19.1.0.jar')
     provided files('libs/android.jar')
-    provided files('libs/HMSSdkBase_2.5.2.300.jar')
-    provided files('libs/HMSSdkPush_2.5.2.300.jar')
+    provided files('libs/HMSSdkBase_2.5.3.305.jar')
+    provided files('libs/HMSSdkPush_2.5.3.305.jar')
     provided files('libs/MiPush_SDK_Client_3_2_2.jar')
     provided files('libs/com.umeng.message_3.1.1a.jar')
+    provided files('libs/firebase-core-11.8.0.jar')
+    provided files('libs/firebase-iid-11.8.0.jar')
+    provided files('libs/firebase-messaging-11.8.0.jar')
+    provided files('libs/firebase-common-11.8.0.jar')
+    provided files('libs/play-services-base-11.8.0.jar')
+    provided files('libs/play-services-basement-11.8.0.jar')
+
 }
 
 group = "com.yy"
-version = "1.1.25"
+version = "1.1.27"
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'

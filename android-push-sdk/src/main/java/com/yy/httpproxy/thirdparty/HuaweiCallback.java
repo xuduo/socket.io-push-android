@@ -1,8 +1,6 @@
 package com.yy.httpproxy.thirdparty;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 
 import com.huawei.hms.api.ConnectionResult;
 import com.huawei.hms.api.HuaweiApiClient;
@@ -11,10 +9,6 @@ import com.huawei.hms.support.api.client.ResultCallback;
 import com.huawei.hms.support.api.push.HuaweiPush;
 import com.huawei.hms.support.api.push.TokenResult;
 import com.yy.httpproxy.util.Log;
-import com.yy.httpproxy.util.ServiceCheckUtil;
-import com.yy.httpproxy.util.Version;
-
-import java.lang.reflect.Method;
 
 /**
  * Created by Administrator on 2016/4/29.

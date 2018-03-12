@@ -15,8 +15,11 @@ import com.yy.httpproxy.ProxyClient;
 import com.yy.httpproxy.requester.RequestInfo;
 import com.yy.httpproxy.service.ConnectionService;
 import com.yy.httpproxy.service.DummyService;
+import com.yy.httpproxy.service.PushedNotification;
 import com.yy.httpproxy.subscribe.PushSubscriber;
 import com.yy.httpproxy.util.Log;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +40,7 @@ public class RemoteClient implements PushSubscriber {
     public static final int CMD_BIND_UID = 13;
     public static final int CMD_NOTIFICATION_CLICK = 14;
     public static final int CMD_SET_TAG = 15;
+    public static final int CMD_NOTIFICATION_RECEIVE = 16;
     private Map<String, Boolean> topics = new HashMap<>();
     private ProxyClient proxyClient;
     private Messenger mService;
@@ -109,6 +113,16 @@ public class RemoteClient implements PushSubscriber {
             Message msg = Message.obtain(null, CMD_NOTIFICATION_CLICK, 0, 0);
             Bundle bundle = new Bundle();
             bundle.putString("id", id);
+            msg.setData(bundle);
+            instance.sendMsg(msg);
+        }
+    }
+
+    public static void sendNotificationReceive(String notification) {
+        if (instance != null) {
+            Message msg = Message.obtain(null, CMD_NOTIFICATION_RECEIVE, 0, 0);
+            Bundle bundle = new Bundle();
+            bundle.putString("notification", notification);
             msg.setData(bundle);
             instance.sendMsg(msg);
         }

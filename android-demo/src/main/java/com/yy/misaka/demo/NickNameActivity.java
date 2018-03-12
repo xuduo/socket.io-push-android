@@ -9,14 +9,20 @@ import android.widget.Toast;
 
 import android.util.Log;
 
+import com.yy.httpproxy.thirdparty.FirebaseProvider;
 import com.yy.httpproxy.thirdparty.ProviderFactory;
+
+import java.util.Arrays;
 
 public class NickNameActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("DemoLogger", "NickNameActivity onCreate");
+        if (FirebaseProvider.handleLauncher(this)) {
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_nick);
         String provider = "socket.io";
         if (ProviderFactory.checkProvider(this) != null) {

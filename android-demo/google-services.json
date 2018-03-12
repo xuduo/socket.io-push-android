@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "478153921873",
+    "firebase_url": "https://socketiodemo.firebaseio.com",
+    "project_id": "socketiodemo",
+    "storage_bucket": "socketiodemo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:478153921873:android:163250854d1c81d9",
+        "android_client_info": {
+          "package_name": "com.yy.misaka.demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "478153921873-k4vc1uogcfsvmv2skhjat9mhf7r4ir0n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsgGvo1gDNF8aczl3GoxpYVhl1luoxn5Q"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

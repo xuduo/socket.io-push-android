@@ -21,6 +21,8 @@ import com.yy.httpproxy.util.Log;
 import com.yy.httpproxy.util.LogcatLogger;
 import com.yy.httpproxy.util.Logger;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -83,6 +85,18 @@ public class ConnectionService extends Service implements PushCallback, SocketIO
             } else if (cmd == RemoteClient.CMD_SET_TAG) {
                 ArrayList<String> tags = bundle.getStringArrayList("tags");
                 client().setTags(new HashSet(tags));
+            } else if (cmd == RemoteClient.CMD_NOTIFICATION_RECEIVE) {
+                String notificationStr = bundle.getString("notification");
+                try {
+                    JSONObject obj = new JSONObject(notificationStr);
+                    PushedNotification pushedNotification = new PushedNotification(obj.getString("id"), obj);
+                    if (ForegroundService.instance != null) {
+                        ForegroundService.instance.onNotification(pushedNotification);
+                    }
+                } catch (Exception e) {
+
+                }
+
             }
         }
     }
