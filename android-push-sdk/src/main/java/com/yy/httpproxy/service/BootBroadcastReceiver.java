@@ -15,7 +15,11 @@ public class BootBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "BOOT_COMPLETED start ConnectService");
-        Intent service = new Intent(context, ConnectionService.class);
-        context.startService(service);
+        try {
+            Intent service = new Intent(context, ConnectionService.class);
+            context.startService(service);
+        } catch (Exception e) {
+            Log.e(TAG, "BOOT_COMPLETED start ConnectService error", e);
+        }
     }
 }

@@ -40,9 +40,10 @@ public class FirebaseProvider implements NotificationProvider {
 
     public static boolean available(Context context) {
         try {
-            boolean available = ServiceCheckUtil.isIntentServiceAvailable(context, MyFirebaseInstanceIdService.class) &&
+            boolean available = Class.forName("com.google.firebase.iid.FirebaseInstanceId") != null
+                    && ServiceCheckUtil.isIntentServiceAvailable(context, MyFirebaseInstanceIdService.class) &&
                     ServiceCheckUtil.isIntentServiceAvailable(context, MyFirebaseMessagingService.class) &&
-                    Class.forName("com.google.firebase.iid.FirebaseInstanceId") != null && isGooglePlayServicesAvailable(context);
+                      isGooglePlayServicesAvailable(context);
             Log.d(TAG, "available " + available);
             return available;
         } catch (Throwable e) {
